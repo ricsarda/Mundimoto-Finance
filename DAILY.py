@@ -1,17 +1,23 @@
-import pandas as pd
+import sys
+import pandas as pd 
 import openpyxl
 
+# Parámetros (puedes ajustarlos si los vas a recibir de otro modo)
 MES = 12
 AÑO = 2024
 
-#Ruta archivo final excel
-ruta_archivo_final_excel= "C:/Users/Ricardo Sarda/Desktop/MM/DAILY.xlsx"
+# Argumentos:
+# argv[1] = inf_usu_FC
+# argv[2] = inf_usu_AB
+# argv[3] = inf_usu_FT
+# argv[4] = comp_alb
+# argv[5] = ruta_archivo_final_excel
 
-#Archivos
-inf_usu_FC = "C:/Users/Ricardo Sarda/Downloads/ResumenCliente_20241216_172120.xlsx" #FC
-inf_usu_AB = "C:/Users/Ricardo Sarda/Downloads/ResumenCliente_20241216_170357.xlsx" #AB
-inf_usu_FT = "C:/Users/Ricardo Sarda/Downloads/ResumenCliente_20241216_172205.xlsx" #FT
-comp_alb = "C:/Users/Ricardo Sarda/Downloads/Libro_20241216_172723.xlsx" #Compras
+inf_usu_FC = sys.argv[1]  # Ej: "inf_usu_FC.xlsx"
+inf_usu_AB = sys.argv[2]  # Ej: "inf_usu_AB.xlsx"
+inf_usu_FT = sys.argv[3]  # Ej: "inf_usu_FT.xlsx"
+comp_alb   = sys.argv[4]  # Ej: "comp_alb.xlsx"
+ruta_archivo_final_excel = sys.argv[5]  # Ej: "DAILY.xlsx"
 
 Limpiar_FC = openpyxl.load_workbook(inf_usu_FC)
 hoja = Limpiar_FC.active
@@ -136,14 +142,12 @@ B2Cmargen = B2CmargenAC + B2CmargenFC + B2CmargenVN + B2CVNACmargen + CAMBIONOMB
 B2CVenta = B2CVentaFC + B2CVentaAC + B2CVentaVN + B2CVNACVenta + CAMBIONOMBREMARGENFT + CAMBIONOMBREMARGENAB
 B2CACunidades = - B2CACunidades - B2CVNACunidades
 
-
 B2BAC = DAILY.loc[DAILY['SerieFactura'].isin(['AC'])]
 B2BAC = B2BAC.loc[B2BAC['IdDelegacion'].isin(['B2B'])]
 B2BAC = B2BAC.loc[B2BAC['CodigoFamilia'].isnull()]
 B2BACunidades = B2BAC['Unidades'].sum()
 B2BACventa = B2BAC['BaseImponible1'].sum()
 B2BmargenAC = B2BAC['MargenBeneficio'].sum()
-
 
 B2BFP = DAILY.loc[DAILY['SerieFactura'].isin(['FP', 'FL'])]
 B2BFP = B2BFP.loc[B2BFP['IdDelegacion'].isin(['B2B'])]
@@ -152,7 +156,6 @@ B2BFPunidades = B2BFP['Unidades'].sum()
 B2BFPventa = B2BFP['BaseImponible1'].sum()
 B2BFP['MargenIVA'] = B2BFP['Margen'].apply(margen_FC)
 B2BmargenFP = B2BFP['MargenIVA'].sum()
-
 
 B2BFI = DAILY.loc[DAILY['SerieFactura'].isin(['FI'])]
 B2BFI = B2BFI.loc[B2BFI['IdDelegacion'].isin(['B2B'])]
@@ -182,11 +185,11 @@ PREMIUM = DAILY[DAILY['CodigoArticulo'].isin(['PACK PREMIUM'])]
 PREMIUMUNITS = PREMIUM['Unidades'].sum()
 PREMIUMINVO = PREMIUM['BaseImponible1'].sum()
 
-STREET = DAILY[DAILY['CodigoArticulo'].isin(['STREET PLUS' , 'STREET 125' , 'STREET 300' , 'STREET 500'])] 
+STREET = DAILY[DAILY['CodigoArticulo'].isin(['STREET PLUS' , 'STREET 125' , 'STREET 300' , 'STREET 500'])]
 STREETUNITS = STREET['Unidades'].sum()
 STREETINVO = STREET['BaseImponible1'].sum()
 
-BASIC = DAILY[DAILY['CodigoArticulo'].isin(['PACK BASIC'])]
+# BASIC ya está calculado arriba con otra asignación, si necesitas otra cosa, cambiar el nombre de la variable.
 
 seguro = DAILY[DAILY['CodigoArticulo'].isin(['SEGURO'])]
 segurounits = seguro['Unidades'].sum()
