@@ -1,6 +1,7 @@
 import sys
-import pandas as pd 
+import pandas as pd
 import openpyxl
+from io import BytesIO
 
 # Parámetros (puedes ajustarlos si los vas a recibir de otro modo)
 MES = 12
@@ -11,14 +12,13 @@ AÑO = 2024
 # argv[2] = inf_usu_AB
 # argv[3] = inf_usu_FT
 # argv[4] = comp_alb
-# argv[5] = ruta_archivo_final_excel
 
 inf_usu_FC = sys.argv[1]  # Ej: "inf_usu_FC.xlsx"
 inf_usu_AB = sys.argv[2]  # Ej: "inf_usu_AB.xlsx"
 inf_usu_FT = sys.argv[3]  # Ej: "inf_usu_FT.xlsx"
 comp_alb   = sys.argv[4]  # Ej: "comp_alb.xlsx"
-ruta_archivo_final_excel = sys.argv[5]  # Ej: "DAILY.xlsx"
 
+# Cargamos y procesamos datos como antes
 Limpiar_FC = openpyxl.load_workbook(inf_usu_FC)
 hoja = Limpiar_FC.active
 Limpiar_FC = pd.read_excel(inf_usu_FC)
@@ -189,8 +189,6 @@ STREET = DAILY[DAILY['CodigoArticulo'].isin(['STREET PLUS' , 'STREET 125' , 'STR
 STREETUNITS = STREET['Unidades'].sum()
 STREETINVO = STREET['BaseImponible1'].sum()
 
-# BASIC ya está calculado arriba con otra asignación, si necesitas otra cosa, cambiar el nombre de la variable.
-
 seguro = DAILY[DAILY['CodigoArticulo'].isin(['SEGURO'])]
 segurounits = seguro['Unidades'].sum()
 seguroinvo = seguro['BaseImponible1'].sum()
@@ -224,4 +222,9 @@ tablafinal = {
 Reportdaily = pd.DataFrame(tablafinal)
 Reportdaily['Resultados'] = Reportdaily['Resultados'].round(2)
 
-Reportdaily.to_excel(ruta_archivo_final_excel , index = False)
+# En vez de guardar a disco, lo guardamos en memoria
+output = BytesIO()
+with pd.ExcelWriter(output, engine='openpyxl') as writer:
+    Reportdaily.to_excel(writer, index=False, sheet_name='Report')
+
+output.seek(0)
