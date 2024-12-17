@@ -9,7 +9,7 @@ st.title("Mundimoto Finance")
 scripts_info = {
     "DAILY": {
         "script_path": "DAILY.py",
-        "required_files": ["FC.xlsx", "FT.xlsx", "AB.xlsx", "Compras.xlsx"]  
+        "required_files": ["FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx"]  
     },
     "Credit Stock": {
         "script_path": "Credit stock.py",
