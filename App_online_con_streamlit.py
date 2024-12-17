@@ -45,22 +45,22 @@ for required_file in script_info["required_files"]:
 # Solo permitimos ejecutar cuando todos los archivos están subidos
 if len(uploaded_files) == len(script_info["required_files"]):
     if st.button("Ejecutar Script"):
-        # En el caso de DAILY, asumimos que necesita argumentos: 
-        # inf_usu_FC, inf_usu_AB, inf_usu_FT, comp_alb y salida (DAILY.xlsx)
-        # Según el ejemplo original, llamamos:
-        # python DAILY.py FC.xlsx AB.xlsx FT.xlsx Compras.xlsx DAILY.xlsx
+        # Preparar los argumentos para ejecutar el script
         if script_choice == "DAILY":
-            args = ["python", script_info["script_path"], 
+            # Llamamos a DAILY.py con los 5 argumentos:
+            # FC.xlsx AB.xlsx FT.xlsx Compras.xlsx DAILY.xlsx
+            # Nota: Fíjate en el orden de argumentos dentro de DAILY.py y ajústalos si es necesario
+            args = ["python", script_info["script_path"],
                     "FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx", "DAILY.xlsx"]
         else:
-            # Para otro script, adaptar o no requerir argumentos
+            # Para Credit Stock u otros, ajusta según sus necesidades
             args = ["python", script_info["script_path"]]
 
         try:
             subprocess.run(args, check=True)
             st.success(f"{script_choice} se ejecutó correctamente.")
 
-            # Ahora ofrecemos el botón de descarga del archivo resultante (ej: DAILY.xlsx)
+            # Si es DAILY, ofrecer la descarga de DAILY.xlsx si existe
             if script_choice == "DAILY" and os.path.exists("DAILY.xlsx"):
                 with open("DAILY.xlsx", "rb") as f:
                     data = f.read()
@@ -73,4 +73,3 @@ if len(uploaded_files) == len(script_info["required_files"]):
 
         except Exception as e:
             st.error(f"Error al ejecutar {script_choice}: {e}")
-
