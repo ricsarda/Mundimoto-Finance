@@ -9,11 +9,11 @@ st.title("Mundimoto Finance")
 scripts_info = {
     "DAILY": {
         "script_path": "DAILY.py",
-        "required_files": ["FC.xlsx", "FT.xlsx","AB.xlsx","Compras.xlsx"]  # Ejemplo
+        "required_files": ["FC.xlsx", "FT.xlsx", "AB.xlsx", "Compras.xlsx"]  
     },
     "Credit Stock": {
         "script_path": "Credit stock.py",
-        "required_files": ["credit_data.csv"]  # Ejemplo
+        "required_files": ["credit_data.csv"]
     }
 }
 
@@ -28,42 +28,49 @@ uploaded_files = {}
 
 # Por cada archivo requerido, ponemos un file_uploader
 for required_file in script_info["required_files"]:
-    # Determinamos el tipo de archivo por la extensión (opcional, puedes simplificar)
+    # Determinar el tipo de archivo por la extensión
     file_ext = required_file.split('.')[-1]
     if file_ext in ["csv", "xlsx"]:
         file_type = [file_ext]
     else:
-        file_type = None  # cualquier tipo si no reconocemos la extensión
+        file_type = None
 
     f = st.file_uploader(f"Sube el archivo {required_file}", type=file_type)
     if f is not None:
-        uploaded_files[required_file] = f
+        # Guardar el archivo subido con el mismo nombre localmente
+        with open(required_file, "wb") as out_file:
+            out_file.write(f.getbuffer())
+        uploaded_files[required_file] = required_file
 
 # Solo permitimos ejecutar cuando todos los archivos están subidos
 if len(uploaded_files) == len(script_info["required_files"]):
     if st.button("Ejecutar Script"):
-        # Guardamos los archivos subidos en el entorno local del servidor
-        for fname, uploaded_f in uploaded_files.items():
-            # Detectamos el tipo de archivo para leerlo y guardarlo en un formato estándar (por ejemplo CSV)
-            if fname.endswith(".csv"):
-                df = pd.read_csv(uploaded_f)
-                df.to_csv(fname, index=False)
-            elif fname.endswith(".xlsx"):
-                df = pd.read_excel(uploaded_f)
-                # Podrías guardarlo como CSV o dejarlo como xlsx.
-                # Aquí lo guardamos como CSV para simplificar el tratamiento posterior:
-                base_name = os.path.splitext(fname)[0]
-                df.to_csv(base_name + ".csv", index=False)
-                # Si tu script DAILY.py requiere el xlsx tal cual, en vez de convertir a csv:
-                # with open(fname, "wb") as out:
-                #     out.write(uploaded_f.getbuffer())
+        # En el caso de DAILY, asumimos que necesita argumentos: 
+        # inf_usu_FC, inf_usu_AB, inf_usu_FT, comp_alb y salida (DAILY.xlsx)
+        # Según el ejemplo original, llamamos:
+        # python DAILY.py FC.xlsx AB.xlsx FT.xlsx Compras.xlsx DAILY.xlsx
+        if script_choice == "DAILY":
+            args = ["python", script_info["script_path"], 
+                    "FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx", "DAILY.xlsx"]
+        else:
+            # Para otro script, adaptar o no requerir argumentos
+            args = ["python", script_info["script_path"]]
 
-        # Ejecutamos el script
         try:
-            # Ajusta la ruta a Python si es necesario
-            # Aquí asumimos que el script se puede ejecutar directamente con "python"
-            subprocess.run(["python", script_info["script_path"]], check=True)
+            subprocess.run(args, check=True)
             st.success(f"{script_choice} se ejecutó correctamente.")
+
+            # Ahora ofrecemos el botón de descarga del archivo resultante (ej: DAILY.xlsx)
+            if script_choice == "DAILY" and os.path.exists("DAILY.xlsx"):
+                with open("DAILY.xlsx", "rb") as f:
+                    data = f.read()
+                st.download_button(
+                    label="Descargar DAILY.xlsx",
+                    data=data,
+                    file_name="DAILY.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+
         except Exception as e:
             st.error(f"Error al ejecutar {script_choice}: {e}")
 
