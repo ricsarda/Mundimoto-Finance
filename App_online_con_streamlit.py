@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import subprocess
 import os
+from io import BytesIO
 
 st.title("Mundimoto Finance")
 
@@ -48,8 +49,6 @@ if len(uploaded_files) == len(script_info["required_files"]):
         # Preparar los argumentos para ejecutar el script
         if script_choice == "DAILY":
             # Llamamos a DAILY.py con los 5 argumentos:
-            # FC.xlsx AB.xlsx FT.xlsx Compras.xlsx DAILY.xlsx
-            # Nota: Fíjate en el orden de argumentos dentro de DAILY.py y ajústalos si es necesario
             args = ["python", script_info["script_path"],
                     "FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx", "DAILY.xlsx"]
         else:
@@ -60,16 +59,27 @@ if len(uploaded_files) == len(script_info["required_files"]):
             subprocess.run(args, check=True)
             st.success(f"{script_choice} se ejecutó correctamente.")
 
-            # Si es DAILY, ofrecer la descarga de DAILY.xlsx si existe
+            # Si es DAILY, leer el resultado como DataFrame y ofrecer descarga
             if script_choice == "DAILY" and os.path.exists("DAILY.xlsx"):
-                with open("DAILY.xlsx", "rb") as f:
-                    data = f.read()
+                # Leer el archivo resultante en un DataFrame
+                Reportdaily = pd.read_excel("DAILY.xlsx")
+
+                # Crear un buffer en memoria para exportar como Excel
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                    Reportdaily.to_excel(writer, index=False, sheet_name='Resultados')
+                output.seek(0)
+
+                # Botón para descargar el archivo
                 st.download_button(
-                    label="Descargar DAILY.xlsx",
-                    data=data,
-                    file_name="DAILY.xlsx",
+                    label="Descargar Reportdaily.xlsx",
+                    data=output,
+                    file_name="Reportdaily.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
+            else:
+                st.error("Error: No se generó el archivo DAILY.xlsx.")
 
         except Exception as e:
             st.error(f"Error al ejecutar {script_choice}: {e}")
+
