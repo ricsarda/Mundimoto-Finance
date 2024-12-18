@@ -13,7 +13,6 @@ AÑO = 2024
 # argv[2] = inf_usu_AB
 # argv[3] = inf_usu_FT
 # argv[4] = comp_alb
-# argv[5] = ruta_archivo_final_excel
 
 inf_usu_FC = sys.argv[1]  # Ej: "FC.xlsx"
 inf_usu_AB = sys.argv[2]  # Ej: "AB.xlsx"
@@ -241,21 +240,3 @@ tablafinal = {
 
 Reportdaily = pd.DataFrame(tablafinal)
 Reportdaily['Resultados'] = Reportdaily['Resultados'].round(2)
-# Crear un buffer en memoria
-output = BytesIO()
-
-# Guardar el DataFrame en Excel
-with pd.ExcelWriter(output, engine='openpyxl') as writer:
-    Reportdaily.to_excel(writer, index=False, sheet_name='Resultados')
-
-# Mover el puntero del buffer al inicio
-output.seek(0)
-
-# Botón para descargar el archivo
-st.title("Descargar Reportdaily")
-st.download_button(
-    label="Descargar Reportdaily.xlsx",
-    data=output,
-    file_name="Reportdaily.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
