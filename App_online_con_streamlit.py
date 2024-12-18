@@ -14,6 +14,26 @@ scripts_info = {
     "Credit Stock": {
         "script_path": "Credit stock.py",
         "required_files": ["credit_data.csv"]
+    },
+    "Unnax": {
+        "script_path": "Credit stock.py",
+        "required_files": ["credit_data.csv"]
+    },
+    "Facturar ventas": {
+        "script_path": "Credit stock.py",
+        "required_files": ["credit_data.csv"]
+    },
+    "Facturar compras": {
+        "script_path": "Credit stock.py",
+        "required_files": ["credit_data.csv"]
+    },
+    "Abonos incoming": {
+        "script_path": "Credit stock.py",
+        "required_files": ["credit_data.csv"]
+    },
+    "Stripe": {
+        "script_path": "Credit stock.py",
+        "required_files": ["credit_data.csv"]
     }
 }
 
