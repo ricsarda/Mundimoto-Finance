@@ -58,10 +58,10 @@ if len(uploaded_files) == len(script_info["required_files"]):
     if st.button("Ejecutar Script"):
 
         if script_choice == "DAILY":
-            args = ["python", script_info["script_path"],
+            args = [script_info["script_path"],
                     "FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx"]
         else:
-            args = ["python", script_info["script_path"]]
+            args = [script_info["script_path"]]
 
         try:
             subprocess.run(args, check=True)
