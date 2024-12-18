@@ -8,17 +8,15 @@ import streamlit as st
 MES = 12
 AÑO = 2024
 
-# Argumentos:
-# argv[1] = inf_usu_FC
-# argv[2] = inf_usu_AB
-# argv[3] = inf_usu_FT
-# argv[4] = comp_alb
-
-inf_usu_FC = sys.argv[1]  # Ej: "FC.xlsx"
-inf_usu_AB = sys.argv[2]  # Ej: "AB.xlsx"
-inf_usu_FT = sys.argv[3]  # Ej: "FT.xlsx"
-comp_alb   = sys.argv[4]  # Ej: "Compras.xlsx"
-
+try:
+    inf_usu_FC = sys.argv[1]
+    inf_usu_AB = sys.argv[2]
+    inf_usu_FT = sys.argv[3]
+    comp_alb   = sys.argv[4]
+    print(f"Archivos recibidos: {inf_usu_FC}, {inf_usu_AB}, {inf_usu_FT}, {comp_alb}")
+except IndexError:
+    print("Error: No se han pasado los argumentos necesarios al script.")
+    sys.exit(1)
 
 Limpiar_FC = pd.read_excel(inf_usu_FC)
 Limpiar_FC = Limpiar_FC.loc[Limpiar_FC['SerieFactura'].isin(['FC','FP','FI','FL','AC'])]
