@@ -240,3 +240,4 @@ tablafinal = {
 
 Reportdaily = pd.DataFrame(tablafinal)
 Reportdaily['Resultados'] = Reportdaily['Resultados'].round(2)
+Reportdaily.to_excel
