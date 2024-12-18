@@ -1,6 +1,8 @@
 import sys
 import pandas as pd
 import openpyxl
+from io import BytesIO
+import streamlit as st
 
 # Parámetros
 MES = 12
@@ -239,5 +241,21 @@ tablafinal = {
 
 Reportdaily = pd.DataFrame(tablafinal)
 Reportdaily['Resultados'] = Reportdaily['Resultados'].round(2)
-ruta_archivo_final_excel = sys.argv[5]  # Ej: "DAILY.xlsx"
-Reportdaily.to_excel(ruta_archivo_final_excel, index=False)
+# Crear un buffer en memoria
+output = BytesIO()
+
+# Guardar el DataFrame en Excel
+with pd.ExcelWriter(output, engine='openpyxl') as writer:
+    Reportdaily.to_excel(writer, index=False, sheet_name='Resultados')
+
+# Mover el puntero del buffer al inicio
+output.seek(0)
+
+# Botón para descargar el archivo
+st.title("Descargar Reportdaily")
+st.download_button(
+    label="Descargar Reportdaily.xlsx",
+    data=output,
+    file_name="Reportdaily.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
