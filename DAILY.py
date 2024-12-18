@@ -13,11 +13,68 @@ AÑO = 2024
 # argv[4] = comp_alb
 # argv[5] = ruta_archivo_final_excel
 
-inf_usu_FC = sys.argv[1]  # Ej: "FC.xlsx"
-inf_usu_AB = sys.argv[2]  # Ej: "AB.xlsx"
-inf_usu_FT = sys.argv[3]  # Ej: "FT.xlsx"
-comp_alb   = sys.argv[4]  # Ej: "Compras.xlsx"
-ruta_archivo_final_excel = sys.argv[5]  # Ej: "DAILY.xlsx"
+try:
+    inf_usu_FC = sys.argv[1]
+    inf_usu_AB = sys.argv[2]
+    inf_usu_FT = sys.argv[3]
+    comp_alb = sys.argv[4]
+    ruta_archivo_final_excel = sys.argv[5]
+except IndexError:
+    print("Error: No se han pasado los argumentos necesarios al script.")
+    sys.exit(1)
+
+# Función para validar archivos y columnas requeridas
+def validar_archivo(path, required_columns):
+    try:
+        print(f"Validando archivo: {path}")
+        df = pd.read_excel(path)
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            print(f"Error: Faltan las siguientes columnas en {path}: {missing_columns}")
+            return None
+        return df
+    except Exception as e:
+        print(f"Error al leer el archivo {path}: {e}")
+        return None
+
+# Validar archivos de entrada
+required_columns_FC = ['SerieFactura', 'FechaFactura', 'PrecioCompra', 'BaseImponible1']
+Limpiar_FC = validar_archivo(inf_usu_FC, required_columns_FC)
+Limpiar_AB = validar_archivo(inf_usu_AB, required_columns_FC)
+Limpiar_FT = validar_archivo(inf_usu_FT, required_columns_FC)
+
+if Limpiar_FC is None or Limpiar_AB is None or Limpiar_FT is None:
+    print("Error: Uno o más archivos de facturas no son válidos. Verifique las columnas.")
+    sys.exit(1)
+
+# Validar archivo de compras
+required_columns_comp = ['Fecha albarán', 'Base imponible']
+Purchaces = validar_archivo(comp_alb, required_columns_comp)
+if Purchaces is None:
+    print("Error: El archivo de compras no es válido. Verifique las columnas.")
+    sys.exit(1)
+
+# Procesamiento de los datos
+try:
+    print("Procesando archivos...")
+    DAILY = pd.concat([Limpiar_FC, Limpiar_AB, Limpiar_FT])
+
+    # Filtrado por mes y año
+    DAILY['FechaFactura'] = pd.to_datetime(DAILY['FechaFactura'], errors='coerce')
+    DAILY = DAILY[(DAILY['FechaFactura'].dt.month == MES) & (DAILY['FechaFactura'].dt.year == AÑO)]
+
+    # Crear nuevas columnas
+    DAILY['Margen'] = DAILY['BaseImponible1'] - DAILY['PrecioCompra']
+    DAILY['MargenAC'] = DAILY['BaseImponible1']
+
+    # Generar archivo final Excel
+    print("Generando archivo de salida...")
+    DAILY.to_excel(ruta_archivo_final_excel, index=False)
+    print(f"Archivo generado correctamente: {ruta_archivo_final_excel}")
+
+except Exception as e:
+    print(f"Error durante el procesamiento: {e}")
+    sys.exit(1)
 
 Limpiar_FC = pd.read_excel(inf_usu_FC)
 Limpiar_FC = Limpiar_FC.loc[Limpiar_FC['SerieFactura'].isin(['FC','FP','FI','FL','AC'])]
