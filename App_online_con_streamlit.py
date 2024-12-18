@@ -48,7 +48,20 @@ if len(uploaded_files) == len(script_info["required_files"]):
         try:
             subprocess.run(args, check=True)
             st.success(f"{script_choice} se ejecutó correctamente.")
-            st.info("Script finalizado. No hay archivo de salida para descargar.")
+
+            # Ofrecer la descarga del archivo de salida si existe
+            output_filename = "Reportdaily.xlsx"
+            if os.path.exists(output_filename):
+                with open(output_filename, "rb") as f:
+                    st.download_button(
+                        label="Descargar Reportdaily.xlsx",
+                        data=f,
+                        file_name="Reportdaily.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            else:
+                st.error("Error: No se generó el archivo de salida.")
+
 
         except subprocess.CalledProcessError as e:
             st.error(f"Error al ejecutar {script_choice}: {e}")
