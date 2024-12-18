@@ -50,7 +50,7 @@ if len(uploaded_files) == len(script_info["required_files"]):
         if script_choice == "DAILY":
             # Llamamos a DAILY.py con los 5 argumentos:
             args = ["python", script_info["script_path"],
-                    "FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx", "DAILY.xlsx"]
+                    "FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx"]
         else:
             # Para Credit Stock u otros, ajusta según sus necesidades
             args = ["python", script_info["script_path"]]
