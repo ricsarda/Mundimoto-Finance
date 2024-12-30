@@ -1,84 +1,58 @@
 import streamlit as st
 import pandas as pd
-import subprocess
+import importlib.util
+import sys
 import os
 
-st.title("Mundimoto Finance")
+# Configuración inicial de la app
+st.title("Data Analysis App")
+st.sidebar.header("Configuración")
 
-# Definimos qué archivos necesita cada script
-scripts_info = {
-    "DAILY": {
-        "script_path": "DAILY.py",
-        "required_files": ["FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx"]  
-    },
-    "Credit Stock": {
-        "script_path": "Credit stock.py",
-        "required_files": ["credit_data.csv"]
-    },
-    "Unnax": {
-        "script_path": "Credit stock.py",
-        "required_files": ["credit_data.csv"]
-    },
-    "Facturar ventas": {
-        "script_path": "Credit stock.py",
-        "required_files": ["credit_data.csv"]
-    },
-    "Facturar compras": {
-        "script_path": "Credit stock.py",
-        "required_files": ["credit_data.csv"]
-    },
-    "Abonos incoming": {
-        "script_path": "Credit stock.py",
-        "required_files": ["credit_data.csv"]
-    },
-    "Stripe": {
-        "script_path": "Credit stock.py",
-        "required_files": ["credit_data.csv"]
+# Selección del script
+script_option = st.sidebar.selectbox(
+    "Selecciona el script para ejecutar:",
+    ("DAILY", "Credit Stock")
+)
+
+st.write(f"Has seleccionado: {script_option}")
+
+# Función para cargar y ejecutar un script externo
+def load_and_execute_script(script_name, files):
+    try:
+        script_path = os.path.join("scripts", f"{script_name}.py")
+        spec = importlib.util.spec_from_file_location(script_name, script_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[script_name] = module
+        spec.loader.exec_module(module)
+        
+        # Llama a la función principal del script con los archivos cargados
+        module.main(files)
+    except Exception as e:
+        st.error(f"Error al ejecutar el script {script_name}: {str(e)}")
+
+# Subida de archivos según el script seleccionado
+if script_option == "DAILY":
+    st.header("Subida de archivos para DAILY")
+    uploaded_files = {
+        "FC": st.file_uploader("Sube el archivo FC", type=["xlsx"]),
+        "AB": st.file_uploader("Sube el archivo AB", type=["xlsx"]),
+        "FT": st.file_uploader("Sube el archivo FT", type=["xlsx"]),
+        "Compras": st.file_uploader("Sube el archivo de Compras", type=["xlsx"])
     }
-}
 
-script_choice = st.selectbox("Selecciona funcionalidad", list(scripts_info.keys()))
-script_info = scripts_info[script_choice]
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar Script DAILY"):
+            load_and_execute_script("DAILY", uploaded_files)
 
-st.write("Sube los archivos necesarios:")
+elif script_option == "Credit Stock":
+    st.header("Subida de archivos para Credit Stock")
+    uploaded_files = {
+        "Metabase": st.file_uploader("Sube el archivo Metabase", type=["xlsx"]),
+        "Santander": st.file_uploader("Sube el archivo Santander", type=["xlsx"]),
+        "Sabadell": st.file_uploader("Sube el archivo Sabadell", type=["xls"]),
+        "Sofinco": st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
+    }
 
-
-uploaded_files = {}
-
-for required_file in script_info["required_files"]:
-    file_ext = required_file.split('.')[-1]
-    f = st.file_uploader(f"Sube el archivo {required_file}", type=file_ext)
-    if f is not None:
-        with open(required_file, "wb") as out_file:
-            out_file.write(f.getbuffer())
-        uploaded_files[required_file] = required_file
-
-
-if len(uploaded_files) == len(script_info["required_files"]):
-    if st.button("Ejecutar Script"):
-
-        if script_choice == "DAILY":
-            args = [script_info["script_path"],
-                    "FC.xlsx", "AB.xlsx", "FT.xlsx", "Compras.xlsx"]
-        else:
-            args = [script_info["script_path"]]
-
-        try:
-            subprocess.run(args, check=True)
-            st.success(f"{script_choice} se ejecutó correctamente.")
-
-            output_filename = "Reportdaily.xlsx"
-            if os.path.exists(output_filename):
-                with open(output_filename, "rb") as f:
-                    st.download_button(
-                        label="Descargar Reportdaily.xlsx",
-                        data=f,
-                        file_name="Reportdaily.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-            else:
-                st.error("Error: No se generó el archivo de salida.")
-
-
-        except subprocess.CalledProcessError as e:
-            st.error(f"Error al ejecutar {script_choice}: {e}")
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar Script Credit Stock"):
+            load_and_execute_script("Credit stock", uploaded_files)
