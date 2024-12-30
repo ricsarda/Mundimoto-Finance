@@ -1,3 +1,0 @@
-mkdir scripts
-mv DAILY.py scripts/
-mv Credit\ stock.py scripts/
