@@ -8,15 +8,11 @@ import streamlit as st
 MES = 12
 AÑO = 2024
 
-try:
-    inf_usu_FC = sys.argv[1]
-    inf_usu_AB = sys.argv[2]
-    inf_usu_FT = sys.argv[3]
-    comp_alb   = sys.argv[4]
-    print(f"Archivos recibidos: {inf_usu_FC}, {inf_usu_AB}, {inf_usu_FT}, {comp_alb}")
-except IndexError:
-    print("Error: No se han pasado los argumentos necesarios al script.")
-    sys.exit(1)
+# Cargar los archivos subidos
+inf_usu_FC = pd.read_excel(files["FC"])
+inf_usu_AB = pd.read_excel(files["AB"])
+inf_usu_FT = pd.read_excel(files["FT"])
+comp_alb = pd.read_excel(files["Compras"])
 
 Limpiar_FC = pd.read_excel(inf_usu_FC)
 Limpiar_FC = Limpiar_FC.loc[Limpiar_FC['SerieFactura'].isin(['FC','FP','FI','FL','AC'])]
@@ -238,4 +234,3 @@ tablafinal = {
 
 Reportdaily = pd.DataFrame(tablafinal)
 Reportdaily['Resultados'] = Reportdaily['Resultados'].round(2)
-Reportdaily.to_excel
