@@ -9,11 +9,11 @@ def main(files):
     MES = 12
     AÑO = 2024
     try:
-        # Cargar los archivos subidos
-        inf_usu_FC = pd.read_excel(files["FC"])
-        inf_usu_AB = pd.read_excel(files["AB"])
-        inf_usu_FT = pd.read_excel(files["FT"])
-        comp_alb = pd.read_excel(files["Compras"])
+        # Cargar los archivos subidos como buffers
+        inf_usu_FC = pd.read_excel(files["FC"], engine='openpyxl')
+        inf_usu_AB = pd.read_excel(files["AB"], engine='openpyxl')
+        inf_usu_FT = pd.read_excel(files["FT"], engine='openpyxl')
+        comp_alb = pd.read_excel(files["Compras"], engine='openpyxl')
 
         Limpiar_FC = pd.read_excel(inf_usu_FC)
         Limpiar_FC = Limpiar_FC.loc[Limpiar_FC['SerieFactura'].isin(['FC','FP','FI','FL','AC'])]
