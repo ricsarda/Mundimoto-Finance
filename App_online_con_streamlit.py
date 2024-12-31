@@ -50,11 +50,7 @@ if script_option == "DAILY":
         "FT": st.file_uploader("Sube el archivo FT", type=["xlsx"]),
         "Compras": st.file_uploader("Sube el archivo de Compras", type=["xlsx"])
     }
-    # Mostrar detalles de los archivos subidos
-    if all(uploaded_files.values()):
-        for key, file in uploaded_files.items():
-            st.write(f"{key}: {file.name}, type: {file.type}")
-            
+
     if all(uploaded_files.values()):
         if st.button("Ejecutar DAILY"):
             load_and_execute_script("DAILY", uploaded_files)
