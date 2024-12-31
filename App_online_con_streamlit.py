@@ -28,16 +28,6 @@ def load_and_execute_script(script_name, files):
         module = importlib.util.module_from_spec(spec)
         sys.modules[script_name] = module
         spec.loader.exec_module(module)
-        
-        # Convertir archivos subidos a buffers y reiniciar el puntero
-        processed_files = {}        
-        for key, file in files.items():
-            buffer = BytesIO(file.read())
-            buffer.seek(0)  # Reinicia el puntero al inicio del buffer
-            processed_files[key] = buffer
-
-        for key, buffer in processed_files.items():
-            st.write(f"{key}: {type(buffer)}")
 
         # Llama a la función principal del script con los archivos procesados
         result = module.main(processed_files)
