@@ -41,16 +41,6 @@ def load_and_execute_script(script_name, files):
 
         # Llama a la función principal del script con los archivos procesados
         result = module.main(processed_files)
-
-        
-        if isinstance(files["FC"], pd.DataFrame):
-            raise TypeError("Se recibió un DataFrame en lugar de un archivo o buffer BytesIO.")
-        if isinstance(files["AB"], pd.DataFrame):
-            raise TypeError("Se recibió un DataFrame en lugar de un archivo o buffer BytesIO.")
-        if isinstance(files["FT"], pd.DataFrame):
-            raise TypeError("Se recibió un DataFrame en lugar de un archivo o buffer BytesIO.")
-        if isinstance(files["Compras"], pd.DataFrame):
-            raise TypeError("Se recibió un DataFrame en lugar de un archivo o buffer BytesIO.")
         # Mostrar resultados si el script devuelve un DataFrame
         if isinstance(result, pd.DataFrame):
             st.success(f"Script {script_name} ejecutado exitosamente.")
