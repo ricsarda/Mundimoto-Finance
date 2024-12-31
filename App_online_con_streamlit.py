@@ -28,12 +28,11 @@ def load_and_execute_script(script_name, files):
         sys.modules[script_name] = module
         spec.loader.exec_module(module)
         
-        # Verificar si el módulo tiene una función `main`
-        if not hasattr(module, "main"):
-            raise AttributeError(f"El script {script_name} no contiene una función 'main'.")
-        
-        # Llama a la función principal del script con los archivos cargados
-        result = module.main(files)
+        # Convertir archivos subidos a buffers para procesarlos
+        processed_files = {key: file.read() for key, file in files.items()}
+
+        # Llama a la función principal del script con los archivos procesados
+        result = module.main(processed_files)
 
         # Mostrar resultados si el script devuelve un DataFrame
         if isinstance(result, pd.DataFrame):
@@ -59,7 +58,11 @@ if script_option == "DAILY":
         "FT": st.file_uploader("Sube el archivo FT", type=["xlsx"]),
         "Compras": st.file_uploader("Sube el archivo de Compras", type=["xlsx"])
     }
-
+    # Mostrar detalles de los archivos subidos
+    if all(uploaded_files.values()):
+        for key, file in uploaded_files.items():
+            st.write(f"{key}: {file.name}, type: {file.type}")
+            
     if all(uploaded_files.values()):
         if st.button("Ejecutar DAILY"):
             load_and_execute_script("DAILY", uploaded_files)
