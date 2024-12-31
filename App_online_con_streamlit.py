@@ -28,7 +28,8 @@ def load_and_execute_script(script_name, files):
         module = importlib.util.module_from_spec(spec)
         sys.modules[script_name] = module
         spec.loader.exec_module(module)
-
+        # Convertir archivos subidos a buffers y reiniciar el puntero
+        processed_files = {}
         # Llama a la función principal del script con los archivos procesados
         result = module.main(processed_files)
     except FileNotFoundError as e:
