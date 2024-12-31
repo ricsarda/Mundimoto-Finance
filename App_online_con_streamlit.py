@@ -30,8 +30,17 @@ def load_and_execute_script(script_name, files):
         spec.loader.exec_module(module)
         # Convertir archivos subidos a buffers y reiniciar el puntero
         processed_files = {}
-        # Llama a la función principal del script con los archivos procesados
+        for key, file in files.items():
+            buffer = BytesIO(file.read())  # Convertir archivo a BytesIO
+            buffer.seek(0)  # Reiniciar puntero
+            processed_files[key] = buffer
+
+        # Verificar los tipos de los archivos procesados
+        for key, buffer in processed_files.items():
+            st.write(f"{key}: {type(buffer)}")  # Debe mostrar <class '_io.BytesIO'>
+
         result = module.main(processed_files)
+        
     except FileNotFoundError as e:
         st.error(f"Error de archivo: {str(e)}")
     except AttributeError as e:
