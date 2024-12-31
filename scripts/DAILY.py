@@ -183,7 +183,7 @@ def main(files, month, year):
 
         Purchaces = comp_alb
         Purchaces['Fecha albarán'] = pd.to_datetime(Purchaces['Fecha albarán'])
-        Purchaces = Purchaces[(Purchaces['Fecha albarán'].dt.month == MES) & (Purchaces['Fecha albarán'].dt.year == AÑO)]
+        Purchaces = Purchaces[(Purchaces['Fecha albarán'].dt.month == month) & (Purchaces['Fecha albarán'].dt.year == year)]
 
         Purchacesimporte = Purchaces['Base imponible'].sum()
         PurchacesCV = Purchaces.loc[Purchaces['Serie albarán'] == 'CV']
