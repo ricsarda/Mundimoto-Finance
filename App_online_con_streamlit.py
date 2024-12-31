@@ -51,9 +51,9 @@ def load_and_execute_script(script_name, files,month,year):
 if script_option == "DAILY":
     st.header("Subida de archivos para DAILY")
     # Selección de Mes y Año
-    st.subheader("Selecciona el Mes y Año para procesar:")
-    month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
-    year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
+    st.subheader("Selecciona el Mes y Año:")
+    uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
+    uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
     
     uploaded_files = {
         "FC": st.file_uploader("Sube el archivo FC", type=["xlsx"]),
@@ -64,7 +64,7 @@ if script_option == "DAILY":
 
     if all(uploaded_files.values()):
         if st.button("Ejecutar DAILY"):
-            load_and_execute_script("DAILY", uploaded_files, month, year)
+            load_and_execute_script("DAILY", uploaded_files, uploaded_month, uploaded_year)
 
 elif script_option == "Credit Stock":
     st.header("Subida de archivos para Credit Stock")
