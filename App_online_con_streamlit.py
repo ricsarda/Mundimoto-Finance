@@ -23,7 +23,7 @@ def load_and_execute_script(script_name, files):
         script_path = os.path.join("scripts", f"{script_name}.py")
         if not os.path.exists(script_path):
             raise FileNotFoundError(f"El script {script_name} no fue encontrado en {script_path}")
-            
+        
         spec = importlib.util.spec_from_file_location(script_name, script_path)
         module = importlib.util.module_from_spec(spec)
         sys.modules[script_name] = module
@@ -31,6 +31,9 @@ def load_and_execute_script(script_name, files):
         
         # Convertir archivos subidos a buffers y reiniciar el puntero
         processed_files = {}
+        for key, buffer in processed_files.items():
+            st.write(f"{key}: {type(buffer)}")
+
         for key, file in files.items():
             buffer = BytesIO(file.read())
             buffer.seek(0)  # Reinicia el puntero al inicio del buffer
