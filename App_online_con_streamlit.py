@@ -19,7 +19,7 @@ script_option = st.sidebar.selectbox(
 st.write(f"Has seleccionado: {script_option}")
 
 # Función para cargar y ejecutar un script externo
-def load_and_execute_script(script_name, files,month,year):
+def load_and_execute_script(script_name, files, month, year):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
         if not os.path.exists(script_path):
@@ -36,7 +36,8 @@ def load_and_execute_script(script_name, files,month,year):
             buffer.seek(0)  # Reiniciar puntero
             processed_files[key] = buffer
 
-        result = module.main(processed_files)
+        # Llamar a la función principal del script con los parámetros adicionales
+        module.main(processed_files, month, year)
         
     except FileNotFoundError as e:
         st.error(f"Error de archivo: {str(e)}")
