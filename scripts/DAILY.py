@@ -5,9 +5,7 @@ from io import BytesIO
 import streamlit as st
 
 # Parámetros
-def main(files):
-    MES = 12
-    AÑO = 2024
+def main(files, month, year):
     try:
         # Verificar tipos antes de procesar
         for key, file in files.items():
