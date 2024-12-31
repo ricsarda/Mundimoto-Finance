@@ -18,11 +18,10 @@ def main(files):
         inf_usu_FT = pd.read_excel((files["FT"]), engine='openpyxl')
         comp_alb = pd.read_excel((files["Compras"]), engine='openpyxl')
 
-        Limpiar_FC = pd.read_excel(inf_usu_FC)
+        Limpiar_FC = inf_usu_FC
         Limpiar_FC = Limpiar_FC.loc[Limpiar_FC['SerieFactura'].isin(['FC','FP','FI','FL','AC'])]
-
-        Limpiar_AB = pd.read_excel(inf_usu_AB)
-        Limpiar_FT = pd.read_excel(inf_usu_FT)
+        Limpiar_AB = inf_usu_AB
+        Limpiar_FT = inf_usu_FT
 
         DAILY = pd.concat([Limpiar_FC, Limpiar_AB, Limpiar_FT])
 
@@ -184,7 +183,7 @@ def main(files):
         segurounits = seguro['Unidades'].sum()
         seguroinvo = seguro['BaseImponible1'].sum()
 
-        Purchaces = pd.read_excel(comp_alb)
+        Purchaces = comp_alb
         Purchaces['Fecha albarán'] = pd.to_datetime(Purchaces['Fecha albarán'])
         Purchaces = Purchaces[(Purchaces['Fecha albarán'].dt.month == MES) & (Purchaces['Fecha albarán'].dt.year == AÑO)]
 
