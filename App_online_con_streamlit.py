@@ -20,15 +20,35 @@ st.write(f"Has seleccionado: {script_option}")
 def load_and_execute_script(script_name, files):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
+        if not os.path.exists(script_path):
+            raise FileNotFoundError(f"El script {script_name} no fue encontrado en {script_path}")
+            
         spec = importlib.util.spec_from_file_location(script_name, script_path)
         module = importlib.util.module_from_spec(spec)
         sys.modules[script_name] = module
         spec.loader.exec_module(module)
         
+        # Verificar si el módulo tiene una función `main`
+        if not hasattr(module, "main"):
+            raise AttributeError(f"El script {script_name} no contiene una función 'main'.")
+        
         # Llama a la función principal del script con los archivos cargados
-        module.main(files)
+        result = module.main(files)
+
+        # Mostrar resultados si el script devuelve un DataFrame
+        if isinstance(result, pd.DataFrame):
+            st.success(f"Script {script_name} ejecutado exitosamente.")
+            st.dataframe(result)
+        else:
+            st.warning(f"El script {script_name} se ejecutó pero no devolvió un DataFrame válido.")
+    except FileNotFoundError as e:
+        st.error(f"Error de archivo: {str(e)}")
+    except AttributeError as e:
+        st.error(f"Error en el script {script_name}: {str(e)}")
+    except KeyError as e:
+        st.error(f"Error con los archivos subidos: falta el archivo clave {str(e)}.")
     except Exception as e:
-        st.error(f"Error al ejecutar el script {script_name}: {str(e)}")
+        st.error(f"Error inesperado al ejecutar el script {script_name}: {str(e)}")
 
 # Subida de archivos según el script seleccionado
 if script_option == "DAILY":
@@ -41,7 +61,7 @@ if script_option == "DAILY":
     }
 
     if all(uploaded_files.values()):
-        if st.button("Ejecutar Script DAILY"):
+        if st.button("Ejecutar DAILY"):
             load_and_execute_script("DAILY", uploaded_files)
 
 elif script_option == "Credit Stock":
