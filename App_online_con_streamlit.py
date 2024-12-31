@@ -29,7 +29,7 @@ def load_and_execute_script(script_name, files):
         spec.loader.exec_module(module)
         
         # Convertir archivos subidos a buffers para procesarlos
-       processed_files = {key: BytesIO(file.read()) for key, file in files.items()}
+        processed_files = {key: BytesIO(file.read()) for key, file in files.items()}
 
         # Llama a la función principal del script con los archivos procesados
         result = module.main(processed_files)
