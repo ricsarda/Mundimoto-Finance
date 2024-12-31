@@ -24,7 +24,7 @@ def main(files, month, year):
         DAILY = pd.concat([Limpiar_FC, Limpiar_AB, Limpiar_FT])
 
         DAILY['FechaFactura'] = pd.to_datetime(DAILY['FechaFactura'])
-        DAILY = DAILY[(DAILY['FechaFactura'].dt.month == MES) & (DAILY['FechaFactura'].dt.year == AÑO)]
+        DAILY = DAILY[(DAILY['FechaFactura'].dt.month == month) & (DAILY['FechaFactura'].dt.year == year)]
         columnas_seleccionadasDAILY = ['SerieFactura' , 'IdDelegacion' , 'NumeroFactura' , 'FechaFactura', 'RazonSocial' , 'Unidades' , 'CodigoArticulo' , 'CodigoFamilia' , 'DescripcionArticulo', 'PrecioCompra', 'BaseImponible1' , 'ImporteCoste' , 'MargenBeneficio']
         DAILY = DAILY[columnas_seleccionadasDAILY]
         DAILY['PrecioCompra'] = DAILY['PrecioCompra'].astype(float)
