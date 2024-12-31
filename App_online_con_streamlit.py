@@ -68,7 +68,13 @@ elif script_option == "Credit Stock":
         uploaded_sabadell == st.file_uploader("Sube el archivo Sabadell", type=["xls"]),
         uploaded_sofinco == st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
     }
-
+    # Crear un diccionario con los archivos subidos en el orden correcto
+    uploaded_files = {
+        "Metabase": uploaded_metabase,
+        "Santander": uploaded_santander,
+        "Sabadell": uploaded_sabadell,
+        "Sofinco": uploaded_sofinco,
+    }
     if all(uploaded_files.values()):
         if st.button("Ejecutar Script Credit Stock"):
             load_and_execute_script("Credit stock", uploaded_files)
