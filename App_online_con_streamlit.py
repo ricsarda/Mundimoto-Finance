@@ -4,6 +4,7 @@ import pandas as pd
 import importlib.util
 import sys
 import os
+from datetime import datetime
 
 # Configuración inicial de la app
 st.title("Mundimoto Finance")
