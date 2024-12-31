@@ -376,8 +376,8 @@ def main(files):
            CreditStock.to_excel(writer, sheet_name='Control', index=False)
            writer.save()
               
-    output.seek(0)  # Reiniciar el puntero del buffer
-        return output  # Devuelve el archivo generado como BytesIO
+        output.seek(0)  # Reiniciar el puntero del buffer
+    return output  # Devuelve el archivo generado como BytesIO
 
     except Exception as e:
         raise RuntimeError(f"Error al procesar el script: {str(e)}")
