@@ -64,7 +64,7 @@ if script_option == "DAILY":
 
     if all(uploaded_files.values()):
         if st.button("Ejecutar DAILY"):
-            load_and_execute_script("DAILY", uploaded_files)
+            load_and_execute_script("DAILY", uploaded_files, selected_month, selected_year)
 
 elif script_option == "Credit Stock":
     st.header("Subida de archivos para Credit Stock")
