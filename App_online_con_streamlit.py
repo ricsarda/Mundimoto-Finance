@@ -6,12 +6,12 @@ import sys
 import os
 
 # Configuración inicial de la app
-st.title("Data Analysis App")
+st.title("Mundimoto Finance")
 st.sidebar.header("Configuración")
 
 # Selección del script
 script_option = st.sidebar.selectbox(
-    "Selecciona el script para ejecutar:",
+    "Selecciona función para ejecutar:",
     ("DAILY", "Credit Stock")
 )
 
@@ -41,12 +41,6 @@ def load_and_execute_script(script_name, files):
 
         # Llama a la función principal del script con los archivos procesados
         result = module.main(processed_files)
-        # Mostrar resultados si el script devuelve un DataFrame
-        if isinstance(result, pd.DataFrame):
-            st.success(f"Script {script_name} ejecutado exitosamente.")
-            st.dataframe(result)
-        else:
-            st.warning(f"El script {script_name} se ejecutó pero no devolvió un DataFrame válido.")
     except FileNotFoundError as e:
         st.error(f"Error de archivo: {str(e)}")
     except AttributeError as e:
