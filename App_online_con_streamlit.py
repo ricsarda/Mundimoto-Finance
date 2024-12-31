@@ -35,10 +35,6 @@ def load_and_execute_script(script_name, files):
             buffer.seek(0)  # Reiniciar puntero
             processed_files[key] = buffer
 
-        # Verificar los tipos de los archivos procesados
-        for key, buffer in processed_files.items():
-            st.write(f"{key}: {type(buffer)}")  # Debe mostrar <class '_io.BytesIO'>
-
         result = module.main(processed_files)
         
     except FileNotFoundError as e:
