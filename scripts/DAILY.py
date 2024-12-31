@@ -9,6 +9,9 @@ def main(files):
     MES = 12
     AÑO = 2024
     try:
+        # Verificar tipos antes de procesar
+        for key, file in files.items():
+            print(f"{key}: {type(file)}")  # Debe mostrar <class '_io.BytesIO'>
         # Cargar los archivos subidos como buffers
         inf_usu_FC = pd.read_excel((files["FC"]), engine='openpyxl')
         inf_usu_AB = pd.read_excel((files["AB"]), engine='openpyxl')
