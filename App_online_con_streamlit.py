@@ -63,9 +63,9 @@ if script_option == "DAILY":
 elif script_option == "Credit Stock":
     st.header("Subida de archivos para Credit Stock")
     uploaded_files = {
-        uploaded_metabase == st.file_uploader("Sube el archivo Metabase", type=["xlsx"])
-        uploaded_santander == st.file_uploader("Sube el archivo Santander", type=["xlsx"])
-        uploaded_sabadell == st.file_uploader("Sube el archivo Sabadell", type=["xls"])
+        uploaded_metabase == st.file_uploader("Sube el archivo Metabase", type=["xlsx"]),
+        uploaded_santander == st.file_uploader("Sube el archivo Santander", type=["xlsx"]),
+        uploaded_sabadell == st.file_uploader("Sube el archivo Sabadell", type=["xls"]),
         uploaded_sofinco == st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
     }
 
