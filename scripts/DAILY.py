@@ -236,7 +236,7 @@ def main(files):
         Reportdaily = pd.DataFrame(tablafinal)
         Reportdaily['Resultados'] = Reportdaily['Resultados'].round(2)
         # Mostrar el DataFrame en la app
-        st.success("Script DAILY ejecutado exitosamente.")
+        st.success("DAILY ejecutado exitosamente.")
         st.dataframe(Reportdaily)
     except Exception as e:
-        raise RuntimeError(f"Error al procesar el script DAILY: {str(e)}")
+        raise RuntimeError(f"Error al procesar DAILY: {str(e)}")
