@@ -9,7 +9,7 @@ from io import BytesIO  # Para poder usar BytesIO
 def main(files, excel, month=None, year=None):
     try:
         
-        output = BytesIO()
+        excel = BytesIO()
         
         # fecha actual
         fecha_actual = datetime.now()
@@ -514,8 +514,8 @@ def main(files, excel, month=None, year=None):
             CreditStock.to_excel(writer, sheet_name='Control', index=False)
 
         
-        output.seek(0)  # Reiniciar el puntero del buffer
-        return output  # Devuelve el archivo generado como BytesIO
+        excel.seek(0)  # Reiniciar el puntero del buffer
+        return excel  # Devuelve el archivo generado como BytesIO
 
     except Exception as e:
         raise RuntimeError(f"Error al procesar el script: {str(e)}")
