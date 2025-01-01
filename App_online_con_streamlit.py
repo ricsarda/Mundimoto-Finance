@@ -88,14 +88,14 @@ elif script_option == "Credit Stock":
                 archivo_final_excel = BytesIO()
                 load_and_execute_script("Credit stock", uploaded_files, archivo_final_excel)
 
-
-                # Botón para descargar el archivo
-                st.success("¡HECHO!")
-                st.download_button(
-                    label="Descargar",
-                    data=output.getvalue(),
-                    file_name=archivo_final_excel,
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+                if output is not None:
+                    # Botón para descargar el archivo
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=output.getvalue(),
+                        file_name="Credit_Stock.xlsx",  # Puedes ponerle el nombre que gustes
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
             except Exception as e:
                 st.error(f"Error al ejecutar el script: {str(e)}")
