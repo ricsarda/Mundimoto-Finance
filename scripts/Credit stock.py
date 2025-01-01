@@ -497,7 +497,7 @@ def main(files, archivo_final_excel, month=None, year=None):
 
         # Crear archivo Excel final
         output = BytesIO()
-        with pd.ExcelWriter(archivo_final_excel, engine='xlsxwriter') as writer:
+        with pd.ExcelWriter(archivo_final_excel, engine='xlsxwriter'):
             # Escribir cada DataFrame en una hoja diferente
             metabase.to_excel(writer, sheet_name='Metabase', index=False)
             Santanderp.to_excel(writer, sheet_name='Santander', index=False)
