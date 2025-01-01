@@ -88,7 +88,7 @@ elif script_option == "Credit Stock":
         if st.button("Ejecutar Script Credit Stock"):
             try:
                 # Generar el archivo Excel procesado
-                archivo_final_excel = BytesIO()
+                excel = BytesIO()
                 load_and_execute_script("Credit stock", uploaded_files, excel)
 
                 if output is not None:
