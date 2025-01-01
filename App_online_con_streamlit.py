@@ -6,6 +6,8 @@ import sys
 import os
 from datetime import datetime
 
+fecha = fecha_actual.strftime("%d-%m-%Y")
+
 # Configuración inicial de la app
 st.title("Mundimoto Finance")
 st.sidebar.header("Configuración")
@@ -94,7 +96,7 @@ elif script_option == "Credit Stock":
                     st.download_button(
                         label="Descargar",
                         data=output.getvalue(),
-                        file_name="Credit_Stock.xlsx",  # Puedes ponerle el nombre que gustes
+                        file_name=f"Credit Stock {fecha}.xlsx",  # Puedes ponerle el nombre que gustes
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
