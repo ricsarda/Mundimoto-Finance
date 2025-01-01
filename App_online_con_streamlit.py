@@ -74,8 +74,6 @@ elif script_option == "Credit Stock":
     uploaded_sabadell = st.file_uploader("Sube el archivo Sabadell", type=["xls"]),
     uploaded_sofinco = st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
     
-    if all([uploaded_metabase, uploaded_santander, uploaded_sabadell, uploaded_sofinco]):
-        # Crear un diccionario con los archivos subidos
         uploaded_files = {
             "Metabase": uploaded_metabase,
             "Santander": uploaded_santander,
@@ -83,11 +81,11 @@ elif script_option == "Credit Stock":
             "Sofinco": uploaded_sofinco,
         }
 
+    if all(uploaded_files.values()):
         if st.button("Ejecutar Script Credit Stock"):
             try:
-                # Generar el archivo Excel procesado
                 archivo_final_excel = "Credit_Stock_Report.xlsx"
-                output = credit_stock_main(uploaded_files, archivo_final_excel)
+                output = load_and_execute_script("credit_stock", uploaded_files)
 
                 # Botón para descargar el archivo
                 st.success("¡Script ejecutado exitosamente!")
