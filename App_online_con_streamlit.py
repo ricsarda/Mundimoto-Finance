@@ -19,7 +19,7 @@ script_option = st.sidebar.selectbox(
 st.write(f"Has seleccionado: {script_option}")
 
 # Función para cargar y ejecutar un script externo
-def load_and_execute_script(script_name, files, archivo_final_excel=None, month=None, year=None):
+def load_and_execute_script(script_name, files, output=None, month=None, year=None):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
         if not os.path.exists(script_path):
@@ -86,7 +86,7 @@ elif script_option == "Credit Stock":
             try:
                 # Generar el archivo Excel procesado
                 archivo_final_excel = BytesIO()
-                load_and_execute_script("Credit stock", uploaded_files, archivo_final_excel)
+                load_and_execute_script("Credit stock", uploaded_files, output)
 
                 if output is not None:
                     # Botón para descargar el archivo
