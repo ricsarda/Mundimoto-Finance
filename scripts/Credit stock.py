@@ -514,7 +514,7 @@ def main(files, excel, month=None, year=None):
 
         
         excel.seek(0)  # Reiniciar el puntero del buffer
-        return excel  # Devuelve el archivo generado como BytesIO
+        return excel.getvalue()  # Devuelve el archivo generado como BytesIO
 
     except Exception as e:
         raise RuntimeError(f"Error al procesar el script: {str(e)}")
