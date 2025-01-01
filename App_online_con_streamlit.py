@@ -37,7 +37,7 @@ def load_and_execute_script(script_name, files, output=None, month=None, year=No
             processed_files[key] = buffer
 
         # Llamar a la función principal del script con los parámetros adicionales
-        module.main(processed_files, archivo_final_excel ,month, year)
+        module.main(processed_files, output ,month, year)
         
     except FileNotFoundError as e:
         st.error(f"Error de archivo: {str(e)}")
