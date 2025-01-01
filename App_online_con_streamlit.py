@@ -85,7 +85,7 @@ elif script_option == "Credit Stock":
         if st.button("Ejecutar Script Credit Stock"):
             try:
                 archivo_final_excel = "Credit_Stock_Report.xlsx"
-                output = load_and_execute_script("Credit Stock", uploaded_files)
+                output = load_and_execute_script("Credit stock", uploaded_files)
 
                 # Botón para descargar el archivo
                 st.success("¡Script ejecutado exitosamente!")
