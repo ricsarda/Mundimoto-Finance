@@ -497,7 +497,7 @@ def main(files, archivo_final_excel, month=None, year=None):
 
         # Crear archivo Excel final
         output = BytesIO()
-        with pd.ExcelWriter(archivo_final_excel, engine='xlsxwriter'):
+        with pd.ExcelWriter(archivo_final_excel, engine='xlsxwriter')as writer:
             # Escribir cada DataFrame en una hoja diferente
             metabase.to_excel(writer, sheet_name='Metabase', index=False)
             Santanderp.to_excel(writer, sheet_name='Santander', index=False)
@@ -512,8 +512,6 @@ def main(files, archivo_final_excel, month=None, year=None):
             motosparsofinco.to_excel(writer, sheet_name='Motos Sofinco', index=False)
             CreditStock.to_excel(writer, sheet_name='Control', index=False)
 
-            # Es buena práctica cerrar/guardar el writer antes de mover el puntero del buffer
-            writer.save()
 
         output.seek(0)  # Reiniciar el puntero del buffer
         return output  # Devuelve el archivo generado como BytesIO
