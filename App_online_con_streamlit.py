@@ -74,13 +74,28 @@ elif script_option == "Credit Stock":
     uploaded_sabadell = st.file_uploader("Sube el archivo Sabadell", type=["xls"]),
     uploaded_sofinco = st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
     
-    # Crear un diccionario con los archivos subidos en el orden correcto
-    uploaded_files = {
-        "Metabase": uploaded_metabase,
-        "Santander": uploaded_santander,
-        "Sabadell": uploaded_sabadell,
-        "Sofinco": uploaded_sofinco,
-    }
-    if all(uploaded_files.values()):
+    if all([uploaded_metabase, uploaded_santander, uploaded_sabadell, uploaded_sofinco]):
+        # Crear un diccionario con los archivos subidos
+        uploaded_files = {
+            "Metabase": uploaded_metabase,
+            "Santander": uploaded_santander,
+            "Sabadell": uploaded_sabadell,
+            "Sofinco": uploaded_sofinco,
+        }
+
         if st.button("Ejecutar Script Credit Stock"):
-            load_and_execute_script("Credit stock", uploaded_files)
+            try:
+                # Generar el archivo Excel procesado
+                archivo_final_excel = "Credit_Stock_Report.xlsx"
+                output = credit_stock_main(uploaded_files, archivo_final_excel)
+
+                # Botón para descargar el archivo
+                st.success("¡Script ejecutado exitosamente!")
+                st.download_button(
+                    label="Descargar archivo procesado",
+                    data=output.getvalue(),
+                    file_name=archivo_final_excel,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
