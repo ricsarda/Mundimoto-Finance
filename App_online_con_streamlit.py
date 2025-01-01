@@ -74,11 +74,11 @@ elif script_option == "Credit Stock":
     uploaded_sabadell = st.file_uploader("Sube el archivo Sabadell", type=["xls"]),
     uploaded_sofinco = st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
     
-        uploaded_files = {
-            "Metabase": uploaded_metabase,
-            "Santander": uploaded_santander,
-            "Sabadell": uploaded_sabadell,
-            "Sofinco": uploaded_sofinco,
+    uploaded_files = {
+    "Metabase": uploaded_metabase,
+    "Santander": uploaded_santander,
+    "Sabadell": uploaded_sabadell,
+    "Sofinco": uploaded_sofinco,
         }
 
     if all(uploaded_files.values()):
