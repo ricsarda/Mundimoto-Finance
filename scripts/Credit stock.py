@@ -9,8 +9,6 @@ from io import BytesIO  # Para poder usar BytesIO
 def main(files, excel, month=None, year=None):
     try:
         
-        excel = BytesIO()
-        
         # fecha actual
         fecha_actual = datetime.now()
         fecha_venci = datetime.now().date()
@@ -497,7 +495,8 @@ def main(files, excel, month=None, year=None):
         motosparwabi['FECHA MATRICULA'] = pd.to_datetime(motosparwabi['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
         motosparwabi['FECHA FACTURA'] = pd.to_datetime(motosparwabi['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
         motosparsofinco['FECHA MATRICULA'] = pd.to_datetime(motosparsofinco['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
-
+        
+        excel = BytesIO()
         with pd.ExcelWriter(excel, engine='xlsxwriter')as writer:
             # Escribir cada DataFrame en una hoja diferente
             metabase.to_excel(writer, sheet_name='Metabase', index=False)
