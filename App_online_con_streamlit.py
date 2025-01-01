@@ -6,6 +6,7 @@ import sys
 import os
 from datetime import datetime
 
+fecha_actual = datetime.now()
 fecha = fecha_actual.strftime("%d-%m-%Y")
 
 # Configuración inicial de la app
