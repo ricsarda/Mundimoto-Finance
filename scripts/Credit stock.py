@@ -6,7 +6,7 @@ from openpyxl.utils import get_column_letter
 from io import BytesIO  # Para poder usar BytesIO
 
 
-def main(files, archivo_final_excel, month=None, year=None):
+def main(files, output, month=None, year=None):
     try:
         # fecha actual
         fecha_actual = datetime.now()
@@ -497,7 +497,7 @@ def main(files, archivo_final_excel, month=None, year=None):
 
         # Crear archivo Excel final
         output = BytesIO()
-        with pd.ExcelWriter(archivo_final_excel, engine='xlsxwriter')as writer:
+        with pd.ExcelWriter(output, engine='xlsxwriter')as writer:
             # Escribir cada DataFrame en una hoja diferente
             metabase.to_excel(writer, sheet_name='Metabase', index=False)
             Santanderp.to_excel(writer, sheet_name='Santander', index=False)
