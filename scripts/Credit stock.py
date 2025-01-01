@@ -6,7 +6,7 @@ from openpyxl.utils import get_column_letter
 from io import BytesIO  # Para poder usar BytesIO
 
 
-def main(files, archivo_final_excel):
+def main(files, archivo_final_excel, month=None, year=None):
     try:
         # fecha actual
         fecha_actual = datetime.now()
