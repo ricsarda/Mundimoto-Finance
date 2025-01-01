@@ -6,8 +6,11 @@ from openpyxl.utils import get_column_letter
 from io import BytesIO  # Para poder usar BytesIO
 
 
-def main(files, output, month=None, year=None):
+def main(files, excel, month=None, year=None):
     try:
+        
+        output = BytesIO()
+        
         # fecha actual
         fecha_actual = datetime.now()
         fecha_venci = datetime.now().date()
@@ -495,9 +498,7 @@ def main(files, output, month=None, year=None):
         motosparwabi['FECHA FACTURA'] = pd.to_datetime(motosparwabi['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
         motosparsofinco['FECHA MATRICULA'] = pd.to_datetime(motosparsofinco['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
 
-        # Crear archivo Excel final
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter')as writer:
+        with pd.ExcelWriter(excel, engine='xlsxwriter')as writer:
             # Escribir cada DataFrame en una hoja diferente
             metabase.to_excel(writer, sheet_name='Metabase', index=False)
             Santanderp.to_excel(writer, sheet_name='Santander', index=False)
@@ -512,7 +513,7 @@ def main(files, output, month=None, year=None):
             motosparsofinco.to_excel(writer, sheet_name='Motos Sofinco', index=False)
             CreditStock.to_excel(writer, sheet_name='Control', index=False)
 
-
+        
         output.seek(0)  # Reiniciar el puntero del buffer
         return output  # Devuelve el archivo generado como BytesIO
 
