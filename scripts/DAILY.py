@@ -5,7 +5,7 @@ from io import BytesIO
 import streamlit as st
 
 # Parámetros
-def main(files, month, year):
+def main(files, archivo_final_excel=None, month, year):
     try:
         # Verificar tipos antes de procesar
         for key, file in files.items():
