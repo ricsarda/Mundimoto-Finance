@@ -68,11 +68,11 @@ if script_option == "DAILY":
     }
 
     if all(uploaded_files.values()):
-        if st.button("Ejecutar DAILY"):
+        if st.button("Ejecutar"):
             load_and_execute_script("DAILY", uploaded_files, uploaded_month, uploaded_year)
 
 elif script_option == "Credit Stock":
-    st.header("Subida de archivos para Credit Stock")
+    st.header("Archivos")
     uploaded_metabase = st.file_uploader("Sube el archivo Metabase", type=["xlsx"])
     uploaded_santander = st.file_uploader("Sube el archivo Santander", type=["xlsx"])
     uploaded_sabadell = st.file_uploader("Sube el archivo Sabadell", type=["xls"])
@@ -86,7 +86,44 @@ elif script_option == "Credit Stock":
         }
 
     if all(uploaded_files.values()):
-        if st.button("Ejecutar Script Credit Stock"):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Credit stock",
+                    uploaded_files,
+                    new_excel 
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Credit Stock {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Performance Comerciales B2C":
+    st.header("Archivos")
+    uploaded_metabase = st.file_uploader("Sube el archivo Metabase", type=["xlsx"])
+    uploaded_santander = st.file_uploader("Sube el archivo Santander", type=["xlsx"])
+    uploaded_sabadell = st.file_uploader("Sube el archivo Sabadell", type=["xls"])
+    uploaded_sofinco = st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
+    
+    uploaded_files = {
+    "Metabase": uploaded_metabase,
+    "Santander": uploaded_santander,
+    "Sabadell": uploaded_sabadell,
+    "Sofinco": uploaded_sofinco,
+        }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
             try:
 
                 new_excel = BytesIO()
