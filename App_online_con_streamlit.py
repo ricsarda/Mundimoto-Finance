@@ -54,17 +54,22 @@ def load_and_execute_script(script_name, files, new_excel=None, month=None, year
 
 # Subida de archivos según el script seleccionado
 if script_option == "DAILY":
-    st.header("Subida de archivos para DAILY")
+    st.header("Archivos")
     # Selección de Mes y Año
     st.subheader("Selecciona el Mes y Año:")
     uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
     uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
+
+    uploaded_FC = st.file_uploader("Sube el archivo FC", type=["xlsx"])
+    uploaded_AB = st.file_uploader("Sube el archivo AB", type=["xlsx"])
+    uploaded_FT = st.file_uploader("Sube el archivo FT", type=["xls"])
+    uploaded_Compras = st.file_uploader("Sube el archivo de Compras", type=["xlsx"])
     
     uploaded_files = {
-        "FC": st.file_uploader("Sube el archivo FC", type=["xlsx"]),
-        "AB": st.file_uploader("Sube el archivo AB", type=["xlsx"]),
-        "FT": st.file_uploader("Sube el archivo FT", type=["xlsx"]),
-        "Compras": st.file_uploader("Sube el archivo de Compras", type=["xlsx"])
+    "inf_usu_FC"= uploaded_FC #FC
+    "inf_usu_AB"= uploaded_AB #AB
+    "inf_usu_FT"= uploaded_FT #FT
+    "Compras" = uploaded_Compras #Compras
     }
 
     if all(uploaded_files.values()):
@@ -109,17 +114,29 @@ elif script_option == "Credit Stock":
                 st.error(f"Error al ejecutar el script: {str(e)}")
 
 elif script_option == "Performance Comerciales B2C":
+
+    st.subheader("Selecciona el Mes y Año:")
+    uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
+    uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
+    
     st.header("Archivos")
-    uploaded_metabase = st.file_uploader("Sube el archivo Metabase", type=["xlsx"])
-    uploaded_santander = st.file_uploader("Sube el archivo Santander", type=["xlsx"])
-    uploaded_sabadell = st.file_uploader("Sube el archivo Sabadell", type=["xls"])
-    uploaded_sofinco = st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
+    uploaded_FC = st.file_uploader("Sube el archivo FC", type=["xlsx"])
+    uploaded_AB = st.file_uploader("Sube el archivo AB", type=["xlsx"])
+    uploaded_FT = st.file_uploader("Sube el archivo FT", type=["xls"])
+    uploaded_ventas = st.file_uploader("Sube el archivo ventas", type=["xls"])
+    uploaded_leads= st.file_uploader("Sube el archivo leads", type=["xls"])
+    uploaded_anterior = st.file_uploader("Sube el archivo anterior", type=["xls"])
+    uploaded_financiacion = st.file_uploader("Sube el archivo financiaciones", type=["xls"])
     
     uploaded_files = {
-    "Metabase": uploaded_metabase,
-    "Santander": uploaded_santander,
-    "Sabadell": uploaded_sabadell,
-    "Sofinco": uploaded_sofinco,
+    "inf_usu_FC"= uploaded_FC #FC
+    "inf_usu_AB"= uploaded_AB #AB
+    "inf_usu_FT"= uploaded_FT #FT
+    "archivo_ventas" = uploaded_ventas # Ruta del archivo del report de comerciales Solo detalles
+    "archivo_leads" = uploaded_leads # Ruta del archivo leads Solo detalles
+    "sellers_anterior" = uploaded_anterior
+    "archivo_financiacion" = uploaded_financiacion # Ruta del archivo de financiaciones
+
         }
 
     if all(uploaded_files.values()):
@@ -129,7 +146,7 @@ elif script_option == "Performance Comerciales B2C":
                 new_excel = BytesIO()
 
                 excel_result = load_and_execute_script(
-                    "Credit stock",
+                    "Performance Comerciales B2C",
                     uploaded_files,
                     new_excel 
                 )
@@ -139,7 +156,7 @@ elif script_option == "Performance Comerciales B2C":
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
-                        file_name=f"Credit Stock {fecha}.xlsx",
+                        file_name=f"Performance Comerciales B2C {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
