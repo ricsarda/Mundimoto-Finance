@@ -178,11 +178,27 @@ elif script_option == "Financiaciones Santander":
     "Clientes": upload_Clientes, #FC
     "Ventas": upload_ventas_SF, #AB
         }
-                if df_resultante is not None:
-                    st.success("¡Análisis completado!")
+    
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Performance Comerciales B2C",
+                    uploaded_files,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+                if excel_result is not None:
+                    st.success("¡HECHO!")
                     st.download_button(
                         label="Descargar",
-                        data=new_excel.getvalue(),
+                        data=excel_result.getvalue(),
                         file_name=f"Financiaciones Santander {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
