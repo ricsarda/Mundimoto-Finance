@@ -16,7 +16,7 @@ st.sidebar.header("Configuración")
 # Selección del script
 script_option = st.sidebar.selectbox(
     "Selecciona función para ejecutar:",
-    ("DAILY", "Credit Stock")
+    ("DAILY", "Credit Stock", "Performance Comerciales B2C")
 )
 
 st.write(f"Has seleccionado: {script_option}")
