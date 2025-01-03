@@ -40,7 +40,8 @@ def load_and_execute_script(script_name, files, excel=None, month=None, year=Non
             processed_files[key] = buffer
 
         # Llamar a la función principal del script con los parámetros adicionales
-        module.main(processed_files, excel ,month, year)
+        result = module.main(processed_files, excel ,month, year)
+        return result
         
     except FileNotFoundError as e:
         st.error(f"Error de archivo: {str(e)}")
@@ -87,8 +88,8 @@ elif script_option == "Credit Stock":
     if all(uploaded_files.values()):
         if st.button("Ejecutar Script Credit Stock"):
             try:
-                exvel = BytesIO()
-                load_and_execute_script("Credit stock", uploaded_files)
+                excel = BytesIO()
+                load_and_execute_script("Credit stock", uploaded_files, excel)
 
                 if excel is not None:
                     st.success("¡HECHO!")
