@@ -6,7 +6,7 @@ from openpyxl.utils import get_column_letter
 from io import BytesIO  # Para poder usar BytesIO
 
 
-def main(files, excel, month=None, year=None):
+def main(files, new_excel, month=None, year=None):
     try:
         
         # fecha actual
@@ -496,8 +496,8 @@ def main(files, excel, month=None, year=None):
         motosparwabi['FECHA FACTURA'] = pd.to_datetime(motosparwabi['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
         motosparsofinco['FECHA MATRICULA'] = pd.to_datetime(motosparsofinco['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
         
-        excel = BytesIO()
-        with pd.ExcelWriter(excel, engine='xlsxwriter')as writer:
+        new_excel = BytesIO()
+        with pd.ExcelWriter(new_excel, engine='xlsxwriter')as writer:
             # Escribir cada DataFrame en una hoja diferente
             metabase.to_excel(writer, sheet_name='Metabase', index=False)
             Santanderp.to_excel(writer, sheet_name='Santander', index=False)
@@ -512,8 +512,8 @@ def main(files, excel, month=None, year=None):
             motosparsofinco.to_excel(writer, sheet_name='Motos Sofinco', index=False)
             CreditStock.to_excel(writer, sheet_name='Control', index=False)
 
-        excel.seek(0)  # Reiniciar el puntero del buffer
-        return excel  # Devuelve el archivo generado como BytesIO
+        new_excel.seek(0)  # Reiniciar el puntero del buffer
+        return new_excel  # Devuelve el archivo generado como BytesIO
 
     except Exception as e:
         raise RuntimeError(f"Error al procesar el script: {str(e)}")
