@@ -93,7 +93,7 @@ elif script_option == "Credit Stock":
                     st.success("¡HECHO!")
                     st.download_button(
                         label="Descargar",
-                        data=excel,
+                        data=excel.getvalue(),
                         file_name=f"Credit Stock {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
