@@ -87,13 +87,14 @@ elif script_option == "Credit Stock":
     if all(uploaded_files.values()):
         if st.button("Ejecutar Script Credit Stock"):
             try:
-                excel = load_and_execute_script("Credit stock", uploaded_files)
+                exvel = BytesIO()
+                load_and_execute_script("Credit stock", uploaded_files)
 
                 if excel is not None:
                     st.success("¡HECHO!")
                     st.download_button(
                         label="Descargar",
-                        data=excel.getvalue(),
+                        data=excel,
                         file_name=f"Credit Stock {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
