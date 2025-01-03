@@ -215,7 +215,7 @@ Sheet1['NumeroPeriodo']=-1
 Sheet1['Asiento']= ''
 Sheet1 = Sheet1[[ 'CodigoEmpresa', 'Ejercicio', 'MantenerAsiento', 'NumeroPeriodo', 'Asiento', 'FechaAsiento', 'CargoAbono', 'CodigoCuenta', 'ImporteAsiento', 'Comentario']]
 
-clientes = pd.read_excel(ruta_Clientes)
+clientes = pd.read_excel((files["Clinetes"]), engine='openpyxl')
 Sheet1['CodigoCuenta_lower'] = Sheet1['CodigoCuenta'].str.lower()
 clientes['Razón social_lower'] = clientes['Razón social'].str.lower()
 
@@ -237,7 +237,7 @@ Sheet1['CodigoCuenta'] = Sheet1.apply(cod_contable, axis=1)
 Sheet1.drop(columns=['Cód. contable','Razón social'], inplace=True)
 Sheet1['ImporteAsiento'] = Sheet1['ImporteAsiento'].astype(float).round(2)
 
-ventas_SF = pd.read_excel(ruta_ventas_SF)
+ventas_SF = pd.read_excel((files["Ventas"]), engine='openpyxl')
 
 control = Sheet1.groupby(['FechaAsiento', 'CargoAbono']).agg({'ImporteAsiento': 'sum'}).reset_index()
 control = control.loc[control['CargoAbono'].isin(['D','H'])]
