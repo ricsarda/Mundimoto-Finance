@@ -122,11 +122,11 @@ elif script_option == "Performance Comerciales B2C":
     st.header("Archivos")
     uploaded_FC = st.file_uploader("Sube el archivo FC", type=["xlsx"])
     uploaded_AB = st.file_uploader("Sube el archivo AB", type=["xlsx"])
-    uploaded_FT = st.file_uploader("Sube el archivo FT", type=["xls"])
-    uploaded_ventas = st.file_uploader("Sube el archivo ventas", type=["xls"])
-    uploaded_leads= st.file_uploader("Sube el archivo leads", type=["xls"])
-    uploaded_anterior = st.file_uploader("Sube el archivo anterior", type=["xls"])
-    uploaded_financiacion = st.file_uploader("Sube el archivo financiaciones", type=["xls"])
+    uploaded_FT = st.file_uploader("Sube el archivo FT", type=["xlsx"])
+    uploaded_ventas = st.file_uploader("Sube el archivo ventas", type=["xlsx"])
+    uploaded_leads= st.file_uploader("Sube el archivo leads", type=["xlsx"])
+    uploaded_anterior = st.file_uploader("Sube el archivo anterior", type=["xlsx"])
+    uploaded_financiacion = st.file_uploader("Sube el archivo financiaciones", type=["xlsx"])
     
     uploaded_files = {
     "inf_usu_FC": uploaded_FC, #FC
