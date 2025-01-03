@@ -16,7 +16,7 @@ st.sidebar.header("Configuración")
 # Selección del script
 script_option = st.sidebar.selectbox(
     "Selecciona función para ejecutar:",
-    ("Daily report", "Credit Stock", "Performance Comerciales B2C")
+    ("Daily Report", "Credit Stock", "Performance Comerciales B2C")
 )
 
 st.write(f"Has seleccionado: {script_option}")
@@ -53,7 +53,7 @@ def load_and_execute_script(script_name, files, new_excel=None, month=None, year
         st.error(f"Error inesperado al ejecutar el script {script_name}: {str(e)}")
 
 # Subida de archivos según el script seleccionado
-if script_option == "Daily report":
+if script_option == "Daily Report":
     st.header("Archivos")
     # Selección de Mes y Año
     st.subheader("Selecciona el Mes y Año:")
@@ -74,7 +74,7 @@ if script_option == "Daily report":
 
     if all(uploaded_files.values()):
         if st.button("Ejecutar"):
-            load_and_execute_script("Daily report", uploaded_files, uploaded_month, uploaded_year)
+            load_and_execute_script("Daily Report", uploaded_files, uploaded_month, uploaded_year)
 
 elif script_option == "Credit Stock":
     st.header("Archivos")
@@ -132,7 +132,7 @@ elif script_option == "Performance Comerciales B2C":
     "inf_usu_FC": uploaded_FC, #FC
     "inf_usu_AB": uploaded_AB, #AB
     "inf_usu_FT": uploaded_FT, #FT
-    "archivo_ventas": uploaded_ventas, # Ruta del archivo del report de comerciales Solo detalles
+    "archivo_ventas": uploaded_ventas, # Ruta del archivo del Report de comerciales Solo detalles
     "archivo_leads": uploaded_leads, # Ruta del archivo leads Solo detalles
     "sellers_anterior": uploaded_anterior,
     "archivo_financiacion": uploaded_financiacion, # Ruta del archivo de financiaciones
