@@ -512,8 +512,7 @@ def main(files, excel, month=None, year=None):
             motosparsofinco.to_excel(writer, sheet_name='Motos Sofinco', index=False)
             CreditStock.to_excel(writer, sheet_name='Control', index=False)
 
-        
-
+        excel.seek(0)  # Reiniciar el puntero del buffer
         return excel.getvalue()  # Devuelve el archivo generado como BytesIO
 
     except Exception as e:
