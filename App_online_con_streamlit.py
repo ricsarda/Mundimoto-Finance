@@ -66,10 +66,10 @@ if script_option == "DAILY":
     uploaded_Compras = st.file_uploader("Sube el archivo de Compras", type=["xlsx"])
     
     uploaded_files = {
-    "FC"= uploaded_FC #FC
-    "AB"= uploaded_AB #AB
-    "FT"= uploaded_FT #FT
-    "Compras" = uploaded_Compras #Compras
+    "FC": uploaded_FC #FC
+    "AB": uploaded_AB #AB
+    "FT": uploaded_FT #FT
+    "Compras": uploaded_Compras #Compras
     }
 
     if all(uploaded_files.values()):
