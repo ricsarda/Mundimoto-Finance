@@ -114,7 +114,6 @@ elif script_option == "Credit Stock":
                 st.error(f"Error al ejecutar el script: {str(e)}")
 
 elif script_option == "Performance Comerciales B2C":
-
     st.subheader("Selecciona el Mes y Año:")
     uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
     uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
@@ -162,3 +161,28 @@ elif script_option == "Performance Comerciales B2C":
                     )
             except Exception as e:
                 st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Financiaciones Santander":
+    st.header("Archivos y PDFs")
+    # Pedimos que el usuario suba uno o varios PDFs
+    uploaded_pdfs = st.file_uploader(
+        "Sube los PDFs",
+        type=["pdf"],
+        accept_multiple_files=True
+    )
+    
+    upload_Clientes = st.file_uploader("Sube el archivo Clientes-Netsiut", type=["xlsx"])
+    upload_ventas_SF = st.file_uploader("Sube el archivo Ventas-SalesForce", type=["xlsx"])
+    
+    uploaded_files = {
+    "Clientes": upload_Clientes, #FC
+    "Ventas": upload_ventas_SF, #AB
+        }
+                if df_resultante is not None:
+                    st.success("¡Análisis completado!")
+                    st.download_button(
+                        label="Descargar",
+                        data=new_excel.getvalue(),
+                        file_name=f"Financiaciones Santander {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
