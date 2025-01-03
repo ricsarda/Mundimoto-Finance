@@ -22,7 +22,7 @@ def main(files, new_excel, month, year):
 
         SELLERS = pd.concat([Limpiar_FC, Limpiar_AB, Limpiar_FT])
 
-        SELLERSPBCpre = SELLERS[(SELLERS['FechaFactura'].dt.month == MES) & (SELLERS['FechaFactura'].dt.year == AÑO)]
+        SELLERSPBCpre = SELLERS[(SELLERS['FechaFactura'].dt.month == month) & (SELLERS['FechaFactura'].dt.year == year)]
         SELLERSPBCpre = SELLERSPBCpre[SELLERSPBCpre['CodigoArticulo'].isin(['PACK COMPLETO' , 'PACK' , 'PACK PREMIUM' , 'STREET PLUS' , 'STREET 125' , 'STREET 300' , 'STREET 500' , 'SPORT PLUS' , 'SPORT 500' , 'SPORT 300'])]
         columnas_seleccionadasPBC = ['SerieFactura' , 'NumeroFactura' , 'RazonSocial' , 'CodigoArticulo' , 'DescripcionArticulo', 'CodigoFamilia' , 'Unidades' , 'ImporteCoste', 'BaseImponible1', 'MargenBeneficio', 'PrecioCompra']
         SELLERSPBCpre = SELLERSPBCpre[columnas_seleccionadasPBC]
