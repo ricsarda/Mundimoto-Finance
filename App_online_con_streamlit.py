@@ -16,7 +16,7 @@ st.sidebar.header("Configuración")
 # Selección del script
 script_option = st.sidebar.selectbox(
     "Selecciona función para ejecutar:",
-    ("DAILY", "Credit Stock", "Performance Comerciales B2C")
+    ("Daily report", "Credit Stock", "Performance Comerciales B2C")
 )
 
 st.write(f"Has seleccionado: {script_option}")
@@ -53,7 +53,7 @@ def load_and_execute_script(script_name, files, new_excel=None, month=None, year
         st.error(f"Error inesperado al ejecutar el script {script_name}: {str(e)}")
 
 # Subida de archivos según el script seleccionado
-if script_option == "DAILY":
+if script_option == "Daily report":
     st.header("Archivos")
     # Selección de Mes y Año
     st.subheader("Selecciona el Mes y Año:")
@@ -74,7 +74,7 @@ if script_option == "DAILY":
 
     if all(uploaded_files.values()):
         if st.button("Ejecutar"):
-            load_and_execute_script("DAILY", uploaded_files, uploaded_month, uploaded_year)
+            load_and_execute_script("Daily report", uploaded_files, uploaded_month, uploaded_year)
 
 elif script_option == "Credit Stock":
     st.header("Archivos")
@@ -147,7 +147,9 @@ elif script_option == "Performance Comerciales B2C":
                 excel_result = load_and_execute_script(
                     "Performance Comerciales B2C",
                     uploaded_files,
-                    new_excel 
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
                 )
 
                 if excel_result is not None:
