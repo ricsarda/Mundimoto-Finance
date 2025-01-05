@@ -22,7 +22,7 @@ script_option = st.sidebar.selectbox(
 st.write(f"Has seleccionado: {script_option}")
 
 # Función para cargar y ejecutar un script externo
-def load_and_execute_script(script_name, files, new_excel=None, month=None, year=None):
+def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month=None, year=None):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
         if not os.path.exists(script_path):
@@ -40,7 +40,7 @@ def load_and_execute_script(script_name, files, new_excel=None, month=None, year
             processed_files[key] = buffer
 
         # Llamar a la función principal del script con los parámetros adicionales
-        result = module.main(processed_files, new_excel ,month, year)
+        result = module.main(processed_files, processed_pdfs, new_excel ,month, year)
         return result
         
     except FileNotFoundError as e:
@@ -175,8 +175,8 @@ elif script_option == "Financiaciones Santander":
     upload_ventas_SF = st.file_uploader("Sube el archivo Ventas-SalesForce", type=["xlsx"])
     
     uploaded_files = {
-    "Clientes": upload_Clientes, #FC
-    "Ventas": upload_ventas_SF, #AB
+    "Clientes": upload_Clientes,
+    "Ventas": upload_ventas_SF,
         }
     
     if all(uploaded_files.values()):
@@ -186,8 +186,9 @@ elif script_option == "Financiaciones Santander":
                 new_excel = BytesIO()
 
                 excel_result = load_and_execute_script(
-                    "Performance Comerciales B2C",
+                    "Financiaciones Santander",
                     uploaded_files,
+                    uploaded_pdfs,
                     new_excel,
                     uploaded_month,
                     uploaded_year
