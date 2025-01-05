@@ -204,7 +204,7 @@ elif script_option == "Financiaciones Santander":
             except Exception as e:
                 st.error(f"Error al ejecutar el script: {str(e)}")
 
-elif script_option == "Facturacion ventas":
+elif script_option == "Facturación Ventas B2C":
     st.header("Archivos")
     uploaded_clients = st.file_uploader("Sube el archivo clients", type=["csv"])
     uploaded_mheaders = st.file_uploader("Sube el archivo motorbike_headers", type=["csv"])
