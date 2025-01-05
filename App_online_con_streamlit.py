@@ -60,10 +60,10 @@ if script_option == "Daily Report":
     uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
     uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
 
-    uploaded_FC = st.file_uploader("Sube el archivo FC", type=["xlsx"])
-    uploaded_AB = st.file_uploader("Sube el archivo AB", type=["xlsx"])
-    uploaded_FT = st.file_uploader("Sube el archivo FT", type=["xls"])
-    uploaded_Compras = st.file_uploader("Sube el archivo de Compras", type=["xlsx"])
+    uploaded_FC = st.file_uploader("FC", type=["xlsx"])
+    uploaded_AB = st.file_uploader("AB", type=["xlsx"])
+    uploaded_FT = st.file_uploader("FT", type=["xls"])
+    uploaded_Compras = st.file_uploader("Compras", type=["xlsx"])
     
     uploaded_files = {
     "FC": uploaded_FC, #FC
@@ -78,10 +78,10 @@ if script_option == "Daily Report":
 
 elif script_option == "Credit Stock":
     st.header("Archivos")
-    uploaded_metabase = st.file_uploader("Sube el archivo Metabase", type=["xlsx"])
-    uploaded_santander = st.file_uploader("Sube el archivo Santander", type=["xlsx"])
-    uploaded_sabadell = st.file_uploader("Sube el archivo Sabadell", type=["xls"])
-    uploaded_sofinco = st.file_uploader("Sube el archivo Sofinco", type=["xlsx"])
+    uploaded_metabase = st.file_uploader("Metabase", type=["xlsx"])
+    uploaded_santander = st.file_uploader("Santander", type=["xlsx"])
+    uploaded_sabadell = st.file_uploader("Sabadell", type=["xls"])
+    uploaded_sofinco = st.file_uploader("Sofinco", type=["xlsx"])
     
     uploaded_files = {
     "Metabase": uploaded_metabase,
@@ -119,13 +119,13 @@ elif script_option == "Performance Comerciales B2C":
     uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
     
     st.header("Archivos")
-    uploaded_FC = st.file_uploader("Sube el archivo FC", type=["xlsx"])
-    uploaded_AB = st.file_uploader("Sube el archivo AB", type=["xlsx"])
-    uploaded_FT = st.file_uploader("Sube el archivo FT", type=["xlsx"])
-    uploaded_ventas = st.file_uploader("Sube el archivo ventas", type=["xlsx"])
-    uploaded_leads= st.file_uploader("Sube el archivo leads", type=["xlsx"])
-    uploaded_anterior = st.file_uploader("Sube el archivo anterior", type=["xlsx"])
-    uploaded_financiacion = st.file_uploader("Sube el archivo financiaciones", type=["xlsx"])
+    uploaded_FC = st.file_uploader("FC", type=["xlsx"])
+    uploaded_AB = st.file_uploader("AB", type=["xlsx"])
+    uploaded_FT = st.file_uploader("FT", type=["xlsx"])
+    uploaded_ventas = st.file_uploader("ventas", type=["xlsx"])
+    uploaded_leads= st.file_uploader("leads", type=["xlsx"])
+    uploaded_anterior = st.file_uploader("Anterior", type=["xlsx"])
+    uploaded_financiacion = st.file_uploader("Financiaciones 2025", type=["xlsx"])
     
     uploaded_files = {
     "inf_usu_FC": uploaded_FC, #FC
@@ -171,8 +171,8 @@ elif script_option == "Financiaciones Santander":
         accept_multiple_files=True
     )
     
-    upload_Clientes = st.file_uploader("Sube el archivo Clientes-Netsiut", type=["xlsx"])
-    upload_ventas_SF = st.file_uploader("Sube el archivo Ventas-SalesForce", type=["xlsx"])
+    upload_Clientes = st.file_uploader("Clientes-Netsiut", type=["xlsx"])
+    upload_ventas_SF = st.file_uploader("Ventas-SalesForce", type=["xlsx"])
     
     uploaded_files = {
     "Clientes": upload_Clientes,
@@ -206,14 +206,14 @@ elif script_option == "Financiaciones Santander":
 
 elif script_option == "Facturación Ventas B2C":
     st.header("Archivos")
-    uploaded_clients = st.file_uploader("Sube el archivo clients", type=["csv"])
-    uploaded_mheaders = st.file_uploader("Sube el archivo motorbike_headers", type=["csv"])
-    uploaded_mlines = st.file_uploader("Sube el archivo motorbike_lines", type=["csv"])
-    uploaded_sheaders = st.file_uploader("Sube el archivo services_headers", type=["csv"])
-    uploaded_slines = st.file_uploader("Sube el archivo services_lines", type=["csv"])
-    uploaded_Netsuitclientes = st.file_uploader("Sube el archivo Clientes de Netsuit", type=["xlsx"])
-    uploaded_Netsuitarticulos = st.file_uploader("Sube el archivo Artículos de Netsuit", type=["xlsx"])
-    uploaded_salesforce = st.file_uploader("Sube el archivo Salesforce", type=["xlsx"])
+    uploaded_clients = st.file_uploader("clients", type=["csv"])
+    uploaded_mheaders = st.file_uploader("motorbike_headers", type=["csv"])
+    uploaded_mlines = st.file_uploader("motorbike_lines", type=["csv"])
+    uploaded_sheaders = st.file_uploader("services_headers", type=["csv"])
+    uploaded_slines = st.file_uploader("services_lines", type=["csv"])
+    uploaded_Netsuitclientes = st.file_uploader("Clientes de Netsuit", type=["xlsx"])
+    uploaded_Netsuitarticulos = st.file_uploader("Artículos de Netsuit", type=["xlsx"])
+    uploaded_salesforce = st.file_uploader("Salesforce", type=["xlsx"])
     
     uploaded_files = {
     "clients": uploaded_clients,
