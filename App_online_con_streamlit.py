@@ -16,7 +16,7 @@ st.sidebar.header("Configuración")
 # Selección del script
 script_option = st.sidebar.selectbox(
     "Selecciona función para ejecutar:",
-    ("Credit Stock", "Daily Report", "Financiaciones Santander", "Performance Comerciales B2C")
+    ("Credit Stock", "Daily Report", "Facturación Ventas B2C", "Financiaciones Santander", "Performance Comerciales B2C")
 )
 
 st.write(f"Has seleccionado: {script_option}")
@@ -198,6 +198,51 @@ elif script_option == "Financiaciones Santander":
                         label="Descargar",
                         data=excel_result.getvalue(),
                         file_name=f"Financiaciones Santander {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Facturacion ventas":
+    st.header("Archivos")
+    uploaded_clients = st.file_uploader("Sube el archivo clients", type=["csv"])
+    uploaded_mheaders = st.file_uploader("Sube el archivo motorbike_headers", type=["csv"])
+    uploaded_mlines = st.file_uploader("Sube el archivo motorbike_lines", type=["csv"])
+    uploaded_sheaders = st.file_uploader("Sube el archivo services_headers", type=["csv"])
+    uploaded_slines = st.file_uploader("Sube el archivo services_lines", type=["csv"])
+    uploaded_Netsuitclientes = st.file_uploader("Sube el archivo Clientes de Netsuit", type=["xlsx"])
+    uploaded_Netsuitarticulos = st.file_uploader("Sube el archivo Artículos de Netsuit", type=["xlsx"])
+    uploaded_salesforce = st.file_uploader("Sube el archivo Salesforce", type=["xlsx"])
+    
+    uploaded_files = {
+    "clients": uploaded_clients,
+    "motorbike_headers":uploaded_mheaders,
+    "motorbike_lines":uploaded_mlines,
+    "services_headers":uploaded_sheaders,
+    "services_lines":uploaded_slines,
+    "Clientes de Netsuit":uploaded_Netsuitclientes,
+    "Artículos de Netsuit":uploaded_Netsuitarticulos,
+    "Salesforce":uploaded_salesforce
+        }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Facturacion ventas",
+                    uploaded_files,
+                    new_excel 
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Ventas {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
