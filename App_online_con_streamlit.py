@@ -88,7 +88,7 @@ elif script_option == "Credit Stock":
     "Santander": uploaded_santander,
     "Sabadell": uploaded_sabadell,
     "Sofinco": uploaded_sofinco,
-        }
+    }
 
     if all(uploaded_files.values()):
         if st.button("Ejecutar"):
@@ -135,7 +135,7 @@ elif script_option == "Performance Comerciales B2C":
     "archivo_leads": uploaded_leads, # Ruta del archivo leads Solo detalles
     "sellers_anterior": uploaded_anterior,
     "archivo_financiacion": uploaded_financiacion, # Ruta del archivo de financiaciones
-        }
+    }
 
     if all(uploaded_files.values()):
         if st.button("Ejecutar"):
@@ -177,7 +177,7 @@ elif script_option == "Financiaciones Santander":
     uploaded_files = {
     "Clientes": upload_Clientes,
     "Ventas": upload_ventas_SF,
-        }
+    }
     
     if all(uploaded_files.values()):
         if st.button("Ejecutar"):
@@ -223,8 +223,8 @@ elif script_option == "Facturación Ventas B2C":
     "services_lines":uploaded_slines,
     "Clientes de Netsuit":uploaded_Netsuitclientes,
     "Artículos de Netsuit":uploaded_Netsuitarticulos,
-    "Salesforce":uploaded_salesforce
-        }
+    "Salesforce":uploaded_salesforce,
+    }
 
     if all(uploaded_files.values()):
         if st.button("Ejecutar"):
