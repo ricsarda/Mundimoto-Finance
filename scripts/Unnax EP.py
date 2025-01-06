@@ -4,10 +4,10 @@ import re
 def main(files, new_excel, month=None, year=None):
     try:
         #Limpiar informes de usuario y unirlos
-        Limpiar_EP = pd.read_csv(unnax_EP)
+        Limpiar_EP = pd.read_csv(Unnax)
 
         #Entrada mo
-        entrada_movimientos = pd.read_excel(entr_mov)
+        entrada_movimientos = pd.read_excel(Compras)
 
         entrada_movimientos = entrada_movimientos.sort_values(by ='Fecha', ascending=False)
         entrada_movimientos = entrada_movimientos.loc[entrada_movimientos['Serie'].isin(['CV'])]
@@ -65,9 +65,10 @@ def main(files, new_excel, month=None, year=None):
                    'Cuenta Unnax'	, 'Proveedor' ,	'Cuentacontable']
 
         Easypayment = Cuentacontable[columnas_SUMMARY]
+        
         new_excel = BytesIO()
         with pd.ExcelWriter(new_excel, engine='xlsxwriter')as writer:
-            SUMMARY.to_excel(writer, sheet_name= "Sheet 1")
+            Easypayment.to_excel(writer, sheet_name= "Sheet 1")
 
         new_excel.seek(0)  # Reiniciar el puntero del buffer
         return new_excel  # Devuelve el archivo generado como BytesIO
