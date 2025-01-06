@@ -67,7 +67,7 @@ def main(files, new_excel, month=None, year=None):
         
         new_excel = BytesIO()
         with pd.ExcelWriter(new_excel, engine='xlsxwriter')as writer:
-            SUMMARY.to_excel(writer, sheet_name= "Sheet 1")
+            CaixaBank.to_excel(writer, sheet_name= "Sheet 1")
 
         new_excel.seek(0)  # Reiniciar el puntero del buffer
         return new_excel  # Devuelve el archivo generado como BytesIO
