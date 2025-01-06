@@ -16,7 +16,7 @@ st.sidebar.header("Configuración")
 # Selección del script
 script_option = st.sidebar.selectbox(
     "Selecciona función para ejecutar:",
-    ("Credit Stock", "Calculadora Precios B2C", "Daily Report", "Facturación Ventas B2C", "Financiaciones Santander", "Performance Comerciales B2C", "Unnax CaixaBank", "Unnax EasyPayment", "Stripe")
+    ("Credit Stock", "Calculadora Precios B2C", "Daily Report", "Facturación Ventas B2C", "Financiaciones Santander", "Performance Comerciales B2C", "Unnax CaixaBank", "Unnax Easy Payment", "Stripe")
 )
 
 st.write(f"Has seleccionado: {script_option}")
@@ -244,6 +244,76 @@ elif script_option == "Facturación Ventas B2C":
                         label="Descargar",
                         data=excel_result.getvalue(),
                         file_name=f"Ventas {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Unnax CaixaBank":
+    st.header("Archivos")
+    uploaded_unnax = st.file_uploader("Unnax", type=["csv"])
+    uploaded_compras = st.file_uploader("Compras Netsuit", type=["xlsx"])
+
+    uploaded_files = {
+    "Unnax": uploaded_unnax,
+    "Compras": uploaded_compras,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Unnax CB",
+                    uploaded_files,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Carga Unnax CaixaBank {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Unnax Easy Payment":
+    st.header("Archivos")
+    uploaded_unnax = st.file_uploader("Unnax", type=["csv"])
+    uploaded_compras = st.file_uploader("Compras Netsuit", type=["xlsx"])
+
+    uploaded_files = {
+    "Unnax": uploaded_unnax,
+    "Compras": uploaded_compras,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Unnax EP",
+                    uploaded_files,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Carga Unnax Easy Payment {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
