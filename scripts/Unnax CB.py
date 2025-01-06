@@ -4,10 +4,10 @@ import re
 def main(files, new_excel, month=None, year=None):
     try:
         #Limpiar informes de usuario y unirlos
-        Limpiar_CB = pd.read_csv(unnax_CB)
+        Limpiar_CB = pd.read_csv(Unnax)
 
         #Entrada mo
-        entrada_movimientos = pd.read_excel(entr_mov)
+        entrada_movimientos = pd.read_excel(Compras)
 
         entrada_movimientos = entrada_movimientos.sort_values(by ='Fecha', ascending=False)
         entrada_movimientos = entrada_movimientos.loc[entrada_movimientos['Serie'].isin(['CV'])]
