@@ -62,7 +62,7 @@ if script_option == "Daily Report":
 
     uploaded_FC = st.file_uploader("FC", type=["xlsx"])
     uploaded_AB = st.file_uploader("AB", type=["xlsx"])
-    uploaded_FT = st.file_uploader("FT", type=["xls"])
+    uploaded_FT = st.file_uploader("FT", type=["xlsx"])
     uploaded_Compras = st.file_uploader("Compras", type=["xlsx"])
     
     uploaded_files = {
