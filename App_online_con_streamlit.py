@@ -38,6 +38,12 @@ def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month
             buffer = BytesIO(file.read())  # Convertir archivo a BytesIO
             buffer.seek(0)  # Reiniciar puntero
             processed_files[key] = buffer
+            
+        # Asegúrate de que processed_pdfs tenga un valor predeterminado si no se pasa como parámetro
+        if pdfs is None:
+            processed_pdfs = [] 
+        else:
+            processed_pdfs = pdfs
 
         # Llamar a la función principal del script con los parámetros adicionales
         result = module.main(processed_files, processed_pdfs, new_excel ,month, year)
