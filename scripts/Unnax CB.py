@@ -44,13 +44,12 @@ def main(files, new_excel, month=None, year=None):
         Ordenar_CB['Matrícula'] = Ordenar_CB.apply(columna_matricula, axis=1)
 
         def agregar_cuenta_contable(df_ordenar_cb, df_entrada_movimientos):
+            df_entrada_movimientos = df_entrada_movimientos.drop_duplicates(subset='Código artículo', keep='last')
+            mapping_series = df_entrada_movimientos.set_index('Código artículo')['Código proveedor']
 
-            return df_ordenar_cb.merge(
-                df_entrada_movimientos[['Código artículo', 'Código proveedor']],
-                left_on='Matrícula',
-                right_on='Código artículo',
-                how='left'
-            )
+            df_ordenar_cb['Código proveedor'] = df_ordenar_cb['Matrícula'].map(mapping_series)
+    
+            return df_ordenar_cb
 
         # Ejemplo de uso:
         Cuentacontable = agregar_cuenta_contable(Ordenar_CB, entrada_movimientos)
