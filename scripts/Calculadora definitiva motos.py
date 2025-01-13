@@ -1,122 +1,96 @@
-import dash
-from dash import dcc, html
-from dash.dependencies import Input, Output
-import dash_bootstrap_components as dbc
+from io import BytesIO
+import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 
-# Datos de mundi
-data = pd.read_csv("C:/Users/Ricardo Sarda/Desktop/MM/Motos/Motos para calcular.csv", delimiter=';', encoding='utf-8')
+# Configuración inicial de la app
+st.title("Calculadora PVP para Motos")
 
-preprocessor = ColumnTransformer(
-    transformers=[
-        ('num', StandardScaler(), ['Año', 'KM']),
-        ('cat', OneHotEncoder(drop='first', handle_unknown='ignore'), ['MARCA', 'MODELO'])
-    ])
+# Subida de archivo CSV
+st.header("Sube el archivo de datos para calcular el precio")
+uploaded_file = st.file_uploader("Sube el archivo CSV", type="csv")
 
-model = Pipeline([
-    ('preprocessor', preprocessor),
-    ('regressor', LinearRegression())
-])
+if uploaded_file:
+    # Cargar datos
+    data = pd.read_csv(uploaded_file, delimiter=';', encoding='utf-8')
 
-X = data[['MARCA', 'MODELO', 'Año', 'KM']]
-y = data['PVP']
-model.fit(X, y)
+    # Verificar que el archivo contiene las columnas necesarias
+    required_columns = ['MARCA', 'MODELO', 'Año', 'KM', 'PVP']
+    if not all(col in data.columns for col in required_columns):
+        st.error(f"El archivo debe contener las siguientes columnas: {', '.join(required_columns)}")
+    else:
+        # Configuración del modelo
+        preprocessor = ColumnTransformer(
+            transformers=[
+                ('num', StandardScaler(), ['Año', 'KM']),
+                ('cat', OneHotEncoder(drop='first', handle_unknown='ignore'), ['MARCA', 'MODELO'])
+            ])
 
-# La app
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-
-app.layout = dbc.Container([
-    html.H1("Calculadora PVP", style = {'font-size': '75px','font-weight': 'bold'}),
-    dbc.Row([
-        dbc.Col([
-            html.Label("Marca" , style={'font-size': '18px','font-weight': 'bold'} ),
-            dcc.Dropdown(id='marca-dropdown', 
-                         options=[{'label': marca, 'value': marca} for marca in data['MARCA'].unique()],
-                         value=data['MARCA'].iloc[0], className='mb-3')
-        ]),
-        
-        dbc.Col([
-            html.Label("Modelo" , style={'font-size': '18px','font-weight': 'bold'} ),
-            dcc.Dropdown(id='modelo-dropdown', 
-                         value=data['MODELO'].iloc[0], className='mb-3')
+        model = Pipeline([
+            ('preprocessor', preprocessor),
+            ('regressor', LinearRegression())
         ])
-    ]),
-    
-    dbc.Row([
-        dbc.Col([
-            html.Label("Año" , style={'font-size': '18px','font-weight': 'bold'} ),
-            dcc.Dropdown(
-                id='ano-dropdown',
-                options=[{'label': str(year), 'value': year} for year in range(int(data['Año'].min()), int(data['Año'].max()) + 1)],
-                value=int(data['Año'].mean())
-            )
-        ],width=6),
-       
-        dbc.Col([
-            html.Label("Kilometraje" , style={'font-size': '18px','font-weight': 'bold'} ),
-            dbc.Input(id="km-input", type="number", placeholder="Introduce kilómetros", value=int(data['KM'].median()))
-        ],width=6,),
-    ]),
 
-     dbc.Row([ 
-        dbc.Col([
-            dbc.Button("Calcular precio", id='calculate-button', color="primary", className="mr-1", style={'width': '400px' , 'font-weight': 'bold'}),
-        ],width=4,  md=12, className="d-grid gap-2"),
-    ]),
-        html.Br(),
-        html.Br(),
-    
-        html.Div(id='output')
-    
-])
+        # Entrenamiento del modelo
+        X = data[['MARCA', 'MODELO', 'Año', 'KM']]
+        y = data['PVP']
+        model.fit(X, y)
 
-@app.callback(
-    Output('modelo-dropdown', 'options'),
-    [Input('marca-dropdown', 'value')]
-)
-def update_modelos(marca_selected):
-    modelos = data[data['MARCA'] == marca_selected]['MODELO'].unique()
-    return [{'label': modelo, 'value': modelo} for modelo in modelos]
+        # Interfaz de usuario para la predicción
+        st.sidebar.header("Introduce los datos de la moto")
 
+        marca = st.sidebar.selectbox("Selecciona la marca", options=data['MARCA'].unique())
 
-@app.callback(
-    Output('output', 'children'),
-    [Input('calculate-button', 'n_clicks')],
-    [dash.dependencies.State('marca-dropdown', 'value'),
-     dash.dependencies.State('modelo-dropdown', 'value'),
-     dash.dependencies.State('ano-dropdown', 'value'),
-     dash.dependencies.State('km-input', 'value')]
-)
-def calculate_price(n_clicks, marca, modelo, año, km):
-    # Predecir el precio
-    prediction = model.predict(pd.DataFrame({
-        'MARCA': [marca],
-        'MODELO': [modelo],
-        'Año': [año],
-        'KM': [km]
-    }))
-    
-    # Filtrar los datos para el modelo seleccionado
-    subset_data = data[data['MODELO'] == modelo]
-    
-    # Calcular el número de motos y la desviación estándar
-    num_motos = len(subset_data)
-    std_dev = subset_data['PVP'].std()
-    posibleprecio = std_dev / 2
-    min_ano = int(subset_data['Año'].min())
-    max_km = int(subset_data['KM'].max())
+        # Actualizar los modelos según la marca seleccionada
+        modelos_disponibles = data[data['MARCA'] == marca]['MODELO'].unique()
+        modelo = st.sidebar.selectbox("Selecciona el modelo", options=modelos_disponibles)
 
-    return [
-        html.Div(f"Precio estimado: {prediction[0]:,.2f}€", style={'font-size': '22px', 'color': 'black'}),
-        html.Div(f"Variación a tener en cuenta: +/-{posibleprecio:,.2f}€", style={'font-size': '15px', 'color': 'red'}),
-        html.Div(f"Mayor antigüedad: {min_ano}", style={'font-size': '15px', 'color': 'black'}),
-        html.Div(f"Mayor kilometraje: {max_km}KM", style={'font-size': '15px', 'color': 'black'}),
-        html.Div(f"Número de motos en el análisis: {num_motos}", style={'font-size': '15px', 'color': 'black'})
-    ]
+        año = st.sidebar.number_input(
+            "Introduce el año de fabricación",
+            min_value=int(data['Año'].min()),
+            max_value=int(data['Año'].max()),
+            value=int(data['Año'].mean()),
+            step=1
+        )
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+        kilometraje = st.sidebar.number_input(
+            "Introduce el kilometraje",
+            min_value=0,
+            max_value=int(data['KM'].max()),
+            value=int(data['KM'].median()),
+            step=1000
+        )
+
+        # Botón para calcular el precio
+        if st.sidebar.button("Calcular Precio"):
+            # Realizar la predicción
+            input_data = pd.DataFrame({
+                'MARCA': [marca],
+                'MODELO': [modelo],
+                'Año': [año],
+                'KM': [kilometraje]
+            })
+
+            predicted_price = model.predict(input_data)[0]
+
+            # Mostrar resultados
+            st.subheader("Resultados de la predicción")
+            st.write(f"**Precio estimado:** {predicted_price:,.2f} €")
+
+            # Datos adicionales
+            subset_data = data[data['MODELO'] == modelo]
+            num_motos = len(subset_data)
+            std_dev = subset_data['PVP'].std()
+            posible_precio = std_dev / 2
+            min_año = int(subset_data['Año'].min())
+            max_km = int(subset_data['KM'].max())
+
+            st.write(f"**Variación estimada del precio:** +/- {posible_precio:,.2f} €")
+            st.write(f"**Año más antiguo del modelo:** {min_año}")
+            st.write(f"**Kilometraje máximo registrado:** {max_km} KM")
+            st.write(f"**Número de motos en el análisis:** {num_motos}")
+else:
+    st.info("Sube un archivo CSV para comenzar.")
