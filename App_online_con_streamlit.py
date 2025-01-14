@@ -5,10 +5,6 @@ import importlib.util
 import sys
 import os
 from datetime import datetime
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.linear_model import LinearRegression
-from sklearn.pipeline import Pipeline
 
 fecha_actual = datetime.now()
 fecha = fecha_actual.strftime("%d-%m-%Y")
@@ -328,67 +324,3 @@ elif script_option == "Unnax Easy Payment":
                     )
             except Exception as e:
                 st.error(f"Error al ejecutar el script: {str(e)}")
-
-# Nueva funcionalidad: Calculadora de Precios B2C
-elif script_option == "Calculadora Precios B2C":
-    st.header("Calculadora de Precios de Motos")
-
-    # Ruta al archivo CSV fijo en el repositorio
-    CSV_PATH = os.path.join("scripts","Motos para calcular.csv")
-
-    # Intentar cargar el archivo CSV
-    try:
-        data = pd.read_csv(CSV_PATH, delimiter=';', encoding='utf-8')
-    except FileNotFoundError:
-        st.error(f"No se encontró el archivo `{CSV_PATH}`. Por favor, asegúrate de que esté en el repositorio.")
-        st.stop()
-
-    # Preprocesamiento y modelo
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', StandardScaler(), ['Año', 'KM']),
-            ('cat', OneHotEncoder(drop='first', handle_unknown='ignore'), ['MARCA', 'MODELO'])
-        ])
-
-    model = Pipeline([
-        ('preprocessor', preprocessor),
-        ('regressor', LinearRegression())
-    ])
-
-    # Entrenamiento del modelo
-    X = data[['MARCA', 'MODELO', 'Año', 'KM']]
-    y = data['PVP']
-    model.fit(X, y)
-
-    # Inputs en la barra lateral
-    st.sidebar.header("Características de la moto")
-    marca = st.sidebar.selectbox("Marca", data['MARCA'].unique())
-    modelo = st.sidebar.selectbox("Modelo", data[data['MARCA'] == marca]['MODELO'].unique())
-    año = st.sidebar.slider("Año", int(data['Año'].min()), int(data['Año'].max()), int(data['Año'].mean()))
-    km = st.sidebar.number_input("Kilometraje (KM)", min_value=0, value=int(data['KM'].median()))
-
-    # Botón para calcular precio
-    if st.sidebar.button("Calcular precio"):
-        # Predicción
-        prediccion = model.predict(pd.DataFrame({
-            'MARCA': [marca],
-            'MODELO': [modelo],
-            'Año': [año],
-            'KM': [km]
-        }))
-
-        # Análisis adicional
-        subset_data = data[data['MODELO'] == modelo]
-        std_dev = subset_data['PVP'].std()
-        num_motos = len(subset_data)
-        posible_precio = std_dev / 2
-        min_año = int(subset_data['Año'].min())
-        max_km = int(subset_data['KM'].max())
-
-        # Mostrar resultados
-        st.subheader("Resultados de la predicción")
-        st.write(f"**Precio estimado:** {prediccion[0]:,.2f} €")
-        st.write(f"**Variación esperada:** +/- {posible_precio:,.2f} €")
-        st.write(f"**Antigüedad mínima:** {min_año}")
-        st.write(f"**Kilometraje máximo:** {max_km} KM")
-        st.write(f"**Número de motos analizadas:** {num_motos}")
