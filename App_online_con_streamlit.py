@@ -324,3 +324,40 @@ elif script_option == "Unnax Easy Payment":
                     )
             except Exception as e:
                 st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Calculadora Precios B2C":
+    st.header("Calculadora de Precios B2C")
+
+    # Cargar datos desde el CSV en el repositorio
+    try:
+        from scripts.price_calculator import load_data, calculate_price
+        data = load_data("motos_data.csv")
+    except Exception as e:
+        st.error(f"Error al cargar los datos: {str(e)}")
+        data = None
+
+    if data is not None:
+        # Entrada del usuario
+        marca = st.selectbox("Selecciona la marca", options=data['MARCA'].unique())
+        if marca:
+            modelos_disponibles = data[data['MARCA'] == marca]['MODELO'].unique()
+            modelo = st.selectbox("Selecciona el modelo", options=modelos_disponibles)
+        
+        año = st.number_input("Introduce el año", min_value=int(data['Año'].min()), max_value=int(data['Año'].max()), value=int(data['Año'].mean()))
+        km = st.number_input("Introduce el kilometraje", min_value=0, value=int(data['KM'].median()))
+
+        # Botón para calcular
+        if st.button("Calcular precio"):
+            if not modelo or not marca:
+                st.error("Por favor selecciona una marca y un modelo válidos.")
+            else:
+                # Calcular precio
+                precio, variacion, num_motos, min_año, max_km = calculate_price(data, marca, modelo, año, km)
+                if precio is None:
+                    st.error("No se encontraron datos suficientes para calcular el precio.")
+                else:
+                    st.success(f"Precio estimado: {precio:,.2f} €")
+                    st.write(f"Variación estimada: +/- {variacion:,.2f} €")
+                    st.write(f"Mayor antigüedad encontrada: {int(min_año)}")
+                    st.write(f"Mayor kilometraje encontrado: {int(max_km)} KM")
+                    st.write(f"Número de motos analizadas: {num_motos}")
