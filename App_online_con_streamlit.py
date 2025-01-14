@@ -330,8 +330,8 @@ elif script_option == "Calculadora Precios B2C":
 
     # Cargar datos desde el CSV en el repositorio
     try:
-        from scripts.price_calculator import load_data, calculate_price
-        data = load_data("Motos.csv")
+        from scripts.(f"Calculadora definitiva motos.py") import load_data, calculate_price
+        data = load_data("Motos para calcular.csv")
     except Exception as e:
         st.error(f"Error al cargar los datos: {str(e)}")
         data = None
