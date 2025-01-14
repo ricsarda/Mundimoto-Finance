@@ -5,6 +5,10 @@ import importlib.util
 import sys
 import os
 from datetime import datetime
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
 
 fecha_actual = datetime.now()
 fecha = fecha_actual.strftime("%d-%m-%Y")
