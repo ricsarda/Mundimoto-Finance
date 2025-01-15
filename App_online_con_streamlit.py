@@ -357,7 +357,11 @@ elif script_option == "Calculadora Precios B2C":
                 else:
                     st.success(f"Precio estimado: {precio:,.2f} €")
                     st.write(f"Variación estimada: +/- {variacion:,.2f} €")
-                    st.write(f"Mayor antigüedad encontrada: {int(min_año)}")
+                    if min_año is not None and not pd.isna(min_año):
+                        st.write(f"Mayor antigüedad encontrada: {int(min_año)}")
+                    else:
+                        st.write("No se encontró un valor de antigüedad mínimo (o está vacío).")
+
                     st.write(f"Mayor kilometraje encontrado: {int(max_km)} KM")
                     st.write(f"Número de motos analizadas: {num_motos}")
                     st.write(f"Datos filtrados para {marca} {modelo}:")
