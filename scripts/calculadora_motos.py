@@ -33,4 +33,4 @@ def calculate_price(data, marca, modelo, año, km):
     min_año = subset['Año'].min() if not subset['Año'].isnull().all() else None
     max_km = subset['KM'].max() if not subset['KM'].isnull().all() else None
 
-    return precio_estimado, posible_variacion, num_motos, min_año, max_km
+    return precio_estimado, posible_variacion, num_motos, min_año, max_km, subset
