@@ -11,13 +11,11 @@ def load_data(csv_path="motos_data.csv"):
 
 def calculate_price(data, marca, modelo, año, km):
     subset = data[(data['MARCA'] == marca) & (data['MODELO'] == modelo)]
-    if subset.empty:
-        return None, None, None, None, None
+
 
     subset['PVP'] = pd.to_numeric(subset['PVP'], errors='coerce')
     subset = subset.dropna(subset=['PVP'])  # Eliminar filas donde 'PVP' sea NaN
-    if subset.empty:
-        return None, None, None, None, None
+
 
     avg_price = subset['PVP'].mean()
     std_dev = subset['PVP'].std()
