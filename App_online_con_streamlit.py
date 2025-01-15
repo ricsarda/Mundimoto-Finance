@@ -342,8 +342,7 @@ elif script_option == "Calculadora Precios B2C":
         if marca:
             modelos_disponibles = data[data['MARCA'] == marca]['MODELO'].unique()
             modelo = st.selectbox("Selecciona el modelo", options=modelos_disponibles)
-        st.write(f"Datos filtrados para {marca} {modelo}:")
-        st.dataframe(subset)
+
         año = st.number_input("Introduce el año", min_value=int(data['Año'].min()), max_value=int(data['Año'].max()), value=int(data['Año'].mean()))
         km = st.number_input("Introduce el kilometraje", min_value=0, value=int(data['KM'].median()))
 
@@ -357,6 +356,8 @@ elif script_option == "Calculadora Precios B2C":
                 if precio is None:
                     st.error("No se encontraron datos suficientes para calcular el precio.")
                 else:
+                    st.write(f"Datos filtrados para {marca} {modelo}:")
+                    st.dataframe(subset)
                     st.success(f"Precio estimado: {precio:,.2f} €")
                     st.write(f"Variación estimada: +/- {variacion:,.2f} €")
                     st.write(f"Mayor antigüedad encontrada: {int(min_año)}")
