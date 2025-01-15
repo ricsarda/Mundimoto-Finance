@@ -335,7 +335,7 @@ elif script_option == "Calculadora Precios B2C":
         st.error(f"Error al cargar los datos: {str(e)}")
         data = None
 
-        if data is not None:
+    if data is not None:
         # Entrada del usuario
         marca = st.selectbox("Selecciona la marca", options=data['MARCA'].unique())
         if marca:
