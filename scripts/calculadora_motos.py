@@ -4,12 +4,13 @@ import numpy as np
 # Cargar los datos desde un archivo CSV
 def load_data(csv_path="Motos para calcular.csv"):
     try:
-        data = pd.read_csv(csv_path, delimiter=',', encoding='utf-8')
+        data = pd.read_csv(csv_path, delimiter=';', encoding='utf-8')
         return data
     except Exception as e:
         raise RuntimeError(f"Error al cargar el archivo CSV: {str(e)}")
 
 def calculate_price(data, marca, modelo, año, km):
+    data["PVP"] = data["PVP"].astype(str)  
     subset = data[(data["MARCA"] == marca) & (data["MODELO"] == modelo)]
 
     avg_price = subset['PVP'].mean()
