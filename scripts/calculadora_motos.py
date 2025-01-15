@@ -10,13 +10,8 @@ def load_data(csv_path="Motos para calcular.csv"):
         raise RuntimeError(f"Error al cargar el archivo CSV: {str(e)}")
 
 def calculate_price(data, marca, modelo, año, km):
-    subset = data[(data['MARCA'] == marca) & (data['MODELO'] == modelo)]
-    print("Cantidad de filas en subset:", len(subset))
-    print("Algunas filas del subset:", subset.head())
-
-    if subset.empty:
-        # Opcional: Retorna None para indicar que no se pudo calcular
-        return None, None, None, None, None, None
+    subset = data['MARCA'] == marca
+    subset = subset['MODELO'] == modelo
 
     subset['PVP'] = pd.to_numeric(subset['PVP'], errors='coerce')
     subset = subset.dropna(subset=['PVP'])  # Eliminar filas donde 'PVP' sea NaN
