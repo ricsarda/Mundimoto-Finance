@@ -327,7 +327,6 @@ elif script_option == "Unnax Easy Payment":
 
 elif script_option == "Calculadora Precios B2C":
     st.header("Calculadora de Precios B2C")
-
     # Cargar datos desde el CSV en el repositorio
     try:
         from scripts.calculadora_motos import load_data, calculate_price
@@ -336,7 +335,7 @@ elif script_option == "Calculadora Precios B2C":
         st.error(f"Error al cargar los datos: {str(e)}")
         data = None
 
-    if data is not None:
+        if data is not None:
         # Entrada del usuario
         marca = st.selectbox("Selecciona la marca", options=data['MARCA'].unique())
         if marca:
@@ -356,10 +355,10 @@ elif script_option == "Calculadora Precios B2C":
                 if precio is None:
                     st.error("No se encontraron datos suficientes para calcular el precio.")
                 else:
-                    st.write(f"Datos filtrados para {marca} {modelo}:")
-                    st.dataframe(subset)
                     st.success(f"Precio estimado: {precio:,.2f} €")
                     st.write(f"Variación estimada: +/- {variacion:,.2f} €")
                     st.write(f"Mayor antigüedad encontrada: {int(min_año)}")
                     st.write(f"Mayor kilometraje encontrado: {int(max_km)} KM")
                     st.write(f"Número de motos analizadas: {num_motos}")
+                    st.write(f"Datos filtrados para {marca} {modelo}:")
+                    st.dataframe(subset)
