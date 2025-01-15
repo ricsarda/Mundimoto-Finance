@@ -9,15 +9,15 @@ def load_data(csv_path="motos_data.csv"):
     except Exception as e:
         raise RuntimeError(f"Error al cargar el archivo CSV: {str(e)}")
 
-# Calcular precio estimado
 def calculate_price(data, marca, modelo, año, km):
     subset = data[(data['MARCA'] == marca) & (data['MODELO'] == modelo)]
-    if any(value is None for value in [avg_price, std_dev, num_motos]):
+    if subset.empty:
         return None, None, None, None, None
-    print(data)
+
     subset['PVP'] = pd.to_numeric(subset['PVP'], errors='coerce')
-    subset = subset.dropna(subset=['PVP'])
-    avg_price = subset['PVP'].mean()
+    subset = subset.dropna(subset=['PVP'])  # Eliminar filas donde 'PVP' sea NaN
+    if subset.empty:
+        return None, None, None, None, None
 
     avg_price = subset['PVP'].mean()
     std_dev = subset['PVP'].std()
@@ -30,4 +30,7 @@ def calculate_price(data, marca, modelo, año, km):
     precio_estimado = avg_price + ajuste
     posible_variacion = std_dev / 2
 
-    return precio_estimado, posible_variacion, num_motos, subset['Año'].min(), subset['KM'].max()
+    min_año = subset['Año'].min() if not subset['Año'].isnull().all() else None
+    max_km = subset['KM'].max() if not subset['KM'].isnull().all() else None
+
+    return precio_estimado, posible_variacion, num_motos, min_año, max_km
