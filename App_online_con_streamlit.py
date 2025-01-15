@@ -338,6 +338,9 @@ elif script_option == "Calculadora Precios B2C":
 
     if data is not None:
         # Entrada del usuario
+        st.write("Vista previa de los datos cargados:")
+        st.dataframe(data.head())
+
         marca = st.selectbox("Selecciona la marca", options=data['MARCA'].unique())
         if marca:
             modelos_disponibles = data[data['MARCA'] == marca]['MODELO'].unique()
