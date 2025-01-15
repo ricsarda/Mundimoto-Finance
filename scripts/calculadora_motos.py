@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Cargar los datos desde un archivo CSV
-def load_data(csv_path="motos_data.csv"):
+def load_data(csv_path="Motos para calcular.csv"):
     try:
         data = pd.read_csv(csv_path, delimiter=';', encoding='utf-8')
         return data
