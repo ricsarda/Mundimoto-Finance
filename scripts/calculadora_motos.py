@@ -13,10 +13,6 @@ def calculate_price(data, marca, modelo, año, km):
     subset = data['MARCA'] == marca
     subset = subset['MODELO'] == modelo
 
-    subset['PVP'] = pd.to_numeric(subset['PVP'], errors='coerce')
-    subset = subset.dropna(subset=['PVP'])  # Eliminar filas donde 'PVP' sea NaN
-
-
     avg_price = subset['PVP'].mean()
     std_dev = subset['PVP'].std()
     num_motos = len(subset)
