@@ -27,10 +27,10 @@ def calculate_price(data, marca, modelo, año, km):
     km_diferencia = km - subset['KM'].mean()
     ajuste = -0.1 * año_diferencia + -0.05 * km_diferencia
 
-    precio_estimado = avg_price + ajuste
-    posible_variacion = std_dev / 2
+    precio = avg_price + ajuste
+    variacion = std_dev / 2
 
     min_año = subset['Año'].min() if not subset['Año'].isnull().all() else None
     max_km = subset['KM'].max() if not subset['KM'].isnull().all() else None
 
-    return precio_estimado, posible_variacion, num_motos, min_año, max_km, subset
+    return precio, variacion, num_motos, min_año, max_km, subset
