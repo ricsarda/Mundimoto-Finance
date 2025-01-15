@@ -353,7 +353,7 @@ elif script_option == "Calculadora Precios B2C":
                 st.error("Por favor selecciona una marca y un modelo válidos.")
             else:
                 # Calcular precio
-                precio, variacion, num_motos, min_año, max_km = calculate_price(data, marca, modelo, año, km)
+                precio, variacion, num_motos, min_año, max_km, subset = calculate_price(data, marca, modelo, año, km)
                 if precio is None:
                     st.error("No se encontraron datos suficientes para calcular el precio.")
                 else:
