@@ -184,12 +184,9 @@ elif script_option == "Financiaciones Renting":
                 new_excel = BytesIO()
 
                 excel_result = load_and_execute_script(
-                    "Financiaciones Santander",
-                    uploaded_files,
+                    "Financiaciones Renting",
                     uploaded_pdfs,
-                    new_excel,
-                    uploaded_month,
-                    uploaded_year
+                    new_excel
                 )
                 if excel_result is not None:
                     st.success("¡HECHO!")
