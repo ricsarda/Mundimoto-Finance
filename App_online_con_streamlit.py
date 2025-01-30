@@ -16,7 +16,7 @@ st.sidebar.header("Configuración")
 # Selección del script
 script_option = st.sidebar.selectbox(
     "Selecciona función para ejecutar:",
-    ("Credit Stock", "Calculadora Precios B2C", "Daily Report","Financiaciones Santander", "Performance Comerciales B2C", "Unnax CaixaBank", "Unnax Easy Payment", "Stripe")
+    ("Credit Stock", "Calculadora Precios B2C", "Daily Report","Financiaciones Santander", "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank", "Unnax Easy Payment", "Stripe")
 )
 
 st.write(f"Has seleccionado: {script_option}")
@@ -168,6 +168,40 @@ elif script_option == "Performance Comerciales B2C":
             except Exception as e:
                 st.error(f"Error al ejecutar el script: {str(e)}")
 
+elif script_option == "Financiaciones Renting":
+    st.header("Archivos y PDFs")
+    # Pedimos que el usuario suba uno o varios PDFs
+    uploaded_pdfs = st.file_uploader(
+        "Sube los PDFs",
+        type=["pdf"],
+        accept_multiple_files=True
+    )
+    
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Financiaciones Santander",
+                    uploaded_files,
+                    uploaded_pdfs,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Financiaciones Renting {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
 elif script_option == "Financiaciones Santander":
     st.header("Archivos y PDFs")
     # Pedimos que el usuario suba uno o varios PDFs
@@ -209,7 +243,6 @@ elif script_option == "Financiaciones Santander":
                     )
             except Exception as e:
                 st.error(f"Error al ejecutar el script: {str(e)}")
-
 elif script_option == "Facturación Ventas B2C":
     st.header("Archivos")
     uploaded_clients = st.file_uploader("clients", type=["csv"])
