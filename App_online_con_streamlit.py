@@ -1,132 +1,406 @@
-import pdfplumber
-import pandas as pd
-import numpy as np
-from datetime import datetime
-import os
-import re
 from io import BytesIO
+import streamlit as st
+import pandas as pd
+import importlib.util
+import sys
+import os
+from datetime import datetime
 
-def procesar_pdfs_en_memoria(pdfs_dict):
-    """
-    Recibe un diccionario {nombre_pdf: BytesIO} con los PDFs
-    y retorna un DataFrame consolidado tras extraer la info.
-    """
-    dataframes = []
-    # Patrones de interés en el texto del PDF (tal cual aparecen)
-    patrones_interes = [
-        "Tfno",
-        "EntregaImporte",
-        "InteresesDevengados",
-        "Totalpara",
-        "NuevoCapital"
-    ]
-    
-    # Mapeo de patrones a los nombres de columna que queremos
-    mapeo_nombres = {
-        "Tfno": "Fecha",
-        "EntregaImporte": "Importe",
-        "InteresesDevengados": "Intereses",
-        "Totalpara": "Total para Aplicar",
-        "NuevoCapital": "Nuevo Capital Pendiente"
-    }
-    orden_nombres_final = list(mapeo_nombres.values())
+fecha_actual = datetime.now()
+fecha = fecha_actual.strftime("%d-%m-%Y")
 
-    # Iterar por los PDFs subidos
-    for pdf_name, pdf_buffer in pdfs_dict.items():
-        try:
-            with pdfplumber.open(pdf_buffer) as pdf:
-                texto = "\n".join(
-                    page.extract_text()
-                    for page in pdf.pages
-                    if page.extract_text()
-                )
-            
-            # Extraer el código clave con expresión regular
-            codigo_clave = re.search(r'\bE\d{2}[A-Z]{1}\d{8,}\b', texto)
-            codigo_clave_extraido = codigo_clave.group(0) if codigo_clave else None
+# Configuración inicial de la app
+st.title("Mundimoto Finance")
+st.sidebar.header("Configuración")
 
-            lineas = texto.split("\n")
-            df_lineas = pd.DataFrame(lineas, columns=["Contenido"])
+# Selección del script
+script_option = st.sidebar.selectbox(
+    "Selecciona función para ejecutar:",
+    ("Credit Stock", "Calculadora Precios B2C", "Daily Report","Financiaciones Santander", "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank", "Unnax Easy Payment", "Stripe")
+)
 
-            # Filtrar las filas cuyos inicios coincidan con los patrones_interes
-            df_filtrado = df_lineas[
-                df_lineas["Contenido"].str.startswith(tuple(patrones_interes), na=False)
-            ].copy()
+st.write(f"Has seleccionado: {script_option}")
 
-            # Extraer parte numérica al final de cada línea
-            df_filtrado["Datos"] = df_filtrado["Contenido"].str.extract(r'([\d.,/]+)$')
-
-            # Eliminar la parte numérica de la columna "Contenido"
-            df_filtrado["Contenido"] = df_filtrado["Contenido"].str.replace(
-                r'([\d.,/]+)$', '', regex=True
-            ).str.strip()
-
-            def cambiarnombres(texto_patron):
-                for patron, nuevo_nombre in mapeo_nombres.items():
-                    if texto_patron.startswith(patron):
-                        return nuevo_nombre
-                return texto_patron
-
-            # Cambiar nombres (p.ej. "Tfno" -> "Fecha")
-            df_filtrado["Contenido"] = df_filtrado["Contenido"].apply(cambiarnombres)
-
-            if df_filtrado.empty:
-                # Si no se encontró nada, creamos una fila vacía
-                df_transpuesto = pd.DataFrame(columns=orden_nombres_final)
-                df_transpuesto.loc[0] = [""] * len(orden_nombres_final)
-            else:
-                df_pivote = df_filtrado.set_index("Contenido")["Datos"]
-                df_pivote = df_pivote.reindex(orden_nombres_final, fill_value="")
-                df_transpuesto = df_pivote.to_frame().T.reset_index(drop=True)
-
-            # Agregar la columna de operación y nombre del archivo
-            df_transpuesto["Operación"] = codigo_clave_extraido
-            df_transpuesto["Nombre_Archivo"] = pdf_name
-
-            dataframes.append(df_transpuesto)
-        
-        except Exception as e:
-            print(f"Error procesando {pdf_name}: {e}")
-            # Si hay error, puedes decidir agregar un DataFrame vacío o ignorarlo
-
-    if dataframes:
-        df_final = pd.concat(dataframes, ignore_index=True)
-    else:
-        df_final = pd.DataFrame()
-
-    return df_final
-
-def main(files, pdfs, new_excel, month=None, year=None):
-    """
-    Función principal para 'Financiaciones Renting':
-    - Recibe 'files' (no usado en este ejemplo, pero se deja para uniformidad),
-    - Recibe 'pdfs': dict con {nombre_pdf: BytesIO},
-    - Recibe 'new_excel': BytesIO donde escribimos el Excel de salida,
-    - Retorna el BytesIO con el Excel final.
-    """
+# Función para cargar y ejecutar un script externo
+def load_and_execute_script(script_name, files=None, pdfs=None, new_excel=None, month=None, year=None):
     try:
-        # 1) Procesar PDFs en memoria
-        df_resultado = procesar_pdfs_en_memoria(pdfs)
+        script_path = os.path.join("scripts", f"{script_name}.py")
+        if not os.path.exists(script_path):
+            raise FileNotFoundError(f"El script {script_name} no fue encontrado en {script_path}")
+        
+        spec = importlib.util.spec_from_file_location(script_name, script_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[script_name] = module
+        spec.loader.exec_module(module)
+        # Convertir archivos subidos a buffers y reiniciar el puntero
+        processed_files = {}
+        for key, file in files.items():
+            buffer = BytesIO(file.read())  # Convertir archivo a BytesIO
+            buffer.seek(0)  # Reiniciar puntero
+            processed_files[key] = buffer
+            
+        # Asegúrate de que processed_pdfs tenga un valor predeterminado si no se pasa como parámetro
+        if pdfs is None:
+            processed_pdfs = [] 
+        else:
+            processed_pdfs = pdfs
 
-        # Filtrar nulos o vacíos de la columna Fecha
-        if not df_resultado.empty and 'Fecha' in df_resultado.columns:
-            df_resultado.dropna(subset=['Fecha'], inplace=True)
-            df_resultado = df_resultado[df_resultado['Fecha'].str.strip() != '']
+        # Llamar a la función principal del script con los parámetros adicionales
+        result = module.main(processed_files, processed_pdfs, new_excel ,month, year)
+        return result
+        
+    except FileNotFoundError as e:
+        st.error(f"Error de archivo: {str(e)}")
+    except AttributeError as e:
+        st.error(f"Error en el script {script_name}: {str(e)}")
+    except KeyError as e:
+        st.error(f"Error con los archivos subidos: falta el archivo clave {str(e)}.")
+    except Exception as e:
+        st.error(f"Error inesperado al ejecutar el script {script_name}: {str(e)}")
 
-        # 2) Escribir el df_resultado en una hoja Excel
-        #    (Podrías hacer más transformaciones si quisieras)
-        with pd.ExcelWriter(new_excel, engine='openpyxl') as writer:
-            if not df_resultado.empty:
-                df_resultado.to_excel(writer, sheet_name='FinanciacionesRenting', index=False)
-            else:
-                # Si no hay nada, creamos una hoja vacía
-                pd.DataFrame({"Mensaje":["No se encontraron datos en los PDFs"]}).to_excel(
-                    writer, sheet_name='FinanciacionesRenting', index=False
+# Subida de archivos según el script seleccionado
+if script_option == "Daily Report":
+    st.header("Archivos")
+    # Selección de Mes y Año
+    st.subheader("Selecciona el Mes y Año:")
+    uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
+    uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
+
+    uploaded_FC = st.file_uploader("FC", type=["xlsx"])
+    uploaded_AB = st.file_uploader("AB", type=["xlsx"])
+    uploaded_FT = st.file_uploader("FT", type=["xlsx"])
+    uploaded_Compras = st.file_uploader("Compras", type=["xlsx"])
+    
+    uploaded_files = {
+    "FC": uploaded_FC, #FC
+    "AB": uploaded_AB, #AB
+    "FT": uploaded_FT, #FT
+    "Compras": uploaded_Compras, #Compras
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            load_and_execute_script("Daily Report", uploaded_files, uploaded_month, uploaded_year)
+
+elif script_option == "Credit Stock":
+    st.header("Archivos")
+    uploaded_metabase = st.file_uploader("Metabase", type=["xlsx"])
+    uploaded_santander = st.file_uploader("Santander", type=["xlsx"])
+    uploaded_sabadell = st.file_uploader("Sabadell", type=["xls"])
+    uploaded_sofinco = st.file_uploader("Sofinco", type=["xlsx"])
+    
+    uploaded_files = {
+    "Metabase": uploaded_metabase,
+    "Santander": uploaded_santander,
+    "Sabadell": uploaded_sabadell,
+    "Sofinco": uploaded_sofinco,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Credit stock",
+                    uploaded_files,
+                    new_excel 
                 )
 
-        # Retornar el buffer
-        new_excel.seek(0)
-        return new_excel
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Credit Stock {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Performance Comerciales B2C":
+    st.subheader("Selecciona el Mes y Año:")
+    uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
+    uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
+    
+    st.header("Archivos")
+    uploaded_FC = st.file_uploader("FC", type=["xlsx"])
+    uploaded_AB = st.file_uploader("AB", type=["xlsx"])
+    uploaded_FT = st.file_uploader("FT", type=["xlsx"])
+    uploaded_ventas = st.file_uploader("ventas", type=["xlsx"])
+    uploaded_leads= st.file_uploader("leads", type=["xlsx"])
+    uploaded_anterior = st.file_uploader("Anterior", type=["xlsx"])
+    uploaded_financiacion = st.file_uploader("Financiaciones 2025", type=["xlsx"])
+    
+    uploaded_files = {
+    "inf_usu_FC": uploaded_FC, #FC
+    "inf_usu_AB": uploaded_AB, #AB
+    "inf_usu_FT": uploaded_FT, #FT
+    "archivo_ventas": uploaded_ventas, # Ruta del archivo del Report de comerciales Solo detalles
+    "archivo_leads": uploaded_leads, # Ruta del archivo leads Solo detalles
+    "sellers_anterior": uploaded_anterior,
+    "archivo_financiacion": uploaded_financiacion, # Ruta del archivo de financiaciones
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Performance Comerciales B2C",
+                    uploaded_files,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Performance Comerciales B2C {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Financiaciones Renting":
+    st.header("PDFs")
+    # Pedimos que el usuario suba uno o varios PDFs
+    uploaded_pdfs = st.file_uploader(
+        "Sube los PDFs",
+        type=["pdf"],
+        accept_multiple_files=True
+    )
+
+    if uploaded_pdfs:
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                pdfs_dict = {f.name: f for f in uploaded_pdfs}
+                
+                excel_result = load_and_execute_script(
+                    "Financiaciones Renting",
+                    files={},                    # Si no necesitas Excels, queda vacío
+                    pdfs=pdfs_dict,              # PDFs subidos
+                    new_excel=new_excel
+                )
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Financiaciones Renting {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Financiaciones Santander":
+    st.header("Archivos y PDFs")
+    # Pedimos que el usuario suba uno o varios PDFs
+    uploaded_pdfs = st.file_uploader(
+        "Sube los PDFs",
+        type=["pdf"],
+        accept_multiple_files=True
+    )
+    
+    upload_Clientes = st.file_uploader("Clientes-Netsiut", type=["xlsx"])
+    upload_ventas_SF = st.file_uploader("Ventas-SalesForce", type=["xlsx"])
+    
+    uploaded_files = {
+    "Clientes": upload_Clientes,
+    "Ventas": upload_ventas_SF,
+    }
+    
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Financiaciones Santander",
+                    uploaded_files,
+                    uploaded_pdfs,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Financiaciones Santander {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+elif script_option == "Facturación Ventas B2C":
+    st.header("Archivos")
+    uploaded_clients = st.file_uploader("clients", type=["csv"])
+    uploaded_mheaders = st.file_uploader("motorbike_headers", type=["csv"])
+    uploaded_mlines = st.file_uploader("motorbike_lines", type=["csv"])
+    uploaded_sheaders = st.file_uploader("services_headers", type=["csv"])
+    uploaded_slines = st.file_uploader("services_lines", type=["csv"])
+    uploaded_Netsuitclientes = st.file_uploader("Clientes de Netsuit", type=["xlsx"])
+    uploaded_Netsuitarticulos = st.file_uploader("Artículos de Netsuit", type=["xlsx"])
+    uploaded_salesforce = st.file_uploader("Salesforce", type=["xlsx"])
+    
+    uploaded_files = {
+    "clients": uploaded_clients,
+    "motorbike_headers":uploaded_mheaders,
+    "motorbike_lines":uploaded_mlines,
+    "services_headers":uploaded_sheaders,
+    "services_lines":uploaded_slines,
+    "Clientes de Netsuit":uploaded_Netsuitclientes,
+    "Artículos de Netsuit":uploaded_Netsuitarticulos,
+    "Salesforce":uploaded_salesforce,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Facturacion ventas",
+                    uploaded_files,
+                    new_excel 
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Ventas {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Unnax CaixaBank":
+    st.header("Archivos")
+    uploaded_unnax = st.file_uploader("Unnax", type=["csv"])
+    uploaded_compras = st.file_uploader("Compras Netsuit", type=["xlsx"])
+
+    uploaded_files = {
+    "Unnax": uploaded_unnax,
+    "Compras": uploaded_compras,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Unnax CB",
+                    uploaded_files,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Carga Unnax CaixaBank {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Unnax Easy Payment":
+    st.header("Archivos")
+    uploaded_unnax = st.file_uploader("Unnax", type=["csv"])
+    uploaded_compras = st.file_uploader("Compras Netsuit", type=["xlsx"])
+
+    uploaded_files = {
+    "Unnax": uploaded_unnax,
+    "Compras": uploaded_compras,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+
+                new_excel = BytesIO()
+
+                excel_result = load_and_execute_script(
+                    "Unnax EP",
+                    uploaded_files,
+                    new_excel,
+                    uploaded_month,
+                    uploaded_year
+                )
+
+                if excel_result is not None:
+                    st.success("¡HECHO!")
+                    st.download_button(
+                        label="Descargar",
+                        data=excel_result.getvalue(),
+                        file_name=f"Carga Unnax Easy Payment {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
+
+elif script_option == "Calculadora Precios B2C":
+    st.header("Calculadora de Precios B2C")
+    # Cargar datos desde el CSV en el repositorio
+    try:
+        from scripts.calculadora_motos import load_data, calculate_price
+        data = load_data("Motos para calcular.csv")
+    except Exception as e:
+        st.error(f"Error al cargar los datos: {str(e)}")
+        data = None
+
+    if data is not None:
+        # Entrada del usuario
+        marca = st.selectbox("Selecciona la marca", options=data['MARCA'].unique())
+        if marca:
+            modelos_disponibles = data[data['MARCA'] == marca]['MODELO'].unique()
+            modelo = st.selectbox("Selecciona el modelo", options=modelos_disponibles)
+
+        año = st.number_input("Introduce el año", min_value=int(data['Año'].min()), max_value=int(data['Año'].max()), value=int(data['Año'].mean()))
+        km = st.number_input("Introduce el kilometraje", min_value=0, value=int(data['KM'].median()))
+
+        # Botón para calcular
+        if st.button("Calcular precio"):
+            if not modelo or not marca:
+                st.error("Por favor selecciona una marca y un modelo válidos.")
+            else:
+                # Calcular precio
+                precio, variacion, num_motos, min_año, max_km, subset = calculate_price(data, marca, modelo, año, km)
+                if precio is None:
+                    st.error("No se encontraron datos suficientes para calcular el precio.")
+                else:
+                    st.success(f"Precio estimado: {precio:,.2f} €")
+                    st.write(f"Variación estimada: +/- {variacion:,.2f} €")
+                    if min_año is not None and not pd.isna(min_año):
+                        st.write(f"Mayor antigüedad encontrada: {int(min_año)}")
+                    else:
+                        st.write("Año no encontrado")
+                    if max_km is not None and not pd.isna(max_km):
+                        st.write(f"Mayor kilometraje encontrado: {int(max_km)} KM")
+                    else:
+                        st.write("KM no encontrado")
+                    st.write(f"Número de motos analizadas: {num_motos}")
+                    st.write(f"Datos filtrados para {marca} {modelo}:")
+                    st.dataframe(subset)
 
     except Exception as e:
         raise RuntimeError(f"Error al procesar el script: {str(e)}")
