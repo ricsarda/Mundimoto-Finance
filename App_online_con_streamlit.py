@@ -176,8 +176,8 @@ elif script_option == "Financiaciones Renting":
         type=["pdf"],
         accept_multiple_files=True
     )
-    
-    if all(uploaded_pdfs.values()):
+
+    if uploaded_pdfs.values():
         if st.button("Ejecutar"):
             try:
 
