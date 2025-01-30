@@ -1,5 +1,3 @@
-# scripts/financiaciones_renting.py
-
 import pdfplumber
 import pandas as pd
 import numpy as np
@@ -69,8 +67,8 @@ def procesar_pdfs_en_memoria(pdfs_dict):
                 df_pivote = df_pivote.reindex(orden_nombres_final, fill_value="")
                 df_transpuesto = df_pivote.to_frame().T.reset_index(drop=True)
 
-            df_transpuesto["Codigo_Clave"] = codigo_clave_extraido
-            df_transpuesto["Nombre_Archivo"] = pdf_name
+            df_transpuesto["Operación"] = codigo_clave_extraido
+            df_transpuesto["Archivo"] = pdf_name
 
             dataframes.append(df_transpuesto)
 
