@@ -22,7 +22,7 @@ script_option = st.sidebar.selectbox(
 st.write(f"Has seleccionado: {script_option}")
 
 # Función para cargar y ejecutar un script externo
-def load_and_execute_script(script_name, files=None, pdfs=None, new_excel=None, month=None, year=None):
+def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month=None, year=None):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
         if not os.path.exists(script_path):
@@ -401,6 +401,3 @@ elif script_option == "Calculadora Precios B2C":
                     st.write(f"Número de motos analizadas: {num_motos}")
                     st.write(f"Datos filtrados para {marca} {modelo}:")
                     st.dataframe(subset)
-
-    except Exception as e:
-        raise RuntimeError(f"Error al procesar el script: {str(e)}")
