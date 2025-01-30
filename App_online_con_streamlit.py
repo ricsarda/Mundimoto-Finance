@@ -177,7 +177,7 @@ elif script_option == "Financiaciones Renting":
         accept_multiple_files=True
     )
     
-    if all(uploaded_files.values()):
+    if all(uploaded_pdfs.values()):
         if st.button("Ejecutar"):
             try:
 
