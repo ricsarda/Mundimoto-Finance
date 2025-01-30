@@ -169,7 +169,7 @@ elif script_option == "Performance Comerciales B2C":
                 st.error(f"Error al ejecutar el script: {str(e)}")
 
 elif script_option == "Financiaciones Renting":
-    st.header("Archivos y PDFs")
+    st.header("PDFs")
     # Pedimos que el usuario suba uno o varios PDFs
     uploaded_pdfs = st.file_uploader(
         "Sube los PDFs",
@@ -177,16 +177,19 @@ elif script_option == "Financiaciones Renting":
         accept_multiple_files=True
     )
 
-    if uploaded_pdfs.values():
+    if uploaded_pdfs:
         if st.button("Ejecutar"):
             try:
 
                 new_excel = BytesIO()
 
+                pdfs_dict = {f.name: f for f in uploaded_pdfs}
+                
                 excel_result = load_and_execute_script(
                     "Financiaciones Renting",
-                    uploaded_pdfs,
-                    new_excel
+                    files={},                    # Si no necesitas Excels, queda vacío
+                    pdfs=pdfs_dict,              # PDFs subidos
+                    new_excel=new_excel
                 )
                 if excel_result is not None:
                     st.success("¡HECHO!")
