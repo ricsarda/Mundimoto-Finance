@@ -4,22 +4,14 @@ import numpy as np
 from datetime import datetime
 import os
 import re
+from io import BytesIO
 
-#fecha actual
-fecha_actual = datetime.now()
-fecha_venci = datetime.now().date()
-fecha = fecha_actual.strftime("%d-%m-%Y")
-
-# Rutas
-ruta_archivo_final_excel = f"C:/Users/Ricardo Sarda/Desktop/Python/Financiaciones Renting/Financiaciones {fecha}.xlsx"
-carpeta_pdfs = "C:/Users/Ricardo Sarda/Desktop/Python/Financiaciones Renting/"
-ruta_Clientes = "C:/Users/Ricardo Sarda/Downloads/Libro_20241231_093303.xlsx" #clientes sage
-ruta_ventas_SF = "C:/Users/Ricardo Sarda/Downloads/ES Sales - Invoiced this current year-2024-12-31-10-33-58.xlsx" #invoiced last 10 weeks solo detalles .xlsx
-
-def procesar_pdfs_en_carpeta(carpeta_pdf):
-    """Procesa todos los PDFs en una carpeta y convierte la información en un DataFrame."""
-    dataframes = []  # Lista para almacenar los DataFrames de cada PDF
-
+def procesar_pdfs_en_memoria(pdfs_dict):
+    """
+    Recibe un diccionario {nombre_pdf: BytesIO} con los PDFs
+    y retorna un DataFrame consolidado tras extraer la info.
+    """
+    dataframes = []
     # Patrones de interés en el texto del PDF (tal cual aparecen)
     patrones_interes = [
         "Tfno",
@@ -37,81 +29,104 @@ def procesar_pdfs_en_carpeta(carpeta_pdf):
         "Totalpara": "Total para Aplicar",
         "NuevoCapital": "Nuevo Capital Pendiente"
     }
-    
-    # Orden final que queremos en las filas/columnas tras renombrar
-    orden_nombres_final = list(mapeo_nombres.values())  # ["Fecha", "Importe", "Intereses", "Total para Aplicar", "Nuevo Capital Pendiente"]
+    orden_nombres_final = list(mapeo_nombres.values())
 
-    # Iterar por todos los archivos PDF en la carpeta
-    for archivo in os.listdir(carpeta_pdf):
-        if archivo.endswith(".pdf"):
-            ruta_pdf = os.path.join(carpeta_pdf, archivo)
-
-            # Leer el contenido del PDF
-            with pdfplumber.open(ruta_pdf) as pdf:
-                texto = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
-
-            # Extraer el código clave
+    # Iterar por los PDFs subidos
+    for pdf_name, pdf_buffer in pdfs_dict.items():
+        try:
+            with pdfplumber.open(pdf_buffer) as pdf:
+                texto = "\n".join(
+                    page.extract_text()
+                    for page in pdf.pages
+                    if page.extract_text()
+                )
+            
+            # Extraer el código clave con expresión regular
             codigo_clave = re.search(r'\bE\d{2}[A-Z]{1}\d{8,}\b', texto)
             codigo_clave_extraido = codigo_clave.group(0) if codigo_clave else None
 
-            # Convertir el texto en un DataFrame por líneas
             lineas = texto.split("\n")
             df_lineas = pd.DataFrame(lineas, columns=["Contenido"])
 
-            # Filtrar las filas cuyos inicios coincidan con alguno de los patrones
-            df_filtrado = df_lineas[df_lineas["Contenido"].str.startswith(tuple(patrones_interes), na=False)].copy()
+            # Filtrar las filas cuyos inicios coincidan con los patrones_interes
+            df_filtrado = df_lineas[
+                df_lineas["Contenido"].str.startswith(tuple(patrones_interes), na=False)
+            ].copy()
 
-            # Extraer la parte numérica (Datos) al final de cada línea
+            # Extraer parte numérica al final de cada línea
             df_filtrado["Datos"] = df_filtrado["Contenido"].str.extract(r'([\d.,/]+)$')
 
-            # Eliminar la parte numérica del final para quedarnos con el "encabezado" (Contenido)
-            df_filtrado["Contenido"] = df_filtrado["Contenido"].str.replace(r'([\d.,/]+)$', '', regex=True).str.strip()
+            # Eliminar la parte numérica de la columna "Contenido"
+            df_filtrado["Contenido"] = df_filtrado["Contenido"].str.replace(
+                r'([\d.,/]+)$', '', regex=True
+            ).str.strip()
 
-            # Función para renombrar el texto detectado al nombre deseado
             def cambiarnombres(texto_patron):
-                # Si existe en el mapeo, devolvemos el valor nuevo, si no, lo dejamos tal cual
                 for patron, nuevo_nombre in mapeo_nombres.items():
                     if texto_patron.startswith(patron):
                         return nuevo_nombre
                 return texto_patron
 
-            # Aplicamos el cambio de nombres (p.ej. "Tfno..." -> "Fecha")
+            # Cambiar nombres (p.ej. "Tfno" -> "Fecha")
             df_filtrado["Contenido"] = df_filtrado["Contenido"].apply(cambiarnombres)
 
-            # Ahora queremos pivotar, poniendo el valor en "Datos" y el índice en "Contenido"
-            # Pero antes forzamos a que existan todas las filas correspondientes a los patrones esperados
-            # usando 'reindex' con fill_value=""
-            
-            # Si no hay coincidencias en absoluto (df_filtrado vacío), creamos un DF con NaN o blancos
             if df_filtrado.empty:
+                # Si no se encontró nada, creamos una fila vacía
                 df_transpuesto = pd.DataFrame(columns=orden_nombres_final)
-                df_transpuesto.loc[0] = [""] * len(orden_nombres_final)  # fila en blanco
+                df_transpuesto.loc[0] = [""] * len(orden_nombres_final)
             else:
                 df_pivote = df_filtrado.set_index("Contenido")["Datos"]
-                df_pivote = df_pivote.reindex(orden_nombres_final, fill_value="")  # forzamos filas
+                df_pivote = df_pivote.reindex(orden_nombres_final, fill_value="")
                 df_transpuesto = df_pivote.to_frame().T.reset_index(drop=True)
 
-            # Agregamos la columna del código clave
+            # Agregar la columna de operación y nombre del archivo
             df_transpuesto["Operación"] = codigo_clave_extraido
+            df_transpuesto["Nombre_Archivo"] = pdf_name
 
-            df_transpuesto["Nombre_Archivo"] = archivo
-            # Agregar el DataFrame transpuesto a la lista
             dataframes.append(df_transpuesto)
+        
+        except Exception as e:
+            print(f"Error procesando {pdf_name}: {e}")
+            # Si hay error, puedes decidir agregar un DataFrame vacío o ignorarlo
 
-    # Combinar todos los DataFrames en uno solo
     if dataframes:
         df_final = pd.concat(dataframes, ignore_index=True)
     else:
-        df_final = pd.DataFrame()  # en caso de que no haya PDFs o no se extraiga nada
+        df_final = pd.DataFrame()
 
     return df_final
 
+def main(files, pdfs, new_excel, month=None, year=None):
+    """
+    Función principal para 'Financiaciones Renting':
+    - Recibe 'files' (no usado en este ejemplo, pero se deja para uniformidad),
+    - Recibe 'pdfs': dict con {nombre_pdf: BytesIO},
+    - Recibe 'new_excel': BytesIO donde escribimos el Excel de salida,
+    - Retorna el BytesIO con el Excel final.
+    """
+    try:
+        # 1) Procesar PDFs en memoria
+        df_resultado = procesar_pdfs_en_memoria(pdfs)
 
-# Procesar los PDFs y generar el DataFrame final
-df_resultado = procesar_pdfs_en_carpeta(carpeta_pdfs)
-df_resultado.dropna(subset=['Fecha'], inplace=True)
-df_resultado = df_resultado[df_resultado['Fecha'].str.strip() != '']
-print(df_resultado)
-# Guardar el resultado en un archivo Excel
+        # Filtrar nulos o vacíos de la columna Fecha
+        if not df_resultado.empty and 'Fecha' in df_resultado.columns:
+            df_resultado.dropna(subset=['Fecha'], inplace=True)
+            df_resultado = df_resultado[df_resultado['Fecha'].str.strip() != '']
 
+        # 2) Escribir el df_resultado en una hoja Excel
+        #    (Podrías hacer más transformaciones si quisieras)
+        with pd.ExcelWriter(new_excel, engine='openpyxl') as writer:
+            if not df_resultado.empty:
+                df_resultado.to_excel(writer, sheet_name='FinanciacionesRenting', index=False)
+            else:
+                # Si no hay nada, creamos una hoja vacía
+                pd.DataFrame({"Mensaje":["No se encontraron datos en los PDFs"]}).to_excel(
+                    writer, sheet_name='FinanciacionesRenting', index=False
+                )
 
+        # Retornar el buffer
+        new_excel.seek(0)
+        return new_excel
+
+    except Exception as e:
+        raise RuntimeError(f"Error al procesar el script: {str(e)}")
