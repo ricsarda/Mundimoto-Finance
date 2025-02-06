@@ -296,7 +296,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
 
         compensaciones['Account ID'] = 574000000
         # Concat final_operaciones + compensaciones
-        final_operaciones = pd.concat([final_operaciones, compensaciones], ignore_index=True)
+        final_operaciones = pd.concat([comisiones, compensaciones], ignore_index=True)
 
         # Añadir col “Fecha”, “Descripcion linea”, “Memo”
         final_operaciones['Fecha'] = final_operaciones['FechaAsiento']
