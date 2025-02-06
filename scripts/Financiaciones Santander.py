@@ -255,17 +255,9 @@ def main(files, pdfs, new_excel, month=None, year=None):
                     })
 
         final_operaciones = pd.DataFrame(rows_nuevas)
-
-        # 3) Leer "Financiaciones" y "Ventas" desde 'files'
-        if "Financiaciones" in files and files["Financiaciones"] is not None:
-            financiaciones = pd.read_excel(files["Financiaciones"], engine='openpyxl')
-        else:
-            financiaciones = pd.DataFrame()
-
-        if "Ventas" in files and files["Ventas"] is not None:
-            ventas_SF = pd.read_excel(files["Ventas"], engine='openpyxl')
-        else:
-            ventas_SF = pd.DataFrame()
+        
+        financiaciones = pd.read_excel((files["Financiaciones"]), engine='openpyxl')
+        ventas_SF = pd.read_excel((files["Ventas"]), engine='openpyxl')
 
         # (a) Separa “Compensaciones” y “Pago Proveedor - Entrega Inicial”
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
