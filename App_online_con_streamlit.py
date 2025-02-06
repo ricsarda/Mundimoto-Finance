@@ -205,7 +205,7 @@ elif script_option == "Financiaciones Renting":
 elif script_option == "Financiaciones Santander":
     st.header("Subida de archivos")
 
-    uploaded_pdfs = st.file_uploader("Sube PDFs Financiaciones Renting", type=["pdf"], accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Sube PDFs Santander cartas de Pago", type=["pdf"], accept_multiple_files=True)
     uploaded_financiaciones = st.file_uploader("Sube Excel Financiaciones", type=["xlsx"])
     uploaded_ventas_SF = st.file_uploader("Sube Excel Ventas SF", type=["xlsx"])
 
