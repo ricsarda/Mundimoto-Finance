@@ -203,46 +203,40 @@ elif script_option == "Financiaciones Renting":
                 st.error(f"Error al ejecutar el script: {str(e)}")
 
 elif script_option == "Financiaciones Santander":
-    st.header("Archivos y PDFs")
-    # Pedimos que el usuario suba uno o varios PDFs
-    uploaded_pdfs = st.file_uploader(
-        "Sube los PDFs",
-        type=["pdf"],
-        accept_multiple_files=True
-    )
-    
-    upload_Clientes = st.file_uploader("Clientes-Netsiut", type=["xlsx"])
-    upload_ventas_SF = st.file_uploader("Ventas-SalesForce", type=["xlsx"])
-    
-    uploaded_files = {
-    "Clientes": upload_Clientes,
-    "Ventas": upload_ventas_SF,
-    }
-    
-    if all(uploaded_files.values()):
-        if st.button("Ejecutar"):
+    st.header("Subida de archivos")
+
+    uploaded_pdfs = st.file_uploader("Sube PDFs Financiaciones Renting", type=["pdf"], accept_multiple_files=True)
+    uploaded_financiaciones = st.file_uploader("Sube Excel Financiaciones", type=["xlsx"])
+    uploaded_ventas_SF = st.file_uploader("Sube Excel Ventas SF", type=["xlsx"])
+
+    if uploaded_pdfs:
+        if st.button("Ejecutar Financiaciones Renting"):
+            new_excel = BytesIO()
+            pdfs_dict = {f.name: f for f in uploaded_pdfs}
+
+            files_dict = {}
+            if uploaded_financiaciones:
+                files_dict["financiaciones"] = uploaded_financiaciones
+            if uploaded_ventas_SF:
+                files_dict["ventas_SF"] = uploaded_ventas_SF
+
             try:
-
-                new_excel = BytesIO()
-
                 excel_result = load_and_execute_script(
-                    "Financiaciones Santander",
-                    uploaded_files,
-                    uploaded_pdfs,
-                    new_excel,
-                    uploaded_month,
-                    uploaded_year
+                    "financiaciones_renting",  # Nombre de tu script .py
+                    files=files_dict,
+                    pdfs=pdfs_dict,
+                    new_excel=new_excel
                 )
                 if excel_result is not None:
                     st.success("¡HECHO!")
                     st.download_button(
-                        label="Descargar",
+                        label="Descargar Excel",
                         data=excel_result.getvalue(),
-                        file_name=f"Financiaciones Santander {fecha}.xlsx",
+                        file_name=f"FinanciacionesRenting_{fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error al ejecutar: {str(e)}")
 elif script_option == "Facturación Ventas B2C":
     st.header("Archivos")
     uploaded_clients = st.file_uploader("clients", type=["csv"])
