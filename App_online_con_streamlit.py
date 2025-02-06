@@ -216,9 +216,9 @@ elif script_option == "Financiaciones Santander":
 
             files_dict = {}
             if uploaded_financiaciones:
-                files_dict["financiaciones"] = uploaded_financiaciones
+                files_dict["Financiaciones"] = uploaded_financiaciones
             if uploaded_ventas_SF:
-                files_dict["ventas_SF"] = uploaded_ventas_SF
+                files_dict["Ventas"] = uploaded_ventas_SF
 
             try:
                 excel_result = load_and_execute_script(
