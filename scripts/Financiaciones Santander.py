@@ -271,19 +271,11 @@ def main(files, pdfs, new_excel, month=None, year=None):
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
         codigocliente = final_operaciones[final_operaciones['Utilidad'] == 'Pago Proveedor - Entrega Inicial']
         comisiones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']
-        # Nos quedamos con “Total” y “Comision Terceros” + ...
-        # (En tu script, tomabas 'final_operaciones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']'
-        #   y concatenabas. Ajusta si lo deseas.
-
         # Merge con "Financiaciones" y "Ventas" para obtener info extra:
         codigocliente['Operación'] = codigocliente['Comentario'].str.replace('FINANC. SANTANDER - ', '', regex=False)
-        if not financ_df.empty and 'Operación' in financ_df.columns:
-            codigocliente = codigocliente.merge(financ_df[['Operación','MATRÍCULA']], on='Operación', how='left')
-        if not ventas_df.empty and 'Moto' in ventas_df.columns and 'DNI' in ventas_df.columns:
-            codigocliente = codigocliente.merge(ventas_df[['Moto','DNI']], right_on='Moto', left_on='MATRÍCULA', how='left')
-            codigocliente['External ID'] = codigocliente['DNI']
-        else:
-            codigocliente['External ID'] = None
+        codigocliente = codigocliente.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
+        codigocliente = codigocliente.merge(ventas_SF[['Moto', 'DNI']],right_on='Moto', left_on='MATRÍCULA', how='left')
+        codigocliente['External ID'] = codigocliente['DNI']
 
         # Reemplazar 'CodigoCuenta' con 'External ID' si existe
         def accountidcliente(row):
@@ -292,17 +284,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
             else:
                 return row['External ID']
         codigocliente['External ID'] = codigocliente.apply(accountidcliente, axis=1)
-
-        # (b) Ajustar 'final_operaciones' con 'Account ID' segun la “Utilidad”
-        # Ejemplo:
-        def accountid(row):
-            if row['Utilidad'] == 'Total':
-                return 2437
-            elif row['Utilidad'] == 'Comision Terceros':
-                return 2358
-            else:
-                return row['CodigoCuenta']
-        final_operaciones['Account ID'] = final_operaciones.apply(accountid, axis=1)
+        codigocliente = codigocliente[['FechaAsiento', 'External ID', 'ImporteAsiento', 'Operación']]
 
         # Reformatear comentarios de compensaciones
         def reformatear_comentario(comentario):
@@ -339,10 +321,6 @@ def main(files, pdfs, new_excel, month=None, year=None):
         final_operaciones['Debit'] = final_operaciones.apply(debit, axis=1)
         final_operaciones['ExternalID'] = final_operaciones['Utilidad'] + '_' + final_operaciones['Fecha'].astype(str)
 
-        # Extraer “Pago Proveedor - Entrega Inicial” vs. “Comisiones”
-        # O, si prefieres, no filtrar:
-        #  ...
-        # Orden final de columnas
         ordenfinal = ['ExternalID', 'Fecha', 'Memo', 'Account ID','Credit','Debit','Descripcion linea']
         final_operaciones = final_operaciones[ordenfinal]
 
