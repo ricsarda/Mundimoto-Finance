@@ -326,8 +326,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
         with pd.ExcelWriter(new_excel, engine='openpyxl') as writer:
             final_operaciones.to_excel(writer, sheet_name='Import', index=False)
             codigocliente.to_excel(writer, sheet_name='Pago', index=False)
-            financ_df.to_excel(writer, sheet_name='Financiaciones', index=False)
-            ventas_df.to_excel(writer, sheet_name='Ventas SF', index=False)
+            financiaciones.to_excel(writer, sheet_name='Financiaciones', index=False)
+            ventas_SF.to_excel(writer, sheet_name='Ventas SF', index=False)
 
         new_excel.seek(0)
         return new_excel
