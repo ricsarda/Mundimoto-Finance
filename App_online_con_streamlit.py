@@ -210,7 +210,7 @@ elif script_option == "Financiaciones Santander":
     uploaded_ventas_SF = st.file_uploader("Sube Excel Ventas SF", type=["xlsx"])
 
     if uploaded_pdfs:
-        if st.button("Ejecutar Financiaciones Renting"):
+        if st.button("Ejecutar Financiaciones Santander"):
             new_excel = BytesIO()
             pdfs_dict = {f.name: f for f in uploaded_pdfs}
 
@@ -222,7 +222,7 @@ elif script_option == "Financiaciones Santander":
 
             try:
                 excel_result = load_and_execute_script(
-                    "financiaciones_renting",  # Nombre de tu script .py
+                    "Financiaciones Santander",  # Nombre de tu script .py
                     files=files_dict,
                     pdfs=pdfs_dict,
                     new_excel=new_excel
