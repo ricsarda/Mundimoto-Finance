@@ -292,7 +292,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
                 nuevo_coment, nuevo_importe = reformatear_comentario(rowc['Comentario'])
                 if nuevo_importe:
                     compensaciones.at[idx, 'ImporteAsiento'] = nuevo_importe
-                    compensaciones.at[idx, 'Comentario'] = nuevo_comentario
+                    compensaciones.at[idx, 'Comentario'] = nuevo_coment
         compensaciones = compensaciones.drop_duplicates()
         compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].str.replace(',', '.')
         compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].astype(float)
