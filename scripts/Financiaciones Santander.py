@@ -316,22 +316,34 @@ def main(files, pdfs, new_excel, month=None, year=None):
         ordenfinal = ['ExternalID', 'Fecha', 'Memo', 'Account ID','Credit','Debit','Descripcion linea']
         final_operaciones = final_operaciones[ordenfinal]
 
-        # Duplicar para contrapartida (si así lo haces en tu script)
-        operaciones_contraparte = final_operaciones.copy()
-        operaciones_contraparte.rename(columns={'Credit':'Debit','Debit':'Credit'}, inplace=True)
-        operaciones_contraparte['Account ID'] = 572000004
-        final_operaciones = pd.concat([final_operaciones, operaciones_contraparte], ignore_index=True)
+        # Contrapartida
+        ops_contraparte = final_operaciones.copy()
+        ops_contraparte.rename(columns={'Credit':'Debit','Debit':'Credit'}, inplace=True)
+        ops_contraparte['Account ID'] = 2437
+        final_operaciones = pd.concat([final_operaciones, ops_contraparte], ignore_index=True)
 
-        # Preparamos el Excel final en 'new_excel'
-        with pd.ExcelWriter(new_excel, engine='openpyxl') as writer:
+        # ----------------------------------------------
+        #   AQUI: Creamos DOS BytesIO en lugar de uno
+        # ----------------------------------------------
+        excel_final_ops = BytesIO()  # Contendrá SOLO final_operaciones
+        excel_rest = BytesIO()       # Contendrá codigocliente, financ_df, ventas_df
+
+        # 1) Escribir final_operaciones en su Excel
+        with pd.ExcelWriter(excel_final_ops, engine='openpyxl') as writer:
             final_operaciones.to_excel(writer, sheet_name='Import', index=False)
-            codigocliente.to_excel(writer, sheet_name='Pago', index=False)
-            financiaciones.to_excel(writer, sheet_name='Financiaciones', index=False)
-            ventas_SF.to_excel(writer, sheet_name='Ventas SF', index=False)
 
-        new_excel.seek(0)
-        return new_excel
+        # 2) Escribir el resto en otro Excel
+        with pd.ExcelWriter(excel_rest, engine='openpyxl') as writer:
+            codigocliente.to_excel(writer, sheet_name='Pago', index=False)
+            financ_df.to_excel(writer, sheet_name='Financiaciones', index=False)
+            ventas_df.to_excel(writer, sheet_name='Ventas SF', index=False)
+
+        # Mover punteros al inicio
+        excel_final_ops.seek(0)
+        excel_rest.seek(0)
+
+        # DEVOLVEMOS las DOS salidas
+        return excel_final_ops, excel_rest
 
     except Exception as e:
         raise RuntimeError(f"Error al procesar el script: {str(e)}")
-
