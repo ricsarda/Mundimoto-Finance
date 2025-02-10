@@ -227,16 +227,30 @@ elif script_option == "Financiaciones Santander":
                     pdfs=pdfs_dict,
                     new_excel=new_excel
                 )
-                if excel_result is not None:
+                if resultados is not None:
+                    # 'resultados' es una tupla (excel_final_ops, excel_rest)
+                    excel_ops, excel_otros = resultados
+
                     st.success("¡HECHO!")
+                    # Botón para descargar final_operaciones
                     st.download_button(
-                        label="Descargar Excel",
-                        data=excel_result.getvalue(),
-                        file_name=f"FinanciacionesRenting_{fecha}.xlsx",
+                        label="Descargar Final Operaciones",
+                        data=excel_ops.getvalue(),
+                        file_name="Final_Operaciones.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+
+                    # Botón para descargar el "resto"
+                    st.download_button(
+                        label="Descargar Otros DF",
+                        data=excel_otros.getvalue(),
+                        file_name="Otros_DF.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
                 st.error(f"Error al ejecutar: {str(e)}")
+
+
 elif script_option == "Facturación Ventas B2C":
     st.header("Archivos")
     uploaded_clients = st.file_uploader("clients", type=["csv"])
