@@ -262,7 +262,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         # (a) Separa “Compensaciones” y “Pago Proveedor - Entrega Inicial”
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
         codigocliente = final_operaciones[final_operaciones['Utilidad'] == 'Pago Proveedor - Entrega Inicial']
-        comisiones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']
+        final_operaciones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']
         # Merge con "Financiaciones" y "Ventas" para obtener info extra:
         codigocliente['Operación'] = codigocliente['Comentario'].str.replace('FINANC. SANTANDER - ', '', regex=False)
         codigocliente = codigocliente.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
@@ -291,12 +291,14 @@ def main(files, pdfs, new_excel, month=None, year=None):
             if rowc['Utilidad'] == 'Compensaciones':
                 nuevo_coment, nuevo_importe = reformatear_comentario(rowc['Comentario'])
                 if nuevo_importe:
-                    compensaciones.at[idx, 'ImporteAsiento'] = float(nuevo_importe.replace(',', '.'))
-                    compensaciones.at[idx, 'Comentario'] = nuevo_coment
-
-        compensaciones['Account ID'] = 574000000
+                    compensaciones.at[idx, 'ImporteAsiento'] = nuevo_importe
+                    compensaciones.at[idx, 'Comentario'] = nuevo_comentario
+        compensaciones = compensaciones.drop_duplicates()
+        compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].str.replace(',', '.')
+        compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].astype(float)
+        compensaciones['Account ID'] = 2358
         # Concat final_operaciones + compensaciones
-        final_operaciones = pd.concat([comisiones, compensaciones], ignore_index=True)
+        final_operaciones = pd.concat([final_operaciones, compensaciones], ignore_index=True)
 
         # Añadir col “Fecha”, “Descripcion linea”, “Memo”
         final_operaciones['Fecha'] = final_operaciones['FechaAsiento']
