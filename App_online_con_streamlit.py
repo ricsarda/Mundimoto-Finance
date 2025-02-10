@@ -220,7 +220,7 @@ elif script_option == "Financiaciones Santander":
                 pdfs_dict = {f.name: f for f in uploaded_pdfs}
                 # Llamamos al script
                 resultados = load_and_execute_script(
-                    "financiaciones_santander",
+                    "Financiaciones Santander",
                     files=uploaded_files,
                     pdfs=pdfs_dict
                 )
