@@ -335,8 +335,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
         # 2) Escribir el resto en otro Excel
         with pd.ExcelWriter(excel_rest, engine='openpyxl') as writer:
             codigocliente.to_excel(writer, sheet_name='Pago', index=False)
-            financ_df.to_excel(writer, sheet_name='Financiaciones', index=False)
-            ventas_df.to_excel(writer, sheet_name='Ventas SF', index=False)
+            financiaciones.to_excel(writer, sheet_name='Financiaciones 2025', index=False)
+            ventas_SF.to_excel(writer, sheet_name='Ventas SF', index=False)
 
         # Mover punteros al inicio
         excel_final_ops.seek(0)
