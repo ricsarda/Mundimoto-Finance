@@ -208,9 +208,14 @@ elif script_option == "Financiaciones Santander":
     uploaded_pdfs = st.file_uploader("Sube PDFs Santander cartas de Pago", type=["pdf"], accept_multiple_files=True)
     uploaded_financiaciones = st.file_uploader("Sube Excel Financiaciones", type=["xlsx"])
     uploaded_ventas_SF = st.file_uploader("Sube Excel Ventas SF", type=["xlsx"])
-
-    if uploaded_pdfs:
-        if st.button("Ejecutar Financiaciones Santander"):
+    
+    uploaded_files = {
+        "Financiaciones": uploaded_financiaciones,
+        "Ventas": uploaded_ventas
+    }
+    
+    if all(uploaded_files.values()) and uploaded_pdfs:
+        if st.button("Ejecutar"):
             try:
                 pdfs_dict = {f.name: f for f in uploaded_pdfs}
                 # Llamamos al script
@@ -228,14 +233,14 @@ elif script_option == "Financiaciones Santander":
                     st.download_button(
                         label="Descargar Final Operaciones",
                         data=excel_ops.getvalue(),
-                        file_name="Final_Operaciones.xlsx",
+                        file_name=f"Financiaciones Santander-Comisiones {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                     # Botón para descargar el "resto"
                     st.download_button(
-                        label="Descargar Otros DF",
+                        label="Descargar Pagos",
                         data=excel_otros.getvalue(),
-                        file_name="Otros_DF.xlsx",
+                        file_name=f"Financiaciones Santander-Pagos {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
