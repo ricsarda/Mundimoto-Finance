@@ -19,7 +19,7 @@ script_option = st.sidebar.selectbox(
     ("Credit Stock", "Calculadora Precios B2C", "Daily Report","Financiaciones Santander", "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank", "Unnax Easy Payment", "Stripe")
 )
 
-st.write(f"Has seleccionado: {script_option}")
+st.write(f"{script_option}")
 
 # Función para cargar y ejecutar un script externo
 def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month=None, year=None):
