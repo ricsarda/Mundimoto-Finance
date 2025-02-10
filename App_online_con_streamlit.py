@@ -211,7 +211,7 @@ elif script_option == "Financiaciones Santander":
     
     uploaded_files = {
         "Financiaciones": uploaded_financiaciones,
-        "Ventas": uploaded_ventas
+        "Ventas": uploaded_ventas_SF
     }
     
     if all(uploaded_files.values()) and uploaded_pdfs:
