@@ -211,21 +211,13 @@ elif script_option == "Financiaciones Santander":
 
     if uploaded_pdfs:
         if st.button("Ejecutar Financiaciones Santander"):
-            new_excel = BytesIO()
-            pdfs_dict = {f.name: f for f in uploaded_pdfs}
-
-            files_dict = {}
-            if uploaded_financiaciones:
-                files_dict["Financiaciones"] = uploaded_financiaciones
-            if uploaded_ventas_SF:
-                files_dict["Ventas"] = uploaded_ventas_SF
-
             try:
-                excel_result = load_and_execute_script(
-                    "Financiaciones Santander",  # Nombre de tu script .py
-                    files=files_dict,
-                    pdfs=pdfs_dict,
-                    new_excel=new_excel
+                pdfs_dict = {f.name: f for f in uploaded_pdfs}
+                # Llamamos al script
+                resultados = load_and_execute_script(
+                    "financiaciones_santander",
+                    files=uploaded_files,
+                    pdfs=pdfs_dict
                 )
                 if resultados is not None:
                     # 'resultados' es una tupla (excel_final_ops, excel_rest)
@@ -239,7 +231,6 @@ elif script_option == "Financiaciones Santander":
                         file_name="Final_Operaciones.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-
                     # Botón para descargar el "resto"
                     st.download_button(
                         label="Descargar Otros DF",
