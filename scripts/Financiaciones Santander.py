@@ -294,6 +294,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
                     compensaciones.at[idx, 'ImporteAsiento'] = nuevo_importe
                     compensaciones.at[idx, 'Comentario'] = nuevo_coment
         compensaciones = compensaciones.drop_duplicates()
+        compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].fillna('').astypr(str)
         compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].str.replace(',', '.')
         compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].astype(float)
         compensaciones['Account ID'] = 2358
