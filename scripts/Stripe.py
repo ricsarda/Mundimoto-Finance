@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from io import BytesIO
 
-def process_stripe_data(uploaded_file):
+def process_stripe_data(uploaded_stripe):
         try:
         # Verificar que el archivo se ha subido correctamente
         if uploaded_file is None:
