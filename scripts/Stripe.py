@@ -54,7 +54,7 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         carga['Debit'] = pd.to_numeric(carga['Debit'], errors='coerce')
         carga['ExternalID'] = carga['automatic_payout_effective_at'].apply(lambda x: f"Stripe_{x}")
         carga['Memo'] = carga['automatic_payout_effective_at'].apply(lambda x: f"Liquidacion Stripe {x}")
-        carga['Descripción linea'] = carga['automatic_payout_effective_at'].apply(lambda x: f"Liquidacion Stripe {x}")
+        carga['Descripcion linea'] = carga['automatic_payout_effective_at'].apply(lambda x: f"Liquidacion Stripe {x}")
         carga.rename(columns={'automatic_payout_effective_at': 'Fecha'}, inplace=True)
         carga['Clase'] = ''
 
