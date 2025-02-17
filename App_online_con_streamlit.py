@@ -405,3 +405,22 @@ elif script_option == "Calculadora Precios B2C":
                     st.write(f"Número de motos analizadas: {num_motos}")
                     st.write(f"Datos filtrados para {marca} {modelo}:")
                     st.dataframe(subset)
+
+elif script_option == "Stripe":
+    st.header("Stripe")
+    uploaded_file = st.file_uploader("Stripe", type=["csv"])
+    if uploaded_file is not None:
+        if st.button("Procesar Archivo"):
+            output_file = process_stripe_data(uploaded_file)
+
+            if output_file is not None:
+                st.success("¡Archivo procesado con éxito!")
+
+                # Botón para descargar el archivo procesado
+                st.download_button(
+                    label="Descargar",
+                    data=output_file,
+                    file_name=f"Stripe_{datetime.now().strftime('%d-%m-%Y')}.csv",
+                    mime="text/csv"
+                )
+            )
