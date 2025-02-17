@@ -22,7 +22,7 @@ script_option = st.sidebar.selectbox(
 st.write(f"{script_option}")
 
 # Función para cargar y ejecutar un script externo
-def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, new_csv=None, month=None, year=None):
+def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month=None, year=None):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
         if not os.path.exists(script_path):
@@ -46,7 +46,7 @@ def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, new_c
             processed_pdfs = pdfs
 
         # Llamar a la función principal del script con los parámetros adicionales
-        result = module.main(processed_files, processed_pdfs, new_excel ,new_csv, month, year)
+        result = module.main(processed_files, processed_pdfs, new_excel , month, year)
         return result
         
     except FileNotFoundError as e:
