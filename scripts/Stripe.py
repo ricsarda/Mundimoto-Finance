@@ -12,7 +12,7 @@ def process_stripe_data(uploaded_stripe):
 
         # Intentar leer el CSV
         try:
-            stripe = pd.read_csv(uploaded_file, delimiter=',')
+            stripe = pd.read_csv(uploaded_stripe, delimiter=',')
         except Exception as e:
             st.error(f"Error al leer el archivo CSV: {str(e)}")
             return None
