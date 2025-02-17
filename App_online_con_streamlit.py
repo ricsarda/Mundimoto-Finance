@@ -407,19 +407,31 @@ elif script_option == "Calculadora Precios B2C":
                     st.dataframe(subset)
 
 elif script_option == "Stripe":
-    st.header("Stripe")
-    uploaded_file = st.file_uploader("Stripe", type=["csv"])
-    if uploaded_file is not None:
-        if st.button("Procesar Archivo"):
-            output_file = process_stripe_data(uploaded_file)
+    st.header("Carga de Liquidaciones Stripe")
 
-            if output_file is not None:
-                st.success("¡Archivo procesado con éxito!")
+    # Subir el archivo CSV
+    uploaded_stripe = st.file_uploader("Sube el archivo Conciliacin_detallada_de_transferencias... (.csv)", type=["csv"])
+    # Diccionario de archivos subidos
+    uploaded_files = {
+        "Stripe": uploaded_stripe
+    }
 
-                # Botón para descargar el archivo procesado
-                st.download_button(
-                    label="Descargar",
-                    data=output_file,
-                    file_name=f"Stripe_{datetime.now().strftime('%d-%m-%Y')}.csv",
-                    mime="text/csv"
-                )
+    # Verificar que el archivo se haya subido antes de ejecutar el script
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+                # Procesar archivo con la función process_stripe_data
+                output_file = process_stripe_data(uploaded_stripe)
+
+                if output_file is not None:
+                    st.success("¡HECHO!")
+
+                    # Botón para descargar el archivo procesado
+                    st.download_button(
+                        label="Descargar",
+                        data=output_file.getvalue(),
+                        file_name=f"Stripe_{datetime.now().strftime('%d-%m-%Y')}.csv",
+                        mime="text/csv"
+                    )
+            except Exception as e:
+                st.error(f"Error al ejecutar el script: {str(e)}")
