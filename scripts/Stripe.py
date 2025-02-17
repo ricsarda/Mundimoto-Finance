@@ -4,11 +4,27 @@ from datetime import datetime
 from io import BytesIO
 
 def process_stripe_data(uploaded_file):
-    """Función para procesar el archivo de Stripe y generar el CSV final."""
-    try:
-        # Cargar el archivo CSV
-        stripe = pd.read_csv(uploaded_file, delimiter=',')
-        stripe['automatic_payout_effective_at'] = pd.to_datetime(stripe['automatic_payout_effective_at']).dt.strftime('%d/%m/%Y')
+        try:
+        # Verificar que el archivo se ha subido correctamente
+        if uploaded_file is None:
+            st.error("No se ha subido ningún archivo.")
+            return None
+
+        # Intentar leer el CSV
+        try:
+            stripe = pd.read_csv(uploaded_file, delimiter=',')
+        except Exception as e:
+            st.error(f"Error al leer el archivo CSV: {str(e)}")
+            return None
+
+        # Verificar que contiene las columnas necesarias
+        required_columns = {'automatic_payout_effective_at', 'payment_metadata[origin]', 'gross', 'fee', 'net'}
+        if not required_columns.issubset(stripe.columns):
+            st.error(f"El archivo CSV no contiene las columnas necesarias. Se esperaban: {required_columns}")
+            return None
+
+        # Convertir la fecha a formato adecuado
+        stripe['automatic_payout_effective_at'] = pd.to_datetime(stripe['automatic_payout_effective_at'], errors='coerce').dt.strftime('%d/%m/%Y')
 
         # Procesamiento de datos
         renting_blancks = stripe[stripe['payment_metadata[origin]'] != 'sales']
@@ -33,8 +49,8 @@ def process_stripe_data(uploaded_file):
         net['Account'] = '2437'
 
         carga = pd.concat([renting_blancks, ventas, fee, net], axis=0)
-        carga['Credit'] = carga['Credit'].astype(float)
-        carga['Debit'] = carga['Debit'].astype(float)
+        carga['Credit'] = pd.to_numeric(carga['Credit'], errors='coerce')
+        carga['Debit'] = pd.to_numeric(carga['Debit'], errors='coerce')
 
         carga['ExternalID'] = carga.apply(lambda row: f"Stripe_{row['automatic_payout_effective_at']}", axis=1)
         carga['Memo'] = carga.apply(lambda row: f"Liquidación Stripe {row['automatic_payout_effective_at']}", axis=1)
@@ -54,6 +70,5 @@ def process_stripe_data(uploaded_file):
         return output
 
     except Exception as e:
-        st.error(f"Error al procesar el archivo: {str(e)}")
+        st.error(f"Error inesperado al procesar el archivo: {str(e)}")
         return None
-
