@@ -13,11 +13,24 @@ fecha = fecha_actual.strftime("%d-%m-%Y")
 st.title("Mundimoto Finance")
 st.sidebar.header("Configuración")
 
+
+# Diferenciación entre Italia y España
+pais = st.sidebar.radio("Country", ("Spain", "Italy"))
+
+# Opciones específicas para cada país
+if pais == "Spain":
+    script_options = [
+        "Credit Stock", "Calculadora Precios B2C", "Daily Report", "Financiaciones Santander",
+        "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank",
+        "Unnax Easy Payment", "Stripe"
+    ]
+elif pais == "Italy":
+    script_options = [
+        "Sales", "Purchases"
+    ]
+
 # Selección del script
-script_option = st.sidebar.selectbox(
-    "Selecciona función para ejecutar:",
-    ("Credit Stock", "Calculadora Precios B2C", "Daily Report","Financiaciones Santander", "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank", "Unnax Easy Payment", "Stripe")
-)
+script_option = st.sidebar.selectbox("Selecciona función para ejecutar:", script_options)
 
 st.write(f"{script_option}")
 
