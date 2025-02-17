@@ -423,4 +423,3 @@ elif script_option == "Stripe":
                     file_name=f"Stripe_{datetime.now().strftime('%d-%m-%Y')}.csv",
                     mime="text/csv"
                 )
-            )
