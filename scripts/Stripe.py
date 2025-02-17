@@ -4,7 +4,7 @@ import pandas as pd
 from io import BytesIO
 from datetime import datetime
 
-def main(files):
+def main(files, pdfs=None, new_excel=None, month=None, year=None):
 
     try:
         # 1) Recuperar el archivo 'Stripe' del diccionario files
