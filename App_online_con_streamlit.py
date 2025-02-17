@@ -22,7 +22,7 @@ script_option = st.sidebar.selectbox(
 st.write(f"{script_option}")
 
 # Función para cargar y ejecutar un script externo
-def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month=None, year=None):
+def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, new_csv=None, month=None, year=None):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
         if not os.path.exists(script_path):
@@ -46,7 +46,7 @@ def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month
             processed_pdfs = pdfs
 
         # Llamar a la función principal del script con los parámetros adicionales
-        result = module.main(processed_files, processed_pdfs, new_excel ,month, year)
+        result = module.main(processed_files, processed_pdfs, new_excel ,new_csv, month, year)
         return result
         
     except FileNotFoundError as e:
@@ -407,31 +407,35 @@ elif script_option == "Calculadora Precios B2C":
                     st.dataframe(subset)
 
 elif script_option == "Stripe":
-    st.header("Carga de Liquidaciones Stripe")
+    st.header("Stripe")
 
-    # Subir el archivo CSV
-    uploaded_stripe = st.file_uploader("Sube el archivo Conciliacin_detallada_de_transferencias... (.csv)", type=["csv"])
-    # Diccionario de archivos subidos
+    # Subida de un único archivo CSV
+    uploaded_stripe = st.file_uploader("Archivo Conciliacin_detallada_de_transferencias", type=["csv"])
+
+    # Construimos el diccionario con clave "Stripe"
     uploaded_files = {
         "Stripe": uploaded_stripe
     }
 
-    # Verificar que el archivo se haya subido antes de ejecutar el script
-    if all(uploaded_files.values()):
-        if st.button("Ejecutar"):
+    # Verificamos si el usuario subió algo
+    if uploaded_files["Stripe"] is not None:
+        if st.button("Procesar CSV de Stripe"):
             try:
-                # Procesar archivo con la función process_stripe_data
-                output_file = process_stripe_data(uploaded_stripe)
+                # Llamamos a la función load_and_execute_script
+                result = load_and_execute_script(
+                    "Stripe",         # el nombre del script: stripe_data.py
+                    files=uploaded_files   # pasamos el dict con "Stripe"
+                )
 
-                if output_file is not None:
-                    st.success("¡HECHO!")
-
-                    # Botón para descargar el archivo procesado
+                # 'result' será un BytesIO con el CSV final
+                if result is not None:
+                    st.success("¡Procesado!")
                     st.download_button(
                         label="Descargar",
-                        data=output_file.getvalue(),
-                        file_name=f"Stripe_{datetime.now().strftime('%d-%m-%Y')}.csv",
+                        data=result.getvalue(),
+                        file_name=f"Stripe_{fecha}.csv",
                         mime="text/csv"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error al procesar CSV de Stripe: {str(e)}")
+
