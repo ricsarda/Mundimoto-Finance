@@ -419,7 +419,7 @@ elif script_option == "Stripe":
 
     # Verificamos si el usuario subió algo
     if uploaded_files["Stripe"] is not None:
-        if st.button("Procesar CSV de Stripe"):
+        if st.button("Ejecutar"):
             try:
                 # Llamamos a la función load_and_execute_script
                 result = load_and_execute_script(
@@ -429,7 +429,7 @@ elif script_option == "Stripe":
 
                 # 'result' será un BytesIO con el CSV final
                 if result is not None:
-                    st.success("¡Procesado!")
+                    st.success("¡HECHO!")
                     st.download_button(
                         label="Descargar",
                         data=result.getvalue(),
