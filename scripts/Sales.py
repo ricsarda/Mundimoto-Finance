@@ -25413,8 +25413,8 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         clienti['Zip Code'] = clienti['Zip Code'].str.replace(' ', '')
 
         # Mapear provincia y ciudad
-        cap_to_provincia = dict(zip(locationIT['cap'], locationIT['sigla_provincia']))
-        cap_to_citta = dict(zip(locationIT['cap'], locationIT['denominazione_ita_altra']))
+        cap_to_provincia = dict(zip(location_df['cap'], location_df['sigla_provincia']))
+        cap_to_citta = dict(zip(location_df['cap'], location_df['denominazione_ita_altra']))
         clienti['Provincia'] = clienti['Zip Code'].map(cap_to_provincia)
         clienti['Ciudad'] = clienti['Zip Code'].map(cap_to_citta)
         clienti['Country'] = 'Italy'
