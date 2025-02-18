@@ -25370,112 +25370,35 @@ location = {
 'SU',
 ]
 }
+location_df = pd.DataFrame(location)
 
-# Función para procesar los datos
-def process_facturacion(clienti_file, sales_file, metabase_file, location):
+def main(files, pdfs=None, new_excel=None, month=None, year=None):
     try:
-        # Leer archivos subidos
-        Sales = pd.read_excel(sales_file)
-        metabase = pd.read_excel(metabase_file)
-        locationIT = pd.DataFrame(location)
+        # Verificar si los archivos están presentes
+        if "Sales" not in files or "Metabase" not in files:
+            raise RuntimeError("Faltan archivos necesarios: 'Sales' y/o 'Metabase'.")
 
-        # Procesamiento de datos
-        clienti = Sales.copy()
-        clienti['externalId'] = clienti['CF']
-        clienti['companyName'] = clienti['CLIENTE']
-        
-        def check_length(x):
-            return '' if len(x) > 13 else x
-        
-        clienti['vatregnumber'] = clienti['CF'].apply(check_length)
-        clienti['[NExIL] Fiscal Code'] = clienti['CF']
-        clienti['email'] = clienti['E-MAIL']
+        # Leer los archivos subidos
+        sales_file = files["Sales"]
+        metabase_file = files["Metabase"]
 
-        def extract_via_cap(residenza):
-            parts = residenza.split(',')
-            if len(parts) < 3:
-                via = residenza
-                cap = 'Review'
-            else:
-                via = ','.join(parts[:2]) + ','
-                cap = parts[2].strip()[:6]
-            return via, cap
+        sales_data = pd.read_csv(sales_file, delimiter=';') if sales_file.name.endswith('.csv') else pd.read_excel(sales_file)
+        metabase_data = pd.read_csv(metabase_file, delimiter=';') if metabase_file.name.endswith('.csv') else pd.read_excel(metabase_file)
 
-        clienti['ADDRESS'], clienti['Zip Code'] = zip(*clienti['RESIDENZA'].apply(extract_via_cap))
-        clienti['ADDRESS'] = clienti['ADDRESS'].str.rstrip(',')
-        clienti['Zip Code'] = clienti['Zip Code'].str.replace(' ', '')
+        # Crear diccionarios de mapeo de códigos postales a provincias y ciudades
+        cap_to_provincia = dict(zip(location_df['cap'], location_df['sigla_provincia']))
+        cap_to_citta = dict(zip(location_df['cap'], location_df['denominazione_ita_altra']))
 
-        # Mapear ubicación
-        cap_to_provincia = dict(zip(locationIT['cap'], locationIT['sigla_provincia']))
-        clienti['Provincia'] = clienti['Zip Code'].map(cap_to_provincia)
-        cap_to_citta = dict(zip(locationIT['cap'], locationIT['denominazione_ita_altra']))
-        clienti['Ciudad'] = clienti['Zip Code'].map(cap_to_citta)
-        clienti['Country'] = 'Italy'
-        clienti['[NEXIL] ADDRESSEE PEC'] = clienti['E-MAIL']
-        clienti['[NEXIL] CODICE DESTINATARIO PR'] = '0000000'
+        # Aplicar los mapeos a la data de ventas
+        sales_data['Provincia'] = sales_data['Zip Code'].map(cap_to_provincia)
+        sales_data['Ciudad'] = sales_data['Zip Code'].map(cap_to_citta)
 
-        Columnas_clienti = ['externalId','companyName', 'vatregnumber','[NExIL] Fiscal Code', 'email',
-                            'ADDRESS','Ciudad','Provincia','Zip Code', 'Country',  
-                            '[NEXIL] ADDRESSEE PEC', '[NEXIL] CODICE DESTINATARIO PR']
-        clienti = clienti[Columnas_clienti]
+        # Guardar el resultado en un BytesIO para la descarga en la app
+        output = BytesIO()
+        sales_data.to_csv(output, sep=';', index=False, encoding='utf-8')
+        output.seek(0)
 
-        # Crear archivo CSV en memoria
-        clienti_output = BytesIO()
-        clienti.to_csv(clienti_output, sep=';', index=False, encoding='utf-8')
-        clienti_output.seek(0)
-
-        # Procesamiento de órdenes
-        ordini = Sales.copy()
-        ordini = ordini.merge(metabase[['license_plate', 'frame_number', 'brand', 'model']], 
-                              left_on='TARGA', right_on='license_plate', how='left') 
-
-        ordini['External ID'] = ordini['TARGA']
-        ordini['Cliente'] = ordini['CF']
-        ordini['Date'] = pd.to_datetime(ordini['PAYMENT DATE']).dt.strftime('%d/%m/%Y')
-        ordini['Location'] = '13'
-        ordini['itemLine_quantity'] = '1'
-        ordini['Vendita moto - plate - vin - marca - modelo'] = ordini.apply(
-            lambda row: f'Vendita moto - {row["TARGA"]} - {row["frame_number"]} - {row["brand"]} - {row["model"]}', axis=1)
-
-        Columnas_ordini = ['External ID','Cliente', 'Date', 'itemLine_item', 'itemLine_salesPrice', 'Vendita moto - plate - vin - marca - modelo']
-        
-        # Generar archivo CSV de órdenes
-        ordini_output = BytesIO()
-        ordini.to_csv(ordini_output, sep=';', index=False, encoding='utf-8')
-        ordini_output.seek(0)
-
-        return clienti_output, ordini_output
+        return output
 
     except Exception as e:
-        st.error(f"Error al procesar los archivos: {str(e)}")
-        return None, None
-
-# --- INTERFAZ EN STREAMLIT ---
-st.header("Carga de Archivos - Facturación IT")
-
-# Cargar archivos
-clienti_file = st.file_uploader("Subir archivo de Clientes (SalesIT.xlsx)", type=["xlsx"])
-sales_file = st.file_uploader("Subir archivo de Ventas (Sales.xlsx)", type=["xlsx"])
-metabase_file = st.file_uploader("Subir archivo de Metabase (metabase.xlsx)", type=["xlsx"])
-location_file = st.file_uploader("Subir archivo de Ubicaciones (locationIT.csv)", type=["csv"])
-
-if all([clienti_file, sales_file, metabase_file, location_file]):
-    if st.button("Ejecutar Facturación"):
-        clienti_output, ordini_output = process_facturacion(clienti_file, sales_file, metabase_file, location_file)
-
-        if clienti_output and ordini_output:
-            st.success("¡Procesamiento completado!")
-
-            st.download_button(
-                label="Descargar Clientes",
-                data=clienti_output.getvalue(),
-                file_name="MM IT - Importazione clienti.csv",
-                mime="text/csv"
-            )
-
-            st.download_button(
-                label="Descargar Órdenes",
-                data=ordini_output.getvalue(),
-                file_name="MM IT - Importazione ordini.csv",
-                mime="text/csv"
-            )
+        raise RuntimeError(f"Error al procesar la facturación: {str(e)}")
