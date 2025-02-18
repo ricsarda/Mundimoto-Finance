@@ -465,7 +465,7 @@ elif script_option == "Sales":
     }
 
     if all(uploaded_files.values()):
-        if st.button("Ejecutar"):
+        if st.button("Execute"):
             try:
                 result_clienti, result_ordini = load_and_execute_script(
                     "Sales",
@@ -478,13 +478,13 @@ elif script_option == "Sales":
                     st.download_button(
                         label="Download Clienti",
                         data=result_clienti.getvalue(),
-                        file_name=f"Facturacion_IT_clientes_{fecha}.csv",
+                        file_name=f"MM IT - Importazione clienti {fecha}.csv",
                         mime="text/csv"
                     )
                     st.download_button(
                         label="Download Ordini",
                         data=result_ordini.getvalue(),
-                        file_name=f"Facturacion_IT_ordenes_{fecha}.csv",
+                        file_name=f"MM IT - Importazione ordini di {fecha}.csv",
                         mime="text/csv"
                     )
             except Exception as e:
