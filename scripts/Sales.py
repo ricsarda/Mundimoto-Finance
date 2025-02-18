@@ -25391,7 +25391,7 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
 
         # Leer archivos desde BytesIO
         Sales = pd.read_excel(files["Sales"])  # Ahora lee desde BytesIO
-        Metabase = pd.read_excel(files["Metabase"])  # Ahora lee desde BytesIO
+        metabase = pd.read_excel(files["Metabase"])  # Ahora lee desde BytesIO
         # 📌 **Procesamiento de clientes**
         clienti = Sales.copy()
         clienti['externalId'] = clienti['CF']
