@@ -122,7 +122,7 @@ elif script_option == "Credit Stock":
                 )
 
                 if excel_result is not None:
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
@@ -171,7 +171,7 @@ elif script_option == "Performance Comerciales B2C":
                 )
 
                 if excel_result is not None:
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
@@ -205,7 +205,7 @@ elif script_option == "Financiaciones Renting":
                     new_excel=new_excel
                 )
                 if excel_result is not None:
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
@@ -241,7 +241,7 @@ elif script_option == "Financiaciones Santander":
                     # 'resultados' es una tupla (excel_final_ops, excel_rest)
                     excel_ops, excel_otros = resultados
 
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     # Botón para descargar final_operaciones
                     st.download_button(
                         label="Descargar Comisiones",
@@ -295,7 +295,7 @@ elif script_option == "Facturación Ventas B2C":
                 )
 
                 if excel_result is not None:
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
@@ -330,7 +330,7 @@ elif script_option == "Unnax CaixaBank":
                 )
 
                 if excel_result is not None:
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
@@ -365,7 +365,7 @@ elif script_option == "Unnax Easy Payment":
                 )
 
                 if excel_result is not None:
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
@@ -442,7 +442,7 @@ elif script_option == "Stripe":
 
                 # 'result' será un BytesIO con el CSV final
                 if result is not None:
-                    st.success("¡HECHO!")
+                    st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=result.getvalue(),
@@ -451,4 +451,42 @@ elif script_option == "Stripe":
                     )
             except Exception as e:
                 st.error(f"Error al procesar CSV de Stripe: {str(e)}")
+
+elif script_option == "Sales":
+    st.header("Sales")
+
+    # Subida de archivos requeridos
+    uploaded_sales = st.file_uploader("Upload Sales", type=["csv", "xlsx"])
+    uploaded_metabase = st.file_uploader("Upload Metabase: https://mundimoto.metabaseapp.com/dashboard/432-raw-data-purchases-stock?productive_status=", type=["csv", "xlsx"])
+
+    uploaded_files = {
+        "Sales": uploaded_sales,
+        "Metabase": uploaded_metabase
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            try:
+                result_clienti, result_ordini = load_and_execute_script(
+                    "Sales",
+                    uploaded_files
+                )
+
+                if result_clienti and result_ordini:
+                    st.success("¡GAS!")
+
+                    st.download_button(
+                        label="Download Clienti",
+                        data=result_clienti.getvalue(),
+                        file_name=f"Facturacion_IT_clientes_{fecha}.csv",
+                        mime="text/csv"
+                    )
+                    st.download_button(
+                        label="Download Ordini",
+                        data=result_ordini.getvalue(),
+                        file_name=f"Facturacion_IT_ordenes_{fecha}.csv",
+                        mime="text/csv"
+                    )
+            except Exception as e:
+                st.error(f"Error al procesar la facturación: {str(e)}")
 
