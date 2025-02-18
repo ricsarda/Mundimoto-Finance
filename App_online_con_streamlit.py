@@ -11,7 +11,7 @@ fecha = fecha_actual.strftime("%d-%m-%Y")
 
 # Configuración inicial de la app
 st.title("Mundimoto Finance")
-st.sidebar.header("Configuración")
+st.sidebar.header("Configuration")
 
 
 # Diferenciación entre Italia y España
@@ -30,7 +30,7 @@ elif pais == "Italy":
     ]
 
 # Selección del script
-script_option = st.sidebar.selectbox("Selecciona función para ejecutar:", script_options)
+script_option = st.sidebar.selectbox("Execute:", script_options)
 
 st.write(f"{script_option}")
 
