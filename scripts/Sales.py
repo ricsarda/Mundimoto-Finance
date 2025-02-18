@@ -25389,13 +25389,9 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         if "Sales" not in files or "Metabase" not in files:
             raise RuntimeError("Faltan archivos necesarios: 'Sales' y/o 'Metabase'.")
 
-        # Leer los archivos subidos
-        sales_file = files["Sales"]
-        metabase_file = files["Metabase"]
-
-        Sales = pd.read_csv(sales_file, delimiter=';') if sales_file.name.endswith('.csv') else pd.read_excel(sales_file)
-        metabase = pd.read_csv(metabase_file, delimiter=';') if metabase_file.name.endswith('.csv') else pd.read_excel(metabase_file)
-
+        # Leer archivos desde BytesIO
+        Sales = pd.read_excel(files["Sales"])  # Ahora lee desde BytesIO
+        Metabase = pd.read_excel(files["Metabase"])  # Ahora lee desde BytesIO
         # 📌 **Procesamiento de clientes**
         clienti = Sales.copy()
         clienti['externalId'] = clienti['CF']
