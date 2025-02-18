@@ -60,7 +60,11 @@ def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month
 
         # Llamar a la función principal del script con los parámetros adicionales
         result = module.main(processed_files, processed_pdfs, new_excel , month, year)
-        return result
+        if isinstance(result, tuple):
+            return result  # Se devuelve una tupla con múltiples archivos
+
+        return result  # Caso normal (un solo archivo)
+
         
     except FileNotFoundError as e:
         st.error(f"Error de archivo: {str(e)}")
@@ -454,10 +458,9 @@ elif script_option == "Stripe":
 
 elif script_option == "Sales":
     st.header("Files")
-
     # Subida de archivos requeridos
-    uploaded_sales = st.file_uploader("Upload Sales", type=["csv", "xlsx"])
-    uploaded_metabase = st.file_uploader("Upload Metabase: https://mundimoto.metabaseapp.com/dashboard/432-raw-data-purchases-stock?productive_status=", type=["csv", "xlsx"])
+    uploaded_sales = st.file_uploader("Upload Sales", type=["xlsx"])
+    uploaded_metabase = st.file_uploader("Upload Metabase: https://mundimoto.metabaseapp.com/dashboard/432-raw-data-purchases-stock?productive_status=", type=["xlsx"])
 
     uploaded_files = {
         "Sales": uploaded_sales,
