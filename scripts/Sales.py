@@ -25380,7 +25380,7 @@ Columnas_clienti = [
 ]
 Columnas_ordini = [
     'SALES', 'External ID', 'Cliente', 'Date', 'itemLine_item', 'itemLine_salesPrice',
-    'Vendita moto - plate - vin - marca - modelo'
+    'Vendita moto - plate - vin'
 ]
 
 def main(files, pdfs=None, new_excel=None, month=None, year=None):
@@ -25433,7 +25433,7 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         ordini['Cliente'] = ordini['CF']
         ordini['Date'] = pd.to_datetime(ordini['PAYMENT DATE']).dt.strftime('%d/%m/%Y')
         ordini['itemLine_quantity'] = '1'
-        ordini['Vendita moto - plate - vin - marca - modelo'] = ordini.apply(
+        ordini['Vendita moto - plate - vin'] = ordini.apply(
             lambda row: f'Vendita moto - {row["TARGA"]} - {row["frame_number"]} - {row["brand"]} - {row["model"]}', axis=1
         )
 
