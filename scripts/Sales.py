@@ -25372,6 +25372,17 @@ location = {
 }
 location_df = pd.DataFrame(location)
 
+# Columnas esperadas
+Columnas_clienti = [
+    'externalId', 'companyName', 'vatregnumber', '[NExIL] Fiscal Code', 'email',
+    'ADDRESS', 'Ciudad', 'Provincia', 'Zip Code', 'Country',
+    '[NEXIL] ADDRESSEE PEC', '[NEXIL] CODICE DESTINATARIO PR'
+]
+Columnas_ordini = [
+    'SALES', 'External ID', 'Cliente', 'Date', 'itemLine_item', 'itemLine_salesPrice',
+    'Vendita moto - plate - vin - marca - modelo'
+]
+
 def main(files, pdfs=None, new_excel=None, month=None, year=None):
     try:
         # Verificar si los archivos están presentes
@@ -25382,23 +25393,97 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         sales_file = files["Sales"]
         metabase_file = files["Metabase"]
 
-        sales_data = pd.read_csv(sales_file, delimiter=';') if sales_file.name.endswith('.csv') else pd.read_excel(sales_file)
-        metabase_data = pd.read_csv(metabase_file, delimiter=';') if metabase_file.name.endswith('.csv') else pd.read_excel(metabase_file)
+        Sales = pd.read_csv(sales_file, delimiter=';') if sales_file.name.endswith('.csv') else pd.read_excel(sales_file)
+        metabase = pd.read_csv(metabase_file, delimiter=';') if metabase_file.name.endswith('.csv') else pd.read_excel(metabase_file)
 
-        # Crear diccionarios de mapeo de códigos postales a provincias y ciudades
-        cap_to_provincia = dict(zip(location_df['cap'], location_df['sigla_provincia']))
-        cap_to_citta = dict(zip(location_df['cap'], location_df['denominazione_ita_altra']))
+        # 📌 **Procesamiento de clientes**
+        clienti = Sales.copy()
+        clienti['externalId'] = clienti['CF']
+        clienti['companyName'] = clienti['CLIENTE']
+        clienti['vatregnumber'] = clienti['CF'].apply(lambda x: '' if len(x) > 13 else x)
+        clienti['[NExIL] Fiscal Code'] = clienti['CF']
+        clienti['email'] = clienti['E-MAIL']
 
-        # Aplicar los mapeos a la data de ventas
-        sales_data['Provincia'] = sales_data['Zip Code'].map(cap_to_provincia)
-        sales_data['Ciudad'] = sales_data['Zip Code'].map(cap_to_citta)
+        # Extraer dirección y código postal
+        def extract_via_cap(residenza):
+            parts = residenza.split(',')
+            if len(parts) < 3:
+                return residenza, 'Review'
+            else:
+                return ','.join(parts[:2]) + ',', parts[2].strip()[:6]
 
-        # Guardar el resultado en un BytesIO para la descarga en la app
-        output = BytesIO()
-        sales_data.to_csv(output, sep=';', index=False, encoding='utf-8')
-        output.seek(0)
+        clienti['ADDRESS'], clienti['Zip Code'] = zip(*clienti['RESIDENZA'].apply(extract_via_cap))
+        clienti['ADDRESS'] = clienti['ADDRESS'].str.rstrip(',')
+        clienti['Zip Code'] = clienti['Zip Code'].str.replace(' ', '')
 
-        return output
+        # Mapear provincia y ciudad
+        cap_to_provincia = dict(zip(locationIT['cap'], locationIT['sigla_provincia']))
+        cap_to_citta = dict(zip(locationIT['cap'], locationIT['denominazione_ita_altra']))
+        clienti['Provincia'] = clienti['Zip Code'].map(cap_to_provincia)
+        clienti['Ciudad'] = clienti['Zip Code'].map(cap_to_citta)
+        clienti['Country'] = 'Italy'
+        clienti['[NEXIL] ADDRESSEE PEC'] = clienti['E-MAIL']
+        clienti['[NEXIL] CODICE DESTINATARIO PR'] = '0000000'
+        clienti = clienti[Columnas_clienti]
+
+        # 📌 **Procesamiento de órdenes**
+        ordini = Sales.merge(metabase[['license_plate', 'frame_number', 'brand', 'model']], 
+                             left_on='TARGA', right_on='license_plate', how='left')
+        ordini['External ID'] = ordini['TARGA']
+        ordini['Cliente'] = ordini['CF']
+        ordini['Date'] = pd.to_datetime(ordini['PAYMENT DATE']).dt.strftime('%d/%m/%Y')
+        ordini['itemLine_quantity'] = '1'
+        ordini['Vendita moto - plate - vin - marca - modelo'] = ordini.apply(
+            lambda row: f'Vendita moto - {row["TARGA"]} - {row["frame_number"]} - {row["brand"]} - {row["model"]}', axis=1
+        )
+
+        # Funciones para cálculos de precios
+        def S01(x): return x if x < 101.20 else 101.20
+        def S02(x): return x - 101.20 if x > 101.20 else 0
+        def S10(x): return 2 if x > 77.47 else 0
+
+        Targa = ordini.copy()
+        Targa['itemLine_item'] = Targa['TARGA']
+        Targa['itemLine_salesPrice'] = Targa['PRICE MOTO'].astype(float)
+        Targa = Targa[Columnas_ordini]
+
+        So_I = ordini.copy()
+        So_I['itemLine_item'] = 'S01'
+        So_I['itemLine_salesPrice'] = So_I['P. PASS'].astype(float).apply(S01)
+        So_I = So_I[Columnas_ordini]
+
+        So_II = ordini.copy()
+        So_II['itemLine_item'] = 'S02'
+        So_II['itemLine_salesPrice'] = So_II['P. PASS'].astype(float).apply(S02)
+        So_II = So_II[Columnas_ordini]
+
+        So_V = ordini.copy()
+        So_V['itemLine_item'] = 'Bollo'
+        So_V['itemLine_salesPrice'] = So_V['P. PASS'].astype(float).apply(S10)
+        So_V = So_V[Columnas_ordini]
+
+        ordini_completa = pd.concat([Targa, So_I, So_II, So_V], ignore_index=True)
+
+        # Ajuste de formato
+        ordini_completa['itemLine_salesPrice'] = ordini_completa['itemLine_salesPrice'].apply(lambda x: f'{x:.2f}')
+        ordini_completa = ordini_completa[ordini_completa['itemLine_salesPrice'] != '0.00']
+        ordini_completa = ordini_completa.sort_values(by='External ID', ignore_index=True)
+        ordini_completa.drop(columns=['External ID'], inplace=True)
+        ordini_completa['External ID'] = 'SO_' + ordini_completa['SALES'].astype(str)
+        ordini_completa = ordini_completa[Columnas_ordini]
+        ordini_completa.drop(columns=['SALES'], inplace=True)
+
+        # Guardar ambos archivos en memoria para Streamlit
+        output_clienti = BytesIO()
+        clienti.to_csv(output_clienti, sep=';', index=False, encoding='utf-8')
+        output_clienti.seek(0)
+
+        output_ordini = BytesIO()
+        ordini_completa.to_csv(output_ordini, sep=';', index=False, encoding='utf-8')
+        output_ordini.seek(0)
+
+        # Retornar ambos archivos
+        return output_clienti, output_ordini
 
     except Exception as e:
         raise RuntimeError(f"Error al procesar la facturación: {str(e)}")
