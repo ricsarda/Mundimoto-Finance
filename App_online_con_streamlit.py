@@ -376,7 +376,7 @@ elif script_option == "Unnax Easy Payment":
                 st.error(f"Error al ejecutar el script: {str(e)}")
 
 elif script_option == "Calculadora Precios B2C":
-    st.header("Calculadora de Precios B2C")
+    st.header("Calculadora")
     # Cargar datos desde el CSV en el repositorio
     try:
         from scripts.calculadora_motos import load_data, calculate_price
@@ -420,7 +420,7 @@ elif script_option == "Calculadora Precios B2C":
                     st.dataframe(subset)
 
 elif script_option == "Stripe":
-    st.header("Stripe")
+    st.header("Subir csv")
 
     # Subida de un único archivo CSV
     uploaded_stripe = st.file_uploader("Archivo Conciliacin_detallada_de_transferencias", type=["csv"])
@@ -453,7 +453,7 @@ elif script_option == "Stripe":
                 st.error(f"Error al procesar CSV de Stripe: {str(e)}")
 
 elif script_option == "Sales":
-    st.header("Sales")
+    st.header("Files")
 
     # Subida de archivos requeridos
     uploaded_sales = st.file_uploader("Upload Sales", type=["csv", "xlsx"])
