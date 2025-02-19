@@ -419,8 +419,8 @@ elif script_option == "Calculadora Precios B2C":
                         st.write(f"Mayor kilometraje encontrado: {int(max_km)} KM")
                     else:
                         st.write("KM no encontrado")
-                    st.write(f"Número de motos analizadas: {num_motos}")
-                    st.write(f"Datos filtrados para {marca} {modelo}:")
+                    st.write(f"Número de unidades: {num_motos}")
+                    st.write(f"Histórico {marca} {modelo}:")
                     st.dataframe(subset)
 
 elif script_option == "Stripe":
