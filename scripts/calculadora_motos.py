@@ -10,7 +10,7 @@ def load_data(csv_path="Motos para calcular.csv"):
         raise RuntimeError(f"Error al cargar el archivo CSV: {str(e)}")
 
 def calculate_price(data, marca, modelo, año, km):
-    data["PVP"] = data["PVP"].astype(str)  
+    data["PVP"] = data["PVP"].astype(float)  
     subset = data[(data["MARCA"] == marca) & (data["MODELO"] == modelo)]
 
     avg_price = subset['PVP'].mean()
