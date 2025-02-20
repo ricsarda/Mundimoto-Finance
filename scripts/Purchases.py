@@ -25381,7 +25381,7 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
 
         # 📌 Leer el archivo CSV
         purchases_file = files["PurchasesIT"]
-        Purchases = pd.read_csv(purchases_file, sep=';')
+        Purchases = pd.read_csv(purchases_file, sep=';', encoding='ISO-8859-1')
 
         # Aplicar limpieza de texto
         Purchases = Purchases.applymap(lambda x: unidecode(x) if isinstance(x, str) else x)
