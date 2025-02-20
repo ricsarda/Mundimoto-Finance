@@ -25385,8 +25385,21 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
 
         # Aplicar limpieza de texto
         Purchases = Purchases.applymap(lambda x: unidecode(x) if isinstance(x, str) else x)
-        Purchases['date'] = pd.to_datetime(Purchases['date'], format='%d/%m/%y').dt.strftime('%d/%m/%Y')
+        # Intentar convertir la columna 'date' a datetime sin errores
+        def parse_date(date_str):
+            try:
+                return pd.to_datetime(date_str, format="%d/%m/%y", errors='coerce')  # Intentar formato esperado
+            except ValueError:
+                return pd.NaT  # Si falla, devolver un valor vacío
 
+        # Aplicar la función a la columna 'date'
+        Purchases['date'] = Purchases['date'].astype(str).apply(parse_date)
+
+        # Eliminar filas con fechas inválidas
+        Purchases = Purchases.dropna(subset=['date'])
+
+        # Convertir a string con formato correcto
+        Purchases['date'] = Purchases['date'].dt.strftime('%d/%m/%Y')
         locationIT['cap'] = locationIT['cap'].astype(str)
 
         # 📌 Procesamiento **Item**
