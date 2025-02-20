@@ -26,7 +26,7 @@ if pais == "Spain":
     ]
 elif pais == "Italy":
     script_options = [
-        "Sales", "Purchases"
+        "Purchases","Sales" 
     ]
 
 # Selección del script
@@ -134,7 +134,7 @@ elif script_option == "Credit Stock":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
 elif script_option == "Performance Comerciales B2C":
     st.subheader("Selecciona el Mes y Año:")
@@ -183,7 +183,7 @@ elif script_option == "Performance Comerciales B2C":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
 elif script_option == "Financiaciones Renting":
     st.header("PDFs")
@@ -217,7 +217,7 @@ elif script_option == "Financiaciones Renting":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
 elif script_option == "Financiaciones Santander":
     st.header("Subida de archivos")
@@ -261,7 +261,7 @@ elif script_option == "Financiaciones Santander":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar: {str(e)}")
+                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com: {str(e)}")
 
 
 elif script_option == "Facturación Ventas B2C":
@@ -307,7 +307,7 @@ elif script_option == "Facturación Ventas B2C":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
 elif script_option == "Unnax CaixaBank":
     st.header("Archivos")
@@ -342,7 +342,7 @@ elif script_option == "Unnax CaixaBank":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
 elif script_option == "Unnax Easy Payment":
     st.header("Archivos")
@@ -377,7 +377,7 @@ elif script_option == "Unnax Easy Payment":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al ejecutar el script: {str(e)}")
+                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
 elif script_option == "Calculadora Precios B2C":
     st.header("Calculadora")
@@ -454,7 +454,50 @@ elif script_option == "Stripe":
                         mime="text/csv"
                     )
             except Exception as e:
-                st.error(f"Error al procesar CSV de Stripe: {str(e)}")
+                st.error(f"Error al procesar CSV de Stripe, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com: {str(e)}")
+elif script_option == "Purchases":
+    st.header("File")
+
+    # Subida del archivo requerido
+    uploaded_purchases = st.file_uploader("Upload Purchases", type=["csv"])
+
+    uploaded_files = {
+        "PurchasesIT": uploaded_purchases
+    }
+
+    if uploaded_purchases:
+        if st.button("Execute"):
+            try:
+                result_item, result_fornitore, result_purchase = load_and_execute_script(
+                    "Purchases",
+                    uploaded_files
+                )
+
+                if result_item is None or result_fornitore is None or result_purchase is None:
+                    st.error("File upload error, contact with: ricardo.sarda@mundimoto.com")
+                else:
+                    st.success("¡GAS!")
+
+                    st.download_button(
+                        label="Download Item",
+                        data=result_item.getvalue(),
+                        file_name=f"Purchases_IT_Item_{fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                    st.download_button(
+                        label="Download Fornitore",
+                        data=result_fornitore.getvalue(),
+                        file_name=f"Purchases_IT_Fornitore_{fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                    st.download_button(
+                        label="Download Purchase",
+                        data=result_purchase.getvalue(),
+                        file_name=f"Purchases_IT_{fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error, contact with Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com -{str(e)}")
 
 elif script_option == "Sales":
     st.header("Files")
@@ -491,5 +534,5 @@ elif script_option == "Sales":
                         mime="text/csv"
                     )
             except Exception as e:
-                st.error(f"Error al procesar la facturación: {str(e)}")
+                st.error(f"Error, contact with Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com {str(e)}")
 
