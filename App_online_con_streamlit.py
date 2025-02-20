@@ -484,7 +484,6 @@ elif script_option == "Purchases":
                     st.session_state["PurchasesIT_Fornitore"] = result_fornitore
                     st.session_state["PurchasesIT_Purchase"] = result_purchase
 
-                    )
             except Exception as e:
                 st.error(f"Error, contact with Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com -{str(e)}")
     # Crear un ZIP con los tres archivos si están disponibles en `st.session_state`
