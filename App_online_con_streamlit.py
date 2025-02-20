@@ -461,7 +461,7 @@ elif script_option == "Purchases":
     st.header("File")
 
     # Subida del archivo requerido
-    uploaded_purchases = st.file_uploader("Upload Purchases", type=["csv"])
+    uploaded_purchases = st.file_uploader("Upload Purchases", type=["xlsx"])
 
     uploaded_files = {
         "PurchasesIT": uploaded_purchases
