@@ -502,7 +502,9 @@ elif script_option == "Purchases":
             data=zip_buffer.getvalue(),
             file_name=f"Purchases_{fecha}.zip",
             mime="application/zip"
+        )
 
+            
 elif script_option == "Sales":
     st.header("Files")
     # Subida de archivos requeridos
