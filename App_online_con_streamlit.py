@@ -4,6 +4,7 @@ import pandas as pd
 import importlib.util
 import sys
 import os
+import zipfile
 from datetime import datetime
 
 fecha_actual = datetime.now()
@@ -455,6 +456,7 @@ elif script_option == "Stripe":
                     )
             except Exception as e:
                 st.error(f"Error al procesar CSV de Stripe, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com: {str(e)}")
+
 elif script_option == "Purchases":
     st.header("File")
 
@@ -477,27 +479,30 @@ elif script_option == "Purchases":
                     st.error("File upload error, contact with: ricardo.sarda@mundimoto.com")
                 else:
                     st.success("¡GAS!")
+                    # Guardar los archivos en `st.session_state`
+                    st.session_state["PurchasesIT_Item"] = result_item
+                    st.session_state["PurchasesIT_Fornitore"] = result_fornitore
+                    st.session_state["PurchasesIT_Purchase"] = result_purchase
 
-                    st.download_button(
-                        label="Download Item",
-                        data=result_item.getvalue(),
-                        file_name=f"Purchases_IT_Item_{fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-                    st.download_button(
-                        label="Download Fornitore",
-                        data=result_fornitore.getvalue(),
-                        file_name=f"Purchases_IT_Fornitore_{fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-                    st.download_button(
-                        label="Download Purchase",
-                        data=result_purchase.getvalue(),
-                        file_name=f"Purchases_IT_{fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
                 st.error(f"Error, contact with Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com -{str(e)}")
+    # Crear un ZIP con los tres archivos si están disponibles en `st.session_state`
+    if "PurchasesIT_Item" in st.session_state and "PurchasesIT_Fornitore" in st.session_state and "PurchasesIT_Purchase" in st.session_state:
+        zip_buffer = BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr(f"Purchases_IT_Item_{fecha}.xlsx", st.session_state["PurchasesIT_Item"].getvalue())
+            zipf.writestr(f"Purchases_IT_Fornitore_{fecha}.xlsx", st.session_state["PurchasesIT_Fornitore"].getvalue())
+            zipf.writestr(f"Purchases_IT_Purchase_{fecha}.xlsx", st.session_state["PurchasesIT_Purchase"].getvalue())
+
+        zip_buffer.seek(0)
+
+        st.download_button(
+            label="Download (ZIP)",
+            data=zip_buffer.getvalue(),
+            file_name=f"Purchases_{fecha}.zip",
+            mime="application/zip"
 
 elif script_option == "Sales":
     st.header("Files")
