@@ -3,6 +3,7 @@ import os
 import sys
 import re
 from unidecode import unidecode
+from io import BytesIO
 
 #location
 location = {
