@@ -516,29 +516,38 @@ elif script_option == "Sales":
         "Metabase": uploaded_metabase
     }
 
-    if all(uploaded_files.values()):
-        if st.button("Execute"):
-            try:
-                result_clienti, result_ordini = load_and_execute_script(
-                    "Sales",
-                    uploaded_files
-                )
+    if all(uploaded_files.values()) and st.button("Execute"):
+        try:
+            result_clienti, result_ordini = load_and_execute_script(
+                "Sales",
+                uploaded_files
+            )
 
-                if result_clienti and result_ordini:
-                    st.success("¡GAS!")
+            if result_clienti is None or result_ordini is None:
+                st.error("Error processing Sales. Check the input files.")
+            else:
+                st.success("¡GAS!")
 
-                    st.download_button(
-                        label="Download Clienti",
-                        data=result_clienti.getvalue(),
-                        file_name=f"MM IT - Importazione clienti {fecha}.csv",
-                        mime="text/csv"
-                    )
-                    st.download_button(
-                        label="Download Ordini",
-                        data=result_ordini.getvalue(),
-                        file_name=f"MM IT - Importazione ordini di {fecha}.csv",
-                        mime="text/csv"
-                    )
-            except Exception as e:
-                st.error(f"Error, contact with Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com {str(e)}")
+                # Guardar los archivos en `st.session_state`
+                st.session_state["Sales_Clienti"] = result_clienti
+                st.session_state["Sales_Ordini"] = result_ordini
 
+        except Exception as e:
+            st.error(f"Error, contact Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com {str(e)}")
+
+    # Crear un ZIP con los dos archivos si están disponibles en `st.session_state`
+    if "Sales_Clienti" in st.session_state and "Sales_Ordini" in st.session_state:
+        zip_buffer = BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            zipf.writestr(f"MM IT - Importazione clienti {fecha}.csv", st.session_state["Sales_Clienti"].getvalue())
+            zipf.writestr(f"MM IT - Importazione ordini di {fecha}.csv", st.session_state["Sales_Ordini"].getvalue())
+
+        zip_buffer.seek(0)
+
+        st.download_button(
+            label="Download all files (ZIP)",
+            data=zip_buffer.getvalue(),
+            file_name=f"Sales_{fecha}.zip",
+            mime="application/zip"
+        )
