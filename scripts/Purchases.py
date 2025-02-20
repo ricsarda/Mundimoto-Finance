@@ -4,24 +4,6 @@ import sys
 import re
 from unidecode import unidecode
 
-# Obtener la ruta del directorio donde se encuentra el ejecutable
-if getattr(sys, 'frozen', False):
-    base_path = sys._MEIPASS
-    base_path = os.path.dirname(sys.executable)
-else:
-    base_path = os.path.abspath(".")
-
-# Ruta archivo final excel
-ruta_archivo_Item = os.path.join(base_path, "1-Item.xlsx")
-ruta_archivo_Fornitore = os.path.join(base_path, "2-Fornitore.xlsx")
-ruta_archivo_Purchase = os.path.join(base_path, "3-Purchase.xlsx")
-
-# archivo
-PurchasesIT = os.path.join(base_path, "PurchasesIT.csv") # EP
-Purchases = pd.read_csv(PurchasesIT, sep=';')
-Purchases = Purchases.applymap(lambda x: unidecode(x) if isinstance(x, str) else x)
-Purchases['date'] = pd.to_datetime(Purchases['date'], format='%d/%m/%y').dt.strftime('%d/%m/%Y')
-
 #location
 location = {
     'denominazione_ita_altra':['Agliè',
@@ -25391,58 +25373,86 @@ location = {
 ]
 }
 locationIT = pd.DataFrame(location)
-locationIT = pd.DataFrame(location)
-locationIT['cap'] = locationIT['cap'].astype(str)
-locationIT['cap'] = locationIT['cap'].apply(lambda x: x.split('.')[0])
+def main(files, pdfs=None, new_excel=None, month=None, year=None):
+    try:
+        # 📌 Verificar si el archivo CSV fue subido
+        if "PurchasesIT" not in files:
+            raise RuntimeError("Falta el archivo 'PurchasesIT'.")
 
-#Purchases IT Item
-Item = Purchases
-Item['externalid'] = Item['license_plate']
-Item['Nome/numero articolo'] = Item['license_plate']
-Item['Nome visualizzato'] = Item['license_plate']
-Item['Marca'] = Item['brand']
-Item['Modello'] = Item['model']
-Item['Data'] = Item['date']
-Item['PVP'] = ''
-Item['Type'] = 'Trade'
+        # 📌 Leer el archivo CSV
+        purchases_file = files["PurchasesIT"]
+        Purchases = pd.read_csv(purchases_file, sep=';')
 
-Columnas_Item = ['externalid', 'Nome/numero articolo', 'Nome visualizzato', 'Marca', 'Modello', 'Data', 'PVP', 'Type']
-Item = Item[Columnas_Item]
-Item.to_excel(ruta_archivo_Item , index = False)
+        # Aplicar limpieza de texto
+        Purchases = Purchases.applymap(lambda x: unidecode(x) if isinstance(x, str) else x)
+        Purchases['date'] = pd.to_datetime(Purchases['date'], format='%d/%m/%y').dt.strftime('%d/%m/%Y')
 
-#Purchases IT Fornitore
-Fornitore = Purchases
-Fornitore['postal_code'] = Fornitore['postal_code'].astype(str)
-Fornitore['postal_code'] = Fornitore['postal_code'].apply(lambda x: x.split('.')[0])
-Fornitore['postal_code'] = Fornitore['postal_code'].apply(lambda x: x.zfill(5))
-Fornitore['externalId'] = Fornitore['fiscal_code']
-Fornitore['firstname'] = Fornitore['name']
-Fornitore['Lastname'] = Fornitore['surname'].fillna('Company')
-Fornitore['Via'] = Fornitore['address']
-cap_to_provincia = dict(zip(locationIT['cap'], locationIT['sigla_provincia']))
-Fornitore['Provincia'] = Fornitore['postal_code'].map(cap_to_provincia)
-cap_to_citta= dict(zip(locationIT['cap'], locationIT['denominazione_ita_altra']))
-Fornitore['Citta'] = Fornitore['postal_code'].map(cap_to_citta)
-Fornitore['Cap'] = Fornitore['postal_code']
-Fornitore['Paese'] = 'Italy'
-Fornitore['taxIdNum'] = Fornitore['fiscal_code']
-Fornitore['[NExIL] Fiscal Code'] = Fornitore['fiscal_code']
-Fornitore['[NEXIL] PERCEIVING SUBJECT TO SC'] = 'F'
-Columnas_Fornitore = ['externalId', 'firstname', 'Lastname', 'Via', 'Citta', 'Provincia','Cap','Paese', 'taxIdNum', '[NExIL] Fiscal Code', '[NEXIL] PERCEIVING SUBJECT TO SC']
-Fornitore = Fornitore[Columnas_Fornitore]
-Fornitore.to_excel(ruta_archivo_Fornitore , index = False)
+        locationIT['cap'] = locationIT['cap'].astype(str)
 
-#Purchases IT Purchase
-Purchase = Purchases
-Purchase['External ID'] = Purchase['id']
-Purchase['Fornitore'] = Purchase['fiscal_code']
-Purchase['Data'] = Purchase['date']
+        # 📌 Procesamiento **Item**
+        Item = Purchases.copy()
+        Item['externalid'] = Item['license_plate']
+        Item['Nome/numero articolo'] = Item['license_plate']
+        Item['Nome visualizzato'] = Item['license_plate']
+        Item['Marca'] = Item['brand']
+        Item['Modello'] = Item['model']
+        Item['Data'] = Item['date']
+        Item['PVP'] = ''
+        Item['Type'] = 'Trade'
 
-Purchase['Location'] = '13'
-Purchase['itemLine_item'] = Purchase['license_plate']
-Purchase['Purc'] = '1'
-Purchase['itemLine_salesPrice'] = Purchase['price']
+        Columnas_Item = ['externalid', 'Nome/numero articolo', 'Nome visualizzato', 'Marca', 'Modello', 'Data', 'PVP', 'Type']
+        Item = Item[Columnas_Item]
 
-Columnas_Purchase = ['External ID', 'Fornitore', 'Data', 'Location', 'itemLine_item', 'itemLine_salesPrice']
-Purchase = Purchase[Columnas_Purchase]
-Purchase.to_excel(ruta_archivo_Purchase , index = False)
+        # 📌 Procesamiento **Fornitore**
+        Fornitore = Purchases.copy()
+        Fornitore['postal_code'] = Fornitore['postal_code'].astype(str).str.zfill(5)
+        Fornitore['externalId'] = Fornitore['fiscal_code']
+        Fornitore['firstname'] = Fornitore['name']
+        Fornitore['Lastname'] = Fornitore['surname'].fillna('Company')
+        Fornitore['Via'] = Fornitore['address']
+        cap_to_provincia = dict(zip(locationIT['cap'], locationIT['sigla_provincia']))
+        Fornitore['Provincia'] = Fornitore['postal_code'].map(cap_to_provincia)
+        cap_to_citta = dict(zip(locationIT['cap'], locationIT['denominazione_ita_altra']))
+        Fornitore['Citta'] = Fornitore['postal_code'].map(cap_to_citta)
+        Fornitore['Cap'] = Fornitore['postal_code']
+        Fornitore['Paese'] = 'Italy'
+        Fornitore['taxIdNum'] = Fornitore['fiscal_code']
+        Fornitore['[NExIL] Fiscal Code'] = Fornitore['fiscal_code']
+        Fornitore['[NEXIL] PERCEIVING SUBJECT TO SC'] = 'F'
+
+        Columnas_Fornitore = ['externalId', 'firstname', 'Lastname', 'Via', 'Citta', 'Provincia', 'Cap', 'Paese', 'taxIdNum', '[NExIL] Fiscal Code', '[NEXIL] PERCEIVING SUBJECT TO SC']
+        Fornitore = Fornitore[Columnas_Fornitore]
+
+        # 📌 Procesamiento **Purchase**
+        Purchase = Purchases.copy()
+        Purchase['External ID'] = Purchase['id']
+        Purchase['Fornitore'] = Purchase['fiscal_code']
+        Purchase['Data'] = Purchase['date']
+        Purchase['Location'] = '13'
+        Purchase['itemLine_item'] = Purchase['license_plate']
+        Purchase['itemLine_salesPrice'] = Purchase['price']
+
+        Columnas_Purchase = ['External ID', 'Fornitore', 'Data', 'Location', 'itemLine_item', 'itemLine_salesPrice']
+        Purchase = Purchase[Columnas_Purchase]
+
+        # 📌 Guardar los tres archivos en memoria
+        output_item = BytesIO()
+        with pd.ExcelWriter(output_item, engine='xlsxwriter') as writer:
+            Item.to_excel(writer, sheet_name='Item', index=False)
+        output_item.seek(0)
+
+        output_fornitore = BytesIO()
+        with pd.ExcelWriter(output_fornitore, engine='xlsxwriter') as writer:
+            Fornitore.to_excel(writer, sheet_name='Fornitore', index=False)
+        output_fornitore.seek(0)
+
+        output_purchase = BytesIO()
+        with pd.ExcelWriter(output_purchase, engine='xlsxwriter') as writer:
+            Purchase.to_excel(writer, sheet_name='Purchase', index=False)
+        output_purchase.seek(0)
+
+        # 📌 Retornar los archivos en memoria
+        return output_item, output_fornitore, output_purchase
+
+    except Exception as e:
+        raise RuntimeError(f"Error al procesar las compras IT: {str(e)}")
