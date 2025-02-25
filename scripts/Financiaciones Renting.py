@@ -1,8 +1,8 @@
 import pdfplumber
 import pandas as pd
+import re
 from io import BytesIO
 from datetime import datetime
-import re
 
 # === Función auxiliar para convertir texto con punto de miles y coma decimal a float
 def convertir_a_float(valor_str):
@@ -15,11 +15,11 @@ def convertir_a_float(valor_str):
 # === Extrae datos de "Financiaciones"
 def extraer_financiaciones(texto, lineas, nombre_pdf):
     # Expresiones regulares
-    pat_fecha = re.compile(r"Fecha:([0-9]{2}/[0-9]{2}/[0-9]{2})")
-    pat_operacion = re.compile(r"operación\s*nº\s*([A-Za-z0-9]+)")
-    pat_entrega_importe = re.compile(r"EntregaImporte\s+([\d.,]+)")
-    pat_intereses = re.compile(r"InteresesDevengados.*?([\d.,]+)$")
-    pat_total_para_aplicar = re.compile(r"TotalparaAplicaraCapital\s+([\d.,]+)")
+    pat_fecha                   = re.compile(r"Fecha:([0-9]{2}/[0-9]{2}/[0-9]{2})")
+    pat_operacion               = re.compile(r"operación\s*nº\s*([A-Za-z0-9]+)")  
+    pat_entrega_importe         = re.compile(r"EntregaImporte\s+([\d.,]+)")
+    pat_intereses               = re.compile(r"InteresesDevengados.*?([\d.,]+)$")
+    pat_total_para_aplicar      = re.compile(r"TotalparaAplicaraCapital\s+([\d.,]+)")
     pat_nuevo_capital_pendiente = re.compile(r"NuevoCapitalPendiente\s+([\d.,]+)")
 
     # Criterio mínimo para considerar Financiaciones
@@ -33,7 +33,7 @@ def extraer_financiaciones(texto, lineas, nombre_pdf):
         'Total para Aplicar': None,
         'Nuevo Capital Pendiente': None,
         'Operación': None,
-        'Archivo': nombre_pdf
+        'Archivo': nombre_pdf  # nombre sin .pdf
     }
 
     for linea in lineas:
@@ -73,6 +73,7 @@ def extraer_financiaciones(texto, lineas, nombre_pdf):
             if m:
                 info_pdf['Nuevo Capital Pendiente'] = convertir_a_float(m.group(1))
 
+    # Si no ha extraído nada útil, devolvemos None
     if not info_pdf['Operación'] and not info_pdf['Importe']:
         return None
 
@@ -80,18 +81,19 @@ def extraer_financiaciones(texto, lineas, nombre_pdf):
 
 # === Extrae datos de "Amortizaciones"
 def extraer_amortizaciones(texto, lineas):
-    # Código E31F...
+    # Código clave
     match_codigo = re.search(r'\bE\d{2}[A-Z]\d{8,}\b', texto)
     codigo_clave_extraido = match_codigo.group(0) if match_codigo else None
 
-    # Fecha de recálculo
+    # Fecha de recalculo
     match_fecha = re.search(r"FECHARECALCULO\.\:\s+(\d{1,2}\/\d{2}\/\d{4})", texto)
     fecha_recal = match_fecha.group(1) if match_fecha else None
 
+    # Si no hay nada, no consideramos amortizaciones
     if not codigo_clave_extraido and not fecha_recal:
         return None
 
-    # Recortar líneas de interés
+    # Extraer líneas relevantes
     lineas_deseadas = lineas[6:36]
     if not lineas_deseadas:
         return None
@@ -134,53 +136,49 @@ def extraer_amortizaciones(texto, lineas):
         'df': df_resultado
     }
 
-# === Función principal para la app ===
+# === Adaptación a Streamlit ===
 def main(files, pdfs=None, new_excel=None, month=None, year=None):
     try:
         if not pdfs:
             raise RuntimeError("No se han subido archivos PDF.")
 
-        fecha_actual = datetime.now()
-        fecha_str = fecha_actual.strftime("%d-%m-%Y")
-
         output = BytesIO()
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            datos_financiaciones = []
-            amortizaciones_por_pdf = []
+        datos_financiaciones = []
+        amortizaciones_por_pdf = []
 
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             for pdf_name, pdf_file in pdfs.items():
                 with pdfplumber.open(pdf_file) as pdf:
                     texto = "\n".join(page.extract_text() for page in pdf.pages if page.extract_text())
                 lineas = texto.split('\n')
 
-                # Extraer Financiaciones
                 info_fin = extraer_financiaciones(texto, lineas, pdf_name)
                 if info_fin:
                     datos_financiaciones.append(info_fin)
 
-                # Extraer Amortizaciones
                 info_amort = extraer_amortizaciones(texto, lineas)
                 if info_amort:
                     amortizaciones_por_pdf.append((pdf_name, info_amort))
 
-            # Escribir Financiaciones
             if datos_financiaciones:
                 df_resumen = pd.DataFrame(datos_financiaciones)
                 df_resumen.to_excel(writer, sheet_name="Resumen", index=False)
 
-            # Escribir Amortizaciones
-            if amortizaciones_por_pdf:
-                df_amortizaciones = pd.DataFrame([{
-                    "Archivo": nombre_pdf,
-                    "Código": info['codigo'],
-                    "Fecha Recalculo": info['fecha_recal']
-                } for nombre_pdf, info in amortizaciones_por_pdf])
+            pd.DataFrame().to_excel(writer, sheet_name="Amortizaciones", index=False)
+            ws_amort = writer.book["Amortizaciones"]
 
-                df_amortizaciones.to_excel(writer, sheet_name="Amortizaciones", index=False)
+            row_offset = 0
+            for pdf_name, info_amort in amortizaciones_por_pdf:
+                df_amort = info_amort['df']
+                ws_amort[f"A{row_offset+1}"] = info_amort['codigo']
+                ws_amort[f"A{row_offset+2}"] = info_amort['fecha_recal']
+                df_amort.to_excel(writer, sheet_name="Amortizaciones", startrow=row_offset+3, startcol=1, index=False)
+                ws_amort[f"A{row_offset+5}"] = "Amort anticipada"
+                ws_amort[f"A{row_offset+6}"] = "Fee"
+                row_offset += df_amort.shape[0] + 7
 
         output.seek(0)
         return output
 
     except Exception as e:
-        raise RuntimeError(f"Error al procesar los PDFs: {str(e)}")
-
+        raise RuntimeError(f"Error al procesar financiaciones y amortizaciones: {str(e)}")
