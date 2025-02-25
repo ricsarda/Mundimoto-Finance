@@ -137,6 +137,7 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
                 if info_amort is not None:
                     amortizaciones_por_pdf.append((pdf_name, info_amort))
 
+            # 📌 Crear la hoja "Resumen" solo si hay datos de financiaciones
             if datos_financiaciones:
                 df_resumen = pd.DataFrame(datos_financiaciones)
                 columnas_orden = [
@@ -145,6 +146,36 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
                 ]
                 df_resumen = df_resumen[[c for c in columnas_orden if c in df_resumen.columns]]
                 df_resumen.to_excel(writer, sheet_name="Resumen", index=False)
+
+            # 📌 Crear la hoja "Amortizaciones" desde el inicio
+            workbook = writer.book
+            worksheet_amort = workbook.add_worksheet("Amortizaciones")
+            writer.sheets["Amortizaciones"] = worksheet_amort
+
+            row_offset = 0  # Para posicionar correctamente los datos en la hoja
+
+            for (pdf_name, info_amort) in amortizaciones_por_pdf:
+                df_amort = info_amort['df']
+
+                # Escribir código y fecha recalculada
+                worksheet_amort.write(row_offset, 0, info_amort['codigo'] or "COD NO ENCONTRADO")
+                worksheet_amort.write(row_offset + 1, 0, info_amort['fecha_recal'] or "FECHA NO ENCONTRADA")
+
+                # Escribir DataFrame a partir de la fila 3 (row_offset+3)
+                df_amort.to_excel(writer, sheet_name="Amortizaciones", startrow=row_offset + 3, startcol=1, index=False)
+
+                # Escribir títulos en la columna A
+                worksheet_amort.write(row_offset + 5, 0, "Amort anticipada")
+                worksheet_amort.write(row_offset + 6, 0, "Fee")
+
+                # Mover `row_offset` para la siguiente entrada
+                row_offset += df_amort.shape[0] + 6
+
+        output.seek(0)
+        return output
+
+    except Exception as e:
+        raise RuntimeError(f"Error al procesar las financiaciones y amortizaciones: {str(e)}")
 
             writer.book.create_sheet("Amortizaciones")
             ws_amort = writer.book["Amortizaciones"]
