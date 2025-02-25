@@ -146,28 +146,31 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         datos_financiaciones = []
         amortizaciones_por_pdf = []
 
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            for pdf_name, pdf_file in pdfs.items():
-                with pdfplumber.open(pdf_file) as pdf:
-                    texto = "\n".join(page.extract_text() for page in pdf.pages if page.extract_text())
-                lineas = texto.split('\n')
-
-                info_fin = extraer_financiaciones(texto, lineas, pdf_name)
-                if info_fin:
-                    datos_financiaciones.append(info_fin)
-
-                info_amort = extraer_amortizaciones(texto, lineas)
-                if info_amort:
-                    amortizaciones_por_pdf.append((pdf_name, info_amort))
-
+       with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             if datos_financiaciones:
                 df_resumen = pd.DataFrame(datos_financiaciones)
                 df_resumen.to_excel(writer, sheet_name="Resumen", index=False)
 
             pd.DataFrame().to_excel(writer, sheet_name="Amortizaciones", index=False)
-            ws_amort = writer.book["Amortizaciones"]
+    
+            # 🔹 Ahora accedemos correctamente a la hoja de amortizaciones
+            ws_amort = writer.sheets["Amortizaciones"]
 
             row_offset = 0
+            for pdf_name, info_amort in amortizaciones_por_pdf:
+                df_amort = info_amort['df']
+        
+                # 🔹 Corregimos la forma de escribir celdas en `xlsxwriter`
+                ws_amort.write(row_offset, 0, info_amort['codigo'])
+                ws_amort.write(row_offset + 1, 0, info_amort['fecha_recal'])
+
+                df_amort.to_excel(writer, sheet_name="Amortizaciones", startrow=row_offset+3, startcol=1, index=False)
+
+                ws_amort.write(row_offset + 5, 0, "Amort anticipada")
+                ws_amort.write(row_offset + 6, 0, "Fee")
+
+                row_offset += df_amort.shape[0] + 7
+
             for pdf_name, info_amort in amortizaciones_por_pdf:
                 df_amort = info_amort['df']
                 ws_amort[f"A{row_offset+1}"] = info_amort['codigo']
