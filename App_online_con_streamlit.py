@@ -225,11 +225,11 @@ elif script_option == "Financiaciones Santander":
 
     uploaded_pdfs = st.file_uploader("Sube PDFs Santander cartas de Pago", type=["pdf"], accept_multiple_files=True)
     uploaded_financiaciones = st.file_uploader("Sube Excel Financiaciones", type=["xlsx"])
-    uploaded_ventas_SF = st.file_uploader("Sube Excel Ventas SF", type=["xlsx"])
+    uploaded_invoices = st.file_uploader("Sube csv MM - Item Internal ID Transactions: Results", type=["csv"])
     
     uploaded_files = {
         "Financiaciones": uploaded_financiaciones,
-        "Ventas": uploaded_ventas_SF
+        "invoice": uploaded_invoices
     }
     
     if all(uploaded_files.values()) and uploaded_pdfs:
