@@ -266,8 +266,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
         # Merge con "Financiaciones" y "Ventas" para obtener info extra:
         codigocliente['Operación'] = codigocliente['Comentario'].str.replace('FINANC. SANTANDER - ', '', regex=False)
         codigocliente = codigocliente.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
-        codigocliente = codigocliente.merge(invoice[['Moto', 'DNI']],right_on='Moto', left_on='MATRÍCULA', how='left')
-        codigocliente['External ID'] = codigocliente['DNI']
+        codigocliente = codigocliente.merge(invoice[['Item', 'Customer External ID']], right_on='Item',left_on='MATRÍCULA', how='left')
+        codigocliente['External ID'] = codigocliente['Customer External ID']
 
         # Reemplazar 'CodigoCuenta' con 'External ID' si existe
         def accountidcliente(row):
