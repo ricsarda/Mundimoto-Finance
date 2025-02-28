@@ -257,7 +257,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         final_operaciones = pd.DataFrame(rows_nuevas)
         
         financiaciones = pd.read_excel((files["Financiaciones"]), engine='openpyxl')
-        ventas_SF = pd.read_excel((files["Ventas"]), engine='openpyxl')
+        invoice = pd.read_excel((files["Invoices"]), engine='openpyxl')
 
         # (a) Separa “Compensaciones” y “Pago Proveedor - Entrega Inicial”
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
@@ -266,7 +266,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         # Merge con "Financiaciones" y "Ventas" para obtener info extra:
         codigocliente['Operación'] = codigocliente['Comentario'].str.replace('FINANC. SANTANDER - ', '', regex=False)
         codigocliente = codigocliente.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
-        codigocliente = codigocliente.merge(ventas_SF[['Moto', 'DNI']],right_on='Moto', left_on='MATRÍCULA', how='left')
+        codigocliente = codigocliente.merge(invoice[['Moto', 'DNI']],right_on='Moto', left_on='MATRÍCULA', how='left')
         codigocliente['External ID'] = codigocliente['DNI']
 
         # Reemplazar 'CodigoCuenta' con 'External ID' si existe
@@ -339,7 +339,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         with pd.ExcelWriter(excel_rest, engine='openpyxl') as writer:
             codigocliente.to_excel(writer, sheet_name='Pago', index=False)
             financiaciones.to_excel(writer, sheet_name='Financiaciones 2025', index=False)
-            ventas_SF.to_excel(writer, sheet_name='Ventas SF', index=False)
+            invoice.to_excel(writer, sheet_name='Invoices NS', index=False)
 
         # Mover punteros al inicio
         excel_final_ops.seek(0)
