@@ -268,7 +268,6 @@ def main(files, pdfs, new_excel, month=None, year=None):
         codigocliente = codigocliente.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
         codigocliente = codigocliente.merge(invoice[['Item', 'Customer External ID']], right_on='Item',left_on='MATRÍCULA', how='left')
         codigocliente['External ID'] = codigocliente['Customer External ID']
-
         # Reemplazar 'CodigoCuenta' con 'External ID' si existe
         def accountidcliente(row):
             if pd.isna(row['External ID']):
@@ -276,8 +275,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
             else:
                 return row['External ID']
         codigocliente['External ID'] = codigocliente.apply(accountidcliente, axis=1)
-        codigocliente = codigocliente[['FechaAsiento', 'External ID', 'ImporteAsiento', 'Operación']]
-
+        codigocliente = codigocliente[['FechaAsiento', 'External ID', 'ImporteAsiento', 'Operación','Item']]
+        codigocliente =codigocliente.merge(invoice[['Item', 'Internal ID']], right_on='Item',left_on='Item', how='left')
         # Reformatear comentarios de compensaciones
         def reformatear_comentario(comentario):
             partes = comentario.split()
