@@ -14,7 +14,7 @@ def convertir_a_float(valor_str):
 
 # === Extrae datos de "Financiaciones"
 def extraer_financiaciones(texto, lineas, nombre_pdf):
-    pat_fecha = re.compile(r"Fecha:([0-9]{2}/[0-9]{2}/[0-9]{2})")
+    pat_fecha = re.compile(r"FechaCancelación:([0-9]{2}/[0-9]{2}/[0-9]{2})")
     pat_operacion = re.compile(r"operación\s*nº\s*([A-Za-z0-9]+)")  
     pat_entrega_importe = re.compile(r"EntregaImporte\s+([\d.,]+)")
     pat_intereses = re.compile(r"InteresesDevengados.*?([\d.,]+)$")
@@ -35,7 +35,7 @@ def extraer_financiaciones(texto, lineas, nombre_pdf):
     }
 
     for linea in lineas:
-        if 'Fecha Cancelación:' in linea:
+        if 'FechaCancelación:' in linea:
             m = pat_fecha.search(linea)
             if m:
                 info_pdf['Fecha'] = m.group(1)
