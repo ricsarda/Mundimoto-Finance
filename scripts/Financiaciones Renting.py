@@ -35,7 +35,7 @@ def extraer_financiaciones(texto, lineas, nombre_pdf):
     }
 
     for linea in lineas:
-        if 'FECHARECALCULO.:' in linea:
+        if 'Fecha Cancelación:' in linea:
             m = pat_fecha.search(linea)
             if m:
                 info_pdf['Fecha'] = m.group(1)
