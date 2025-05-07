@@ -186,8 +186,6 @@ elif script_option == "Performance Comerciales B2C":
             except Exception as e:
                 st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
-import streamlit as st
-from io import BytesIO
 
 elif script_option == "Financiaciones Renting":
     st.header("PDFs")
