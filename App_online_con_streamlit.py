@@ -5,6 +5,7 @@ import importlib.util
 import sys
 import os
 import zipfile
+import re
 from datetime import datetime
 
 fecha_actual = datetime.now()
@@ -189,7 +190,7 @@ elif script_option == "Performance Comerciales B2C":
 
 elif script_option == "Financiaciones Renting":
     st.header("PDFs")
-    # Pedimos que el usuario suba uno o varios PDFs
+
     uploaded_pdfs = st.file_uploader(
         "Sube los PDFs",
         type=["pdf"],
@@ -199,27 +200,32 @@ elif script_option == "Financiaciones Renting":
     if uploaded_pdfs:
         if st.button("Ejecutar"):
             try:
-
                 new_excel = BytesIO()
 
-                pdfs_dict = {f.name: f for f in uploaded_pdfs}
-                
+                # Renombra explícitamente los archivos eliminando caracteres conflictivos
+                pdfs_dict = {}
+                for f in uploaded_pdfs:
+                    sanitized_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', f.name)
+                    pdfs_dict[sanitized_name] = BytesIO(f.getvalue())
+
                 excel_result = load_and_execute_script(
                     "Financiaciones Renting",
-                    files={},                    # Si no necesitas Excels, queda vacío
-                    pdfs=pdfs_dict,              # PDFs subidos
+                    files={},                    
+                    pdfs=pdfs_dict,
                     new_excel=new_excel
                 )
+
                 if excel_result is not None:
                     st.success("¡GAS!")
                     st.download_button(
                         label="Descargar",
                         data=excel_result.getvalue(),
-                        file_name=f"Financiaciones Renting {fecha}.xlsx",
+                        file_name=f"Financiaciones_Renting_{fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
                 st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+
 
 
 elif script_option == "Financiaciones Santander":
