@@ -186,9 +186,12 @@ elif script_option == "Performance Comerciales B2C":
             except Exception as e:
                 st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
 
+import streamlit as st
+from io import BytesIO
+
 elif script_option == "Financiaciones Renting":
     st.header("PDFs")
-    # Pedimos que el usuario suba uno o varios PDFs
+    
     uploaded_pdfs = st.file_uploader(
         "Sube los PDFs",
         type=["pdf"],
@@ -198,17 +201,19 @@ elif script_option == "Financiaciones Renting":
     if uploaded_pdfs:
         if st.button("Ejecutar"):
             try:
-
                 new_excel = BytesIO()
 
-                pdfs_dict = {f.name: f for f in uploaded_pdfs}
-                
+                # Crea un diccionario con el contenido explícito de los PDFs
+                pdfs_dict = {f.name: BytesIO(f.getvalue()) for f in uploaded_pdfs}
+
+                # Ahora envía estos objetos BytesIO en lugar de los archivos originales
                 excel_result = load_and_execute_script(
                     "Financiaciones Renting",
-                    files={},                    # Si no necesitas Excels, queda vacío
-                    pdfs=pdfs_dict,              # PDFs subidos
+                    files={},                    
+                    pdfs=pdfs_dict,
                     new_excel=new_excel
                 )
+
                 if excel_result is not None:
                     st.success("¡GAS!")
                     st.download_button(
@@ -219,6 +224,7 @@ elif script_option == "Financiaciones Renting":
                     )
             except Exception as e:
                 st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+
 
 elif script_option == "Financiaciones Santander":
     st.header("Subida de archivos")
