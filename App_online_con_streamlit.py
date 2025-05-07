@@ -189,7 +189,7 @@ elif script_option == "Performance Comerciales B2C":
 
 elif script_option == "Financiaciones Renting":
     st.header("PDFs")
-    
+    # Pedimos que el usuario suba uno o varios PDFs
     uploaded_pdfs = st.file_uploader(
         "Sube los PDFs",
         type=["pdf"],
@@ -199,19 +199,17 @@ elif script_option == "Financiaciones Renting":
     if uploaded_pdfs:
         if st.button("Ejecutar"):
             try:
+
                 new_excel = BytesIO()
 
-                # Crea un diccionario con el contenido explícito de los PDFs
-                pdfs_dict = {f.name: BytesIO(f.getvalue()) for f in uploaded_pdfs}
-
-                # Ahora envía estos objetos BytesIO en lugar de los archivos originales
+                pdfs_dict = {f.name: f for f in uploaded_pdfs}
+                
                 excel_result = load_and_execute_script(
                     "Financiaciones Renting",
-                    files={},                    
-                    pdfs=pdfs_dict,
+                    files={},                    # Si no necesitas Excels, queda vacío
+                    pdfs=pdfs_dict,              # PDFs subidos
                     new_excel=new_excel
                 )
-
                 if excel_result is not None:
                     st.success("¡GAS!")
                     st.download_button(
