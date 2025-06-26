@@ -22,9 +22,9 @@ pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 # Opciones específicas para cada país
 if pais == "Spain":
     script_options = [
-        "Credit Stock", "Calculadora Precios B2C", "Daily Report", "Financiaciones Santander",
+        "Credit Stock", "Calculadora Precios B2C",  "Daily Report", "DNI y Matrícula" ,"Financiaciones Santander",
         "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank",
-        "Unnax Easy Payment", "Stripe", "DNI y Matrícula"
+        "Unnax Easy Payment", "Stripe"
     ]
 elif pais == "Italy":
     script_options = [
@@ -524,7 +524,7 @@ elif script_option == "DNI y Matrícula":
     }
 
     # Verificamos si el usuario subió algo
-    if uploaded_files["DNI y Matrícula"] is not None:
+    if uploaded_files["Santnader"] is not None:
         if st.button("Ejecutar"):
             try:
                 # Llamamos a la función load_and_execute_script
@@ -543,7 +543,7 @@ elif script_option == "DNI y Matrícula":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error al procesar CSV de Stripe, Contacta con Ric: {str(e)}")
+                st.error(f"Error al procesar, Contacta con Ric: {str(e)}")
             
 elif script_option == "Sales":
     st.header("Files")
