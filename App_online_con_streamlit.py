@@ -516,12 +516,13 @@ elif script_option == "DNI y Matrícula":
     st.header("Subir extracto")
 
     # Subida de un único archivo CSV
-    uploaded_santander = st.file_uploader("Extracto de Santander", type=["xlsx"], accept_multiple_files=True)
+    uploaded_santander = st.file_uploader("Extracto de Santander", type=["xlsx"])
 
     # Construimos el diccionario con clave "Stripe"
-    uploaded_files = {
+    files = {
         "Extracto de Santander": uploaded_santander
     }
+
 
     # Verificamos si el usuario subió algo
     if uploaded_files["Extracto de Santander"] is not None:
