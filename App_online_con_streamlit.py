@@ -531,7 +531,7 @@ elif script_option == "DNI y Matrícula":
                 # Llamamos a la función load_and_execute_script
                 result = load_and_execute_script(
                     "DNI y Matrícula",        
-                    files=uploaded_files,
+                    files="uploaded_files",
                     new_excel
                 )
 
