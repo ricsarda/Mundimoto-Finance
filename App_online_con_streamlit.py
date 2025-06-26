@@ -527,10 +527,12 @@ elif script_option == "DNI y Matrícula":
     if uploaded_files["Extracto de Santander"] is not None:
         if st.button("Ejecutar"):
             try:
+                new_excel = BytesIO()
                 # Llamamos a la función load_and_execute_script
                 result = load_and_execute_script(
                     "DNI y Matrícula",        
-                    files=uploaded_files   
+                    files=uploaded_files,
+                    new_excel
                 )
 
                 # 'result' será un BytesIO con el Excel final
