@@ -513,30 +513,18 @@ elif script_option == "Purchases":
         )
 
 elif script_option == "DNI y Matrícula":
-    uploaded_file = st.file_uploader("Sube el extracto de Santander (.xlsx)", type=["xlsx"], key="santander")
+    uploaded_file = st.file_uploader("Sube el extracto de Santander", type=["xlsx"], key="santander")
     files = {"Extracto de Santander": uploaded_file}
 
     if uploaded_file is not None:
-        st.success("Archivo cargado correctamente.")
+        st.success("¡GAS!")
 
         # Ejecutar el script
         df_resultado = load_and_execute_script(script_option, files)
 
-        if df_resultado is not None:
-            st.subheader("Vista previa del resultado")
-            st.dataframe(df_resultado)
-
-            # Convertir a Excel en memoria
-            from io import BytesIO
-            import base64
-
-            buffer = BytesIO()
-            df_resultado.to_excel(buffer, index=False, engine='openpyxl')
-            buffer.seek(0)
-
             # Botón de descarga
             st.download_button(
-                label="📥 Descargar Excel",
+                label="Download",
                 data=buffer,
                 file_name=f"DNI_Matricula_{fecha_actual}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
