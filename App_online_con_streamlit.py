@@ -513,40 +513,34 @@ elif script_option == "Purchases":
         )
 
 elif script_option == "DNI y Matrícula":
-    st.header("Subir extracto")
+    uploaded_file = st.file_uploader("Sube el extracto de Santander (.xlsx)", type=["xlsx"], key="santander")
+    files = {"Extracto de Santander": uploaded_file}
 
-    # Subida de un único archivo CSV
-    uploaded_santander = st.file_uploader("Extracto de Santander", type=["xlsx"])
+    if uploaded_file is not None:
+        st.success("Archivo cargado correctamente.")
 
-    # Construimos el diccionario con clave "Stripe"
-    files = {
-        "Extracto de Santander": uploaded_santander
-    }
+        # Ejecutar el script
+        df_resultado = load_and_execute_script(script_option, files)
 
+        if df_resultado is not None:
+            st.subheader("Vista previa del resultado")
+            st.dataframe(df_resultado)
 
-    # Verificamos si el usuario subió algo
-    if files["Extracto de Santander"] is not None:
-        if st.button("Ejecutar"):
-            try:
-                new_excel = BytesIO()
-                # Llamamos a la función load_and_execute_script
-                result = load_and_execute_script(
-                    "DNI y Matrícula",        
-                    files=files,
-                    new_excel=new_excel,
-                )
+            # Convertir a Excel en memoria
+            from io import BytesIO
+            import base64
 
-                # 'result' será un BytesIO con el Excel final
-                if result is not None:
-                    st.success("¡GAS!")
-                    st.download_button(
-                        label="Descargar",
-                        data=result.getvalue(),
-                        file_name=f"DNI y Matrícula {fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-            except Exception as e:
-                st.error(f"Error al procesar, Contacta con Ric: {str(e)}")
+            buffer = BytesIO()
+            df_resultado.to_excel(buffer, index=False, engine='openpyxl')
+            buffer.seek(0)
+
+            # Botón de descarga
+            st.download_button(
+                label="📥 Descargar Excel",
+                data=buffer,
+                file_name=f"DNI_Matricula_{fecha_actual}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
             
 elif script_option == "Sales":
     st.header("Files")
