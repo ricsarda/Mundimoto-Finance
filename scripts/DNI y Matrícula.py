@@ -54,7 +54,7 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         Limpiar.drop(columns=['Cuenta1'], inplace=True)
         Limpiar.drop(columns=['Cuenta2'], inplace=True)
 
-        Limpiar.to_excel(ruta, index=False)
+        Limpiar.to_excel(new_excel, index=False)
         
         new_excel = BytesIO()
         new_excel.seek(0)  # Reiniciar el puntero del buffer
