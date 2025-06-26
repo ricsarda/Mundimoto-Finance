@@ -522,9 +522,6 @@ elif script_option == "DNI y Matrícula":
         # Ejecutar el script
         df_resultado = load_and_execute_script(script_option, files)
             # Convertir a Excel en memoria
-            from io import BytesIO
-            import base64
-
             buffer = BytesIO()
             df_resultado.to_excel(buffer, index=False, engine='openpyxl')
             buffer.seek(0)
