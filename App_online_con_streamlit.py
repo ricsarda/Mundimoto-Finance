@@ -520,7 +520,7 @@ elif script_option == "DNI y Matrícula":
 
     # Construimos el diccionario con clave "Stripe"
     uploaded_files = {
-        "Extracto de santander": uploaded_santander
+        "Extracto de Santander": uploaded_santander
     }
 
     # Verificamos si el usuario subió algo
