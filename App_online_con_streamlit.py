@@ -24,7 +24,7 @@ if pais == "Spain":
     script_options = [
         "Credit Stock", "Calculadora Precios B2C", "Daily Report", "Financiaciones Santander",
         "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank",
-        "Unnax Easy Payment", "Stripe"
+        "Unnax Easy Payment", "Stripe", "DNI y Matrícula"
     ]
 elif pais == "Italy":
     script_options = [
@@ -136,7 +136,7 @@ elif script_option == "Credit Stock":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+                st.error(f"Error, Contacta con Ric {str(e)}")
 
 elif script_option == "Performance Comerciales B2C":
     st.subheader("Selecciona el Mes y Año:")
@@ -185,7 +185,7 @@ elif script_option == "Performance Comerciales B2C":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+                st.error(f"Error, Contacta con Ric {str(e)}")
 
 
 elif script_option == "Financiaciones Renting":
@@ -224,7 +224,7 @@ elif script_option == "Financiaciones Renting":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+                st.error(f"Error, Contacta con Ric {str(e)}")
 
 
 
@@ -270,7 +270,7 @@ elif script_option == "Financiaciones Santander":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com: {str(e)}")
+                st.error(f"Error, Contacta con Ric: {str(e)}")
 
 
 elif script_option == "Facturación Ventas B2C":
@@ -316,7 +316,7 @@ elif script_option == "Facturación Ventas B2C":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+                st.error(f"Error, Contacta con Ric {str(e)}")
 
 elif script_option == "Unnax CaixaBank":
     st.header("Archivos")
@@ -351,7 +351,7 @@ elif script_option == "Unnax CaixaBank":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+                st.error(f"Error, Contacta con Ric {str(e)}")
 
 elif script_option == "Unnax Easy Payment":
     st.header("Archivos")
@@ -386,7 +386,7 @@ elif script_option == "Unnax Easy Payment":
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
-                st.error(f"Error, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com {str(e)}")
+                st.error(f"Error, Contacta con Ric {str(e)}")
 
 elif script_option == "Calculadora Precios B2C":
     st.header("Calculadora")
@@ -463,7 +463,7 @@ elif script_option == "Stripe":
                         mime="text/csv"
                     )
             except Exception as e:
-                st.error(f"Error al procesar CSV de Stripe, contacta con Ricardo Sarda via Slack o mail: ricardo.sarda@mundimoto.com: {str(e)}")
+                st.error(f"Error al procesar CSV de Stripe, Contacta con Ric: {str(e)}")
 
 elif script_option == "Purchases":
     st.header("File")
@@ -512,6 +512,38 @@ elif script_option == "Purchases":
             mime="application/zip"
         )
 
+elif script_option == "DNI y Matrícula":
+    st.header("Subir archivo")
+
+    # Subida de un único archivo CSV
+    uploaded_stripe = st.file_uploader("Archivo de santander", type=["xlsx"])
+
+    # Construimos el diccionario con clave "Stripe"
+    uploaded_files = {
+        "Santnader": uploaded_stripe
+    }
+
+    # Verificamos si el usuario subió algo
+    if uploaded_files["Stripe"] is not None:
+        if st.button("Ejecutar"):
+            try:
+                # Llamamos a la función load_and_execute_script
+                result = load_and_execute_script(
+                    "DNI y Matrícula",         # el nombre del script: stripe_data.py
+                    files=uploaded_files   # pasamos el dict con "Stripe"
+                )
+
+                # 'result' será un BytesIO con el CSV final
+                if result is not None:
+                    st.success("¡GAS!")
+                    st.download_button(
+                        label="Descargar",
+                        data=result.getvalue(),
+                        file_name=f"DNI y Matrícula {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error al procesar CSV de Stripe, Contacta con Ric: {str(e)}")
             
 elif script_option == "Sales":
     st.header("Files")
