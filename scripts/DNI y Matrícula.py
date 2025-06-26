@@ -2,15 +2,14 @@ import pandas as pd
 from io import BytesIO
 from datetime import datetime
 
-def main(files, pdfs=None, new_excel=None, month=None, year=None):
+def main(files, pdfs=None, new_excel, month=None, year=None):
 
     try:
         # 1) Recuperar el archivo 'Stripe' del diccionario files
-        if "Extracto de santander" not in files or files["Extracto de santander"] is None:
+        if "Extracto de Santander" not in files or files["Extracto de Santander"] is None:
             raise RuntimeError("Falta el archivo Excel de Santnader (clave 'Santnader').")
         
-        # 'files["Santander"]' es un UploadedFile, lo convertimos a un buffer
-        uploaded_file = files["Extracto de santander"]
+        uploaded_file = files["Extracto de Santander"]
         
         Limpiar = pd.read_excel(uploaded_file)
 
@@ -55,10 +54,11 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         Limpiar.drop(columns=['Cuenta2'], inplace=True)
 
         Limpiar.to_excel(ruta, index=False)
-        output.seek(0)
+        
+        new_excel = BytesIO()
+        new_excel.seek(0)  # Reiniciar el puntero del buffer
+        return new_excel         # 5) Retornar el BytesIO
 
-        # 5) Retornar el BytesIO
-        return output
 
     except Exception as e:
         # Si algo falla, levantamos una RuntimeError para que Streamlit la capte
