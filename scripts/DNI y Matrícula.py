@@ -6,11 +6,11 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
 
     try:
         # 1) Recuperar el archivo 'Stripe' del diccionario files
-        if "Santnader" not in files or files["Santnader"] is None:
+        if "Extracto de santander" not in files or files["Extracto de santander"] is None:
             raise RuntimeError("Falta el archivo Excel de Santnader (clave 'Santnader').")
         
         # 'files["Santander"]' es un UploadedFile, lo convertimos a un buffer
-        uploaded_file = files["Santnader"]
+        uploaded_file = files["Extracto de santander"]
         
         Limpiar = pd.read_excel(uploaded_file)
 
