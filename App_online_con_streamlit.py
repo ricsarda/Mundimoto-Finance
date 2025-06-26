@@ -516,7 +516,7 @@ elif script_option == "DNI y Matrícula":
     st.header("Subir extracto")
 
     # Subida de un único archivo CSV
-    uploaded_stripe = st.file_uploader("Extracto de santander", type=["xlsx"])
+    uploaded_santander = st.file_uploader("Extracto de Santander", type=["xlsx"])
 
     # Construimos el diccionario con clave "Stripe"
     uploaded_files = {
@@ -524,7 +524,7 @@ elif script_option == "DNI y Matrícula":
     }
 
     # Verificamos si el usuario subió algo
-    if uploaded_files["Extracto de santander"] is not None:
+    if uploaded_files["Extracto de Santander"] is not None:
         if st.button("Ejecutar"):
             try:
                 # Llamamos a la función load_and_execute_script
@@ -533,7 +533,7 @@ elif script_option == "DNI y Matrícula":
                     files=uploaded_files   
                 )
 
-                # 'result' será un BytesIO con el CSV final
+                # 'result' será un BytesIO con el Excel final
                 if result is not None:
                     st.success("¡GAS!")
                     st.download_button(
