@@ -524,7 +524,7 @@ elif script_option == "DNI y Matrícula":
     }
 
     # Verificamos si el usuario subió algo
-    if uploaded_files["Stripe"] is not None:
+    if uploaded_files["DNI y Matrícula"] is not None:
         if st.button("Ejecutar"):
             try:
                 # Llamamos a la función load_and_execute_script
