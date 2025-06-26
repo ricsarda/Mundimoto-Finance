@@ -9,10 +9,10 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         if "Santnader" not in files or files["Santnader"] is None:
             raise RuntimeError("Falta el archivo Excel de Santnader (clave 'Santnader').")
         
-        # 'files["Stripe"]' es un UploadedFile, lo convertimos a un buffer
+        # 'files["Santander"]' es un UploadedFile, lo convertimos a un buffer
         uploaded_file = files["Santnader"]
         
-        Limpiar = pd.read_excel(archivo)
+        Limpiar = pd.read_excel(uploaded_file)
 
         Limpiar['Cuenta'] = Limpiar['Memo']
         def extraer_dni(texto):
