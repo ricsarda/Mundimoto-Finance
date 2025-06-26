@@ -525,7 +525,7 @@ elif script_option == "DNI y Matrícula":
 
 
     # Verificamos si el usuario subió algo
-    if uploaded_files["Extracto de Santander"] is not None:
+    if files["Extracto de Santander"] is not None:
         if st.button("Ejecutar"):
             try:
                 new_excel = BytesIO()
