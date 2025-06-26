@@ -532,8 +532,8 @@ elif script_option == "DNI y Matrícula":
                 # Llamamos a la función load_and_execute_script
                 result = load_and_execute_script(
                     "DNI y Matrícula",        
-                    files,
-                    new_excel,
+                    files=files,
+                    new_excel=new_excel,
                 )
 
                 # 'result' será un BytesIO con el Excel final
