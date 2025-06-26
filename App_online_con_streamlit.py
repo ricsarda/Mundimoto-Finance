@@ -513,24 +513,24 @@ elif script_option == "Purchases":
         )
 
 elif script_option == "DNI y Matrícula":
-    st.header("Subir archivo")
+    st.header("Subir extracto")
 
     # Subida de un único archivo CSV
-    uploaded_stripe = st.file_uploader("Archivo de santander", type=["xlsx"])
+    uploaded_stripe = st.file_uploader("Extracto de santander", type=["xlsx"])
 
     # Construimos el diccionario con clave "Stripe"
     uploaded_files = {
-        "Santnader": uploaded_stripe
+        "Extracto de santander": uploaded_santander
     }
 
     # Verificamos si el usuario subió algo
-    if uploaded_files["Santnader"] is not None:
+    if uploaded_files["Extracto de santander"] is not None:
         if st.button("Ejecutar"):
             try:
                 # Llamamos a la función load_and_execute_script
                 result = load_and_execute_script(
-                    "DNI y Matrícula",         # el nombre del script: stripe_data.py
-                    files=uploaded_files   # pasamos el dict con "Stripe"
+                    "DNI y Matrícula",        
+                    files=uploaded_files   
                 )
 
                 # 'result' será un BytesIO con el CSV final
