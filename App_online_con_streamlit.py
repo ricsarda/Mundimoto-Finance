@@ -23,8 +23,7 @@ pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 if pais == "Spain":
     script_options = [
         "Credit Stock", "Calculadora Precios B2C",  "Daily Report", "DNI y Matrícula" ,"Financiaciones Santander",
-        "Financiaciones Renting", "Performance Comerciales B2C", "Unnax CaixaBank",
-        "Unnax Easy Payment", "Stripe"
+        "Financiaciones Renting", "Performance Comerciales B2C", "Stripe"
     ]
 elif pais == "Italy":
     script_options = [
@@ -313,76 +312,6 @@ elif script_option == "Facturación Ventas B2C":
                         label="Descargar",
                         data=excel_result.getvalue(),
                         file_name=f"Ventas {fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-            except Exception as e:
-                st.error(f"Error, Contacta con Ric {str(e)}")
-
-elif script_option == "Unnax CaixaBank":
-    st.header("Archivos")
-    uploaded_unnax = st.file_uploader("Unnax", type=["csv"])
-    uploaded_compras = st.file_uploader("Compras Netsuit", type=["xlsx"])
-
-    uploaded_files = {
-    "Unnax": uploaded_unnax,
-    "Compras": uploaded_compras,
-    }
-
-    if all(uploaded_files.values()):
-        if st.button("Ejecutar"):
-            try:
-
-                new_excel = BytesIO()
-
-                excel_result = load_and_execute_script(
-                    "Unnax CB",
-                    uploaded_files,
-                    new_excel,
-                    uploaded_month,
-                    uploaded_year
-                )
-
-                if excel_result is not None:
-                    st.success("¡GAS!")
-                    st.download_button(
-                        label="Descargar",
-                        data=excel_result.getvalue(),
-                        file_name=f"Carga Unnax CaixaBank {fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-            except Exception as e:
-                st.error(f"Error, Contacta con Ric {str(e)}")
-
-elif script_option == "Unnax Easy Payment":
-    st.header("Archivos")
-    uploaded_unnax = st.file_uploader("Unnax", type=["csv"])
-    uploaded_compras = st.file_uploader("Compras Netsuit", type=["xlsx"])
-
-    uploaded_files = {
-    "Unnax": uploaded_unnax,
-    "Compras": uploaded_compras,
-    }
-
-    if all(uploaded_files.values()):
-        if st.button("Ejecutar"):
-            try:
-
-                new_excel = BytesIO()
-
-                excel_result = load_and_execute_script(
-                    "Unnax EP",
-                    uploaded_files,
-                    new_excel,
-                    uploaded_month,
-                    uploaded_year
-                )
-
-                if excel_result is not None:
-                    st.success("¡GAS!")
-                    st.download_button(
-                        label="Descargar",
-                        data=excel_result.getvalue(),
-                        file_name=f"Carga Unnax Easy Payment {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
