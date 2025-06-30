@@ -23,7 +23,7 @@ pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 if pais == "Spain":
     script_options = [
         "Credit Stock", "Calculadora Precios B2C",  "Daily Report", "DNI y Matrícula" ,"Santander Financiaciones", "Sabadell Financiaciones",
-        "Financiaciones Renting", "Performance Comerciales B2C", "Stripe"
+        "Financiaciones Renting", "Sofinco Financiaciones", "Stripe"
     ]
 elif pais == "Italy":
     script_options = [
@@ -136,56 +136,6 @@ elif script_option == "Credit Stock":
                     )
             except Exception as e:
                 st.error(f"Error, Contacta con Ric {str(e)}")
-
-elif script_option == "Performance Comerciales B2C":
-    st.subheader("Selecciona el Mes y Año:")
-    uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
-    uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
-    
-    st.header("Archivos")
-    uploaded_FC = st.file_uploader("FC", type=["xlsx"])
-    uploaded_AB = st.file_uploader("AB", type=["xlsx"])
-    uploaded_FT = st.file_uploader("FT", type=["xlsx"])
-    uploaded_ventas = st.file_uploader("ventas", type=["xlsx"])
-    uploaded_leads= st.file_uploader("leads", type=["xlsx"])
-    uploaded_anterior = st.file_uploader("Anterior", type=["xlsx"])
-    uploaded_financiacion = st.file_uploader("Financiaciones 2025", type=["xlsx"])
-    
-    uploaded_files = {
-    "inf_usu_FC": uploaded_FC, #FC
-    "inf_usu_AB": uploaded_AB, #AB
-    "inf_usu_FT": uploaded_FT, #FT
-    "archivo_ventas": uploaded_ventas, # Ruta del archivo del Report de comerciales Solo detalles
-    "archivo_leads": uploaded_leads, # Ruta del archivo leads Solo detalles
-    "sellers_anterior": uploaded_anterior,
-    "archivo_financiacion": uploaded_financiacion, # Ruta del archivo de financiaciones
-    }
-
-    if all(uploaded_files.values()):
-        if st.button("Ejecutar"):
-            try:
-
-                new_excel = BytesIO()
-
-                excel_result = load_and_execute_script(
-                    "Performance Comerciales B2C",
-                    uploaded_files,
-                    new_excel,
-                    uploaded_month,
-                    uploaded_year
-                )
-
-                if excel_result is not None:
-                    st.success("¡GAS!")
-                    st.download_button(
-                        label="Descargar",
-                        data=excel_result.getvalue(),
-                        file_name=f"Performance Comerciales B2C {fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-            except Exception as e:
-                st.error(f"Error, Contacta con Ric {str(e)}")
-
 
 elif script_option == "Financiaciones Renting":
     st.header("PDFs")
@@ -311,50 +261,6 @@ elif script_option == "Sabadell Financiaciones":
 
             except Exception as e:
                 st.error(f"Error, Contacta con Ric: {str(e)}")
-elif script_option == "Facturación Ventas B2C":
-    st.header("Archivos")
-    uploaded_clients = st.file_uploader("clients", type=["csv"])
-    uploaded_mheaders = st.file_uploader("motorbike_headers", type=["csv"])
-    uploaded_mlines = st.file_uploader("motorbike_lines", type=["csv"])
-    uploaded_sheaders = st.file_uploader("services_headers", type=["csv"])
-    uploaded_slines = st.file_uploader("services_lines", type=["csv"])
-    uploaded_Netsuitclientes = st.file_uploader("Clientes de Netsuit", type=["xlsx"])
-    uploaded_Netsuitarticulos = st.file_uploader("Artículos de Netsuit", type=["xlsx"])
-    uploaded_salesforce = st.file_uploader("Salesforce", type=["xlsx"])
-    
-    uploaded_files = {
-    "clients": uploaded_clients,
-    "motorbike_headers":uploaded_mheaders,
-    "motorbike_lines":uploaded_mlines,
-    "services_headers":uploaded_sheaders,
-    "services_lines":uploaded_slines,
-    "Clientes de Netsuit":uploaded_Netsuitclientes,
-    "Artículos de Netsuit":uploaded_Netsuitarticulos,
-    "Salesforce":uploaded_salesforce,
-    }
-
-    if all(uploaded_files.values()):
-        if st.button("Ejecutar"):
-            try:
-
-                new_excel = BytesIO()
-
-                excel_result = load_and_execute_script(
-                    "Facturacion ventas",
-                    uploaded_files,
-                    new_excel 
-                )
-
-                if excel_result is not None:
-                    st.success("¡GAS!")
-                    st.download_button(
-                        label="Descargar",
-                        data=excel_result.getvalue(),
-                        file_name=f"Ventas {fecha}.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-            except Exception as e:
-                st.error(f"Error, Contacta con Ric {str(e)}")
 
 elif script_option == "Calculadora Precios B2C":
     st.header("Calculadora")
