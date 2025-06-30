@@ -39,6 +39,16 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         sofinco['Estado'] = sofinco['Phase']
         Sofincop = sofinco.copy()
 
+        stock = metabase.loc[metabase['stock_status'].isin(['readyToMarket','onHold'])]
+        Stock_disponible = stock['purchase_price'].sum()
+        stock_libre = stock.loc[stock['santandersales'].isnull()]
+        stock_libre = stock_libre[stock_libre['santandersales'] !='santanderSales']
+        stock_libre = stock_libre[stock_libre['santanderrenting'] !='santanderSales']
+        stock_libre = stock_libre[stock_libre['sabadellsales'] !='sabadellSales']
+        stock_libre = stock_libre[stock_libre['sofincosales'] !='sofincoSales']
+        stock_libre = stock_libre[stock_libre['wavi'] !='wavi']
+        Stock_libre = stock_libre['purchase_price'].sum()
+        
         # rescates Santander
         mask = (
             (Santander['Fecha Vencimiento'].dt.date == fecha_venci) |
@@ -209,7 +219,7 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         rescate_sofinco = rescate_sofinco.sort_values(by='Estado', ascending=True)
 
         # motossinpoliza
-        motosparadoc = metabase.loc[metabase['status'].isin(['pricing', 'quality', 'refurbish'])]
+        motosparadoc = metabase.loc[metabase['stock_status'].isin(['readyToMarket','onHold'])]
         motosparadoc = motosparadoc.loc[motosparadoc['actual_credit_policy'].isnull()]
         extrasdesab = motosparadoc.loc[motosparadoc['santandersales'].isin(['santanderSales'])]
 
@@ -481,7 +491,9 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
             'Disponible'
         ]
         CreditStock = CreditStock[CreditStockcolumnas]
-
+        CreditStock['Stock Disponible'] = Stock_disponible
+        CreditStock['Stock Libre'] = Stock_libre
+        
         # cambio formato final de fecha
         metabase['purchase_date'] = pd.to_datetime(metabase['purchase_date']).dt.strftime('%d/%m/%Y')
         metabase['registration_date'] = pd.to_datetime(metabase['registration_date']).dt.strftime('%d/%m/%Y')
