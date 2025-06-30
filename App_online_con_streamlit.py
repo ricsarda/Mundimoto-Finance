@@ -22,7 +22,7 @@ pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 # Opciones específicas para cada país
 if pais == "Spain":
     script_options = [
-        "Credit Stock", "Calculadora Precios B2C",  "Daily Report", "DNI y Matrícula" ,"Financiaciones Santander",
+        "Credit Stock", "Calculadora Precios B2C",  "Daily Report", "DNI y Matrícula" ,"Santander Financiaciones", "Sabadell Financiaciones",
         "Financiaciones Renting", "Performance Comerciales B2C", "Stripe"
     ]
 elif pais == "Italy":
@@ -227,7 +227,7 @@ elif script_option == "Financiaciones Renting":
 
 
 
-elif script_option == "Financiaciones Santander":
+elif script_option == "Santander Financiaciones":
     st.header("Subida de archivos")
 
     uploaded_pdfs = st.file_uploader("Sube PDFs Santander cartas de Pago", type=["pdf"], accept_multiple_files=True)
@@ -247,7 +247,7 @@ elif script_option == "Financiaciones Santander":
                 pdfs_dict = {f.name: f for f in uploaded_pdfs}
                 # Llamamos al script
                 resultados = load_and_execute_script(
-                    "Financiaciones Santander",
+                    "Santander Financiaciones",
                     files=uploaded_files,
                     pdfs=pdfs_dict
                 )
@@ -260,20 +260,57 @@ elif script_option == "Financiaciones Santander":
                     st.download_button(
                         label="Descargar Comisiones",
                         data=excel_ops.getvalue(),
-                        file_name=f"Financiaciones Santander-Comisiones {fecha}.xlsx",
+                        file_name=f"Santander Financiaciones-Comisiones {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                     # Botón para descargar el "resto"
                     st.download_button(
                         label="Descargar Pagos",
                         data=excel_otros.getvalue(),
-                        file_name=f"Financiaciones Santander-Pagos {fecha}.xlsx",
+                        file_name=f"Santander Financiaciones-Pagos {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
                 st.error(f"Error, Contacta con Ric: {str(e)}")
 
+elif script_option == "Sabadell Financiaciones":
+    st.header("Subida de archivos")
 
+    uploaded_financiaciones = st.file_uploader("Sube Excel de Financiaciones de Sabadell", type=["xlsx"])
+    uploaded_invoices = st.file_uploader("Sube csv MM - Item Internal ID Transactions: Results", type=["csv"])
+    uploaded_invoice = st.file_uploader("Sube csv de Invoices Marc", type=["csv"])
+    
+    uploaded_files = {
+        "Financiaciones": uploaded_financiaciones,
+        "Invoices": uploaded_invoices,
+        "invoice": uploaded_invoice
+    }
+    
+    if all(uploaded_files.values()) and uploaded_pdfs:
+        if st.button("Ejecutar"):
+            try:
+                pdfs_dict = {f.name: f for f in uploaded_pdfs}
+                # Llamamos al script
+                resultados = load_and_execute_script(
+                    "Santander Financiaciones",
+                    files=uploaded_files,
+                    pdfs=pdfs_dict
+                )
+                if resultados is not None:
+                    # 'resultados' es una tupla (excel_final_ops, excel_rest)
+                    excel_ops, excel_otros = resultados
+
+                    st.success("¡GAS!")
+                    # Botón para descargar final_operaciones
+                    st.download_button(
+                        label="Descargar Comisiones",
+                        data=excel_ops.getvalue(),
+                        file_name=f"{fecha} Sabadell-Pago.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+
+            except Exception as e:
+                st.error(f"Error, Contacta con Ric: {str(e)}")
 elif script_option == "Facturación Ventas B2C":
     st.header("Archivos")
     uploaded_clients = st.file_uploader("clients", type=["csv"])
