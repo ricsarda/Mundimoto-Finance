@@ -129,7 +129,7 @@ elif script_option == "Credit Stock":
                 if excel_result is not None:
                     st.success("¡GAS!")
                     st.download_button(
-                        label="Descargar",
+                        label="Download",
                         data=excel_result.getvalue(),
                         file_name=f"Credit Stock {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -167,7 +167,7 @@ elif script_option == "Financiaciones Renting":
                 if excel_result is not None:
                     st.success("¡GAS!")
                     st.download_button(
-                        label="Descargar",
+                        label="Download",
                         data=excel_result.getvalue(),
                         file_name=f"Financiaciones_Renting_{fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -203,16 +203,16 @@ elif script_option == "Sofinco Financiaciones":
                     output_ops, output_rest = resultados
 
                     st.success("¡GAS!")
-                    # Botón para descargar final_operaciones
+                    # Botón para Download final_operaciones
                     st.download_button(
-                        label="Descargar Comisiones",
+                        label="Download Comisiones",
                         data=output_ops.getvalue(),
                         file_name=f"Sofinco Financiaciones-Comisiones {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-                    # Botón para descargar el "resto"
+                    # Botón para Download el "resto"
                     st.download_button(
-                        label="Descargar Pagos",
+                        label="Download Pagos",
                         data=output_rest.getvalue(),
                         file_name=f"Sofinco Financiaciones-Pagos {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -250,16 +250,16 @@ elif script_option == "Santander Financiaciones":
                     excel_ops, excel_otros = resultados
 
                     st.success("¡GAS!")
-                    # Botón para descargar final_operaciones
+                    # Botón para Download final_operaciones
                     st.download_button(
-                        label="Descargar Comisiones",
+                        label="Download Comisiones",
                         data=excel_ops.getvalue(),
                         file_name=f"Santander Financiaciones-Comisiones {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-                    # Botón para descargar el "resto"
+                    # Botón para Download el "resto"
                     st.download_button(
-                        label="Descargar Pagos",
+                        label="Download Pagos",
                         data=excel_otros.getvalue(),
                         file_name=f"Santander Financiaciones-Pagos {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -295,9 +295,9 @@ elif script_option == "Sabadell Financiaciones":
                     excel_ops, excel_otros = resultados
 
                     st.success("¡GAS!")
-                    # Botón para descargar final_operaciones
+                    # Botón para Download final_operaciones
                     st.download_button(
-                        label="Descargar Pagos",
+                        label="Download Pagos",
                         data=excel_ops.getvalue(),
                         file_name=f"Sabadell-Pago {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -375,7 +375,7 @@ elif script_option == "Stripe":
                 if result is not None:
                     st.success("¡GAS!")
                     st.download_button(
-                        label="Descargar",
+                        label="Download",
                         data=result.getvalue(),
                         file_name=f"Stripe_{fecha}.csv",
                         mime="text/csv"
@@ -443,19 +443,13 @@ elif script_option == "Facilitea":
         "Invoices": uploaded_invoice,
     }
 
+
     if all(uploaded_files.values()):
         if st.button("Ejecutar"):
             files = {k: BytesIO(v.read()) for k, v in uploaded_files.items()}
             result = load_and_execute_script("Facilitea", files)
             if result:
-            st.download_button(
-                label="Download",
-                data=buffer,
-                file_name=f"Facilitea {fecha}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-              except Exception as e:
-                st.error(f"Error al procesar, Contacta con Ric: {str(e)}")          
+                st.download_button("Download", data=result, file_name=f"Facilitea {fecha}.xlsx"
 
 elif script_option == "DNI y Matrícula":
     uploaded_file = st.file_uploader("Sube el extracto de Santander", type=["xlsx"], key="santander")
