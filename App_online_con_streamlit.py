@@ -176,6 +176,50 @@ elif script_option == "Financiaciones Renting":
                 st.error(f"Error, Contacta con Ric {str(e)}")
 
 
+elif script_option == "Financiaciones Sofinco":
+    st.header("Archivos necesarios")
+    
+    uploaded_pdfs = st.file_uploader("PDFs de Sofinco", type=["pdf"], accept_multiple_files=True)
+    uploaded_invoices = st.file_uploader("Sube csv MM - Item Internal ID Transactions: Results", type=["csv"])
+    uploaded_invoice = st.file_uploader("Sube csv de Invoices Marc", type=["csv"])
+
+    uploaded_files = {
+        "Invoices": uploaded_invoices,
+        "invoice": uploaded_invoice
+    }
+    
+    if all(uploaded_files.values()) and uploaded_pdfs:
+        if st.button("Ejecutar"):
+            try:
+                pdfs_dict = {f.name: f for f in uploaded_pdfs}
+                # Llamamos al script
+                resultados = load_and_execute_script(
+                    "Sofinco Financiaciones",
+                    files=uploaded_files,
+                    pdfs=pdfs_dict
+                )
+                if resultados is not None:
+                    # 'resultados' es una tupla (excel_final_ops, excel_rest)
+                    output_ops, output_rest = resultados
+
+                    st.success("¡GAS!")
+                    # Botón para descargar final_operaciones
+                    st.download_button(
+                        label="Descargar Comisiones",
+                        data=excel_ops.getvalue(),
+                        file_name=f"Sofinco Financiaciones-Comisiones {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                    # Botón para descargar el "resto"
+                    st.download_button(
+                        label="Descargar Pagos",
+                        data=excel_otros.getvalue(),
+                        file_name=f"Sofinco Financiaciones-Pagos {fecha}.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+            except Exception as e:
+                st.error(f"Error, Contacta con Ric: {str(e)}")
+
 
 elif script_option == "Santander Financiaciones":
     st.header("Subida de archivos")
