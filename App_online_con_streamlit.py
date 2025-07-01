@@ -177,9 +177,9 @@ elif script_option == "Financiaciones Renting":
 
 
 elif script_option == "Financiaciones Sofinco":
-    st.header("Archivos necesarios")
+    st.header("Subida de archivos")
     
-    uploaded_pdfs = st.file_uploader("PDFs de Sofinco", type=["pdf"], accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("PDFs de Sofinco, (financiaciones@mundimoto.com <Resumen de operaciones>)", type=["pdf"], accept_multiple_files=True)
     uploaded_invoices = st.file_uploader("Sube csv MM - Item Internal ID Transactions: Results", type=["csv"])
     uploaded_invoice = st.file_uploader("Sube csv de Invoices Marc", type=["csv"])
 
@@ -206,14 +206,14 @@ elif script_option == "Financiaciones Sofinco":
                     # Botón para descargar final_operaciones
                     st.download_button(
                         label="Descargar Comisiones",
-                        data=excel_ops.getvalue(),
+                        data=output_ops.getvalue(),
                         file_name=f"Sofinco Financiaciones-Comisiones {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
                     # Botón para descargar el "resto"
                     st.download_button(
                         label="Descargar Pagos",
-                        data=excel_otros.getvalue(),
+                        data=output_rest.getvalue(),
                         file_name=f"Sofinco Financiaciones-Pagos {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
@@ -297,9 +297,9 @@ elif script_option == "Sabadell Financiaciones":
                     st.success("¡GAS!")
                     # Botón para descargar final_operaciones
                     st.download_button(
-                        label="Descargar Comisiones",
+                        label="Descargar Pagos",
                         data=excel_ops.getvalue(),
-                        file_name=f"{fecha} Sabadell-Pago.xlsx",
+                        file_name=f"Sabadell-Pago {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
 
