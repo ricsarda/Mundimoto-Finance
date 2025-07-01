@@ -176,7 +176,7 @@ elif script_option == "Financiaciones Renting":
                 st.error(f"Error, Contacta con Ric {str(e)}")
 
 
-elif script_option == "Financiaciones Sofinco":
+elif script_option == "Sofinco Financiaciones":
     st.header("Subida de archivos")
     
     uploaded_pdfs = st.file_uploader("PDFs de Sofinco, (financiaciones@mundimoto.com <Resumen de operaciones>)", type=["pdf"], accept_multiple_files=True)
@@ -448,9 +448,14 @@ elif script_option == "Facilitea":
             files = {k: BytesIO(v.read()) for k, v in uploaded_files.items()}
             result = load_and_execute_script("Facilitea", files)
             if result:
-                st.download_button("Descargar", data=result, file_name="Facilitea {fecha}.xlsx")
-    else:
-        st.info("Sube todos los archivos necesarios para habilitar el procesamiento.")
+            st.download_button(
+                label="Download",
+                data=buffer,
+                file_name=f"Facilitea {fecha}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+              except Exception as e:
+                st.error(f"Error al procesar, Contacta con Ric: {str(e)}")          
 
 elif script_option == "DNI y Matrícula":
     uploaded_file = st.file_uploader("Sube el extracto de Santander", type=["xlsx"], key="santander")
