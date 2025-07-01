@@ -449,7 +449,7 @@ elif script_option == "Facilitea":
             files = {k: BytesIO(v.read()) for k, v in uploaded_files.items()}
             result = load_and_execute_script("Facilitea", files)
             if result:
-                st.download_button("Download", data=result, file_name=f"Facilitea {fecha}.xlsx"
+                st.download_button("Download", data=result, file_name=f"Facilitea {fecha}.xlsx")
 
 elif script_option == "DNI y Matrícula":
     uploaded_file = st.file_uploader("Sube el extracto de Santander", type=["xlsx"], key="santander")
