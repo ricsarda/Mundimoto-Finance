@@ -23,7 +23,7 @@ pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 if pais == "Spain":
     script_options = [
         "Credit Stock", "Calculadora Precios B2C",  "Daily Report", "DNI y Matrícula" ,"Santander Financiaciones", "Sabadell Financiaciones",
-        "Financiaciones Renting", "Sofinco Financiaciones", "Stripe"
+        "Financiaciones Renting", "Sofinco Financiaciones", "Stripe", "Facilitea"
     ]
 elif pais == "Italy":
     script_options = [
@@ -429,6 +429,28 @@ elif script_option == "Purchases":
             file_name=f"Purchases_{fecha}.zip",
             mime="application/zip"
         )
+
+elif script_option == "Facilitea":
+    st.header("Archivos necesarios")
+
+    uploaded_zip = st.file_uploader("ZIP de Excels Facilitea", type="zip")
+    uploaded_invoices = st.file_uploader("Sube csv MM - Item Internal ID Transactions: Results", type=["csv"])
+    uploaded_invoice = st.file_uploader("Sube csv de Invoices Marc", type=["csv"])
+
+    uploaded_files = {
+        "FaciliteaZIP": uploaded_zip,
+        "InvoicesItem": uploaded_invoices,
+        "Invoices": uploaded_invoice,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            files = {k: BytesIO(v.read()) for k, v in uploaded_files.items()}
+            result = load_and_execute_script("Facilitea", files)
+            if result:
+                st.download_button("Descargar", data=result, file_name="Facilitea {fecha}.xlsx")
+    else:
+        st.info("Sube todos los archivos necesarios para habilitar el procesamiento.")
 
 elif script_option == "DNI y Matrícula":
     uploaded_file = st.file_uploader("Sube el extracto de Santander", type=["xlsx"], key="santander")
