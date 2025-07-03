@@ -289,7 +289,7 @@ elif script_option == "Sabadell Financiaciones":
                 )
                 if resultados is not None:
                     # 'resultados' es una tupla (excel_final_ops, excel_rest)
-                    excel_ops, excel_otros = resultados
+                    output = resultados
 
                     st.success("¡GAS!")
                     # Botón para Download final_operaciones
