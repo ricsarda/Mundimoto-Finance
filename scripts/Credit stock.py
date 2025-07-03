@@ -4,7 +4,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
 from openpyxl.utils import get_column_letter
 from io import BytesIO  # Para poder usar BytesIO
-
+import traceback
 
 def main(files, new_excel, pdfs=None, month=None, year=None):
     try:
@@ -397,4 +397,5 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         return new_excel  # Devuelve el archivo generado como BytesIO
 
     except Exception as e:
-        raise RuntimeError(f"Error al procesar el script: {str(e)}")
+        tb = traceback.format_exc()
+        raise RuntimeError(f"Error al procesar el script:\n{str(e)}\n\nTraceback completo:\n{tb}")
