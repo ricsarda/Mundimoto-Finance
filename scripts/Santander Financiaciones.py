@@ -233,6 +233,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         pagopre['Operación'] = pagopre['Comentario'].astype(str).str.replace('FINANC. SANTANDER - ', '', regex=False)
 
         pagopre = pagopre.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
+        pagopre['CodigoCuenta'] = pagopre['CodigoCuenta'].astype(str).str.replace('2: ', '')
 
         pagopre = pagopre.merge(invoice[['Item', 'Customer External ID']], right_on='Item',left_on='MATRÍCULA', how='left')
         pagopre['Cliente_external ID'] = pagopre['Customer External ID']
