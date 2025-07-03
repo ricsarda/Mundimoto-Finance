@@ -430,7 +430,7 @@ elif script_option == "Purchases":
 elif script_option == "Facilitea":
     st.header("Archivos necesarios")
 
-    uploaded_zip = st.file_uploader("ZIP de Excels Facilitea", type="zip")
+    uploaded_zip = st.file_uploader("ZIP de Excels Facilitea (administracion@ajmotor.com <Liquidación Automática>)", type="zip")
     uploaded_invoices = st.file_uploader("Sube csv MM - Item Internal ID Transactions: Results", type=["csv"])
     uploaded_invoice = st.file_uploader("Sube csv de Invoices Marc", type=["csv"])
 
