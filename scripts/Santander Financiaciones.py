@@ -223,7 +223,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         invoices = invoices[invoices['Account'] != '430000001 Clientes - Renting']
         invoices1 = invoices.drop_duplicates(subset=['Tax Number'], keep='first')
         invoices2 = invoices[~invoices['Internal ID'].isin(invoices1['Internal ID'])]
-        final_operaciones = pd.DataFrame(new_rows)
+        final_operaciones = pd.DataFrame(rows_nuevas)
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
         pagopre = final_operaciones[final_operaciones['Utilidad'] == 'Pago Proveedor - Entrega Inicial']
         final_operaciones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']
