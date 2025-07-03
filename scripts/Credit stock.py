@@ -27,25 +27,25 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         Santander['Importe Documentación'] = Santander['Importe Documentación'].astype(float)
         Santanderp = Santander.copy()
 
-        sabadell = pd.read_excel(files["Sabadell"], engine="xlrd")
-        sabadell['Fecha Vencimiento'] = pd.to_datetime(sabadell['Fecha Vencimiento'], format='%d/%m/%Y')
-        sabadell['license_plate'] = sabadell['Matrícula']
-        sabadell = sabadell.loc[sabadell['Estado'].isin(['Financed'])]
-        Sabadellp = sabadell.copy()
+        Sabadell = pd.read_excel(files["Sabadell"], engine="xlrd")
+        Sabadell['Fecha Vencimiento'] = pd.to_datetime(Sabadell['Fecha Vencimiento'], format='%d/%m/%Y')
+        Sabadell['license_plate'] = Sabadell['Matrícula']
+        Sabadell = Sabadell.loc[Sabadell['Estado'].isin(['Financed'])]
+        Sabadellp = Sabadell.copy()
 
-        sofinco = pd.read_excel(files["Sofinco"], engine="openpyxl")
-        sofinco['End date'] = pd.to_datetime(sofinco['End date'], format='%d/%m/%Y')
-        sofinco['Bastidor'] = sofinco['VIN']
-        sofinco['Estado'] = sofinco['Phase']
-        Sofincop = sofinco.copy()
+        Sofinco = pd.read_excel(files["Sofinco"], engine="openpyxl")
+        Sofinco['End date'] = pd.to_datetime(Sofinco['End date'], format='%d/%m/%Y')
+        Sofinco['Bastidor'] = Sofinco['VIN']
+        Sofinco['Estado'] = Sofinco['Phase']
+        Sofincop = Sofinco.copy()
 
         stock = metabase.loc[metabase['stock_status'].isin(['readyToMarket','onHold'])]
         Stock_disponible = stock['purchase_price'].sum()
         stock_libre = stock.loc[stock['santandersales'].isnull()]
         stock_libre = stock_libre[stock_libre['santandersales'] !='santanderSales']
         stock_libre = stock_libre[stock_libre['santanderrenting'] !='santanderSales']
-        stock_libre = stock_libre[stock_libre['sabadellsales'] !='sabadellSales']
-        stock_libre = stock_libre[stock_libre['sofincosales'] !='sofincoSales']
+        stock_libre = stock_libre[stock_libre['Sabadellsales'] !='SabadellSales']
+        stock_libre = stock_libre[stock_libre['Sofincosales'] !='SofincoSales']
         stock_libre = stock_libre[stock_libre['wavi'] !='wavi']
         Stock_libre = stock_libre['purchase_price'].sum()
 
@@ -68,12 +68,12 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         Sabadellp = Sabadellp.merge(metabase[['license_plate','actual_credit_policy']],left_on='license_plate', right_on='license_plate', how='left')
         Sofincop = Sofincop.merge(metabase[['frame_number','actual_credit_policy']],left_on='Bastidor', right_on='frame_number', how='left')
         columnas_santander = ['Nº póliza', 'Matrícula','Bastidor ','Marca/Modelo', 'Importe Documentación','Fecha Entrada Stock desde', 'Fecha Vencimiento', 'Estado', 'Estado de la Ficha Téc.','actual_credit_policy']
-        columnas_sabadell = ['Contrato', 'Bastidor', 'Matrícula','Marca', 'Modelo', 'Linea', 'Fecha Inicio', 'Fecha Vencimiento','Estado', 'Importe Financiado', 'Capital Pendiente', 'Contrato Recibido', 'actual_credit_policy']
-        columnas_sofinco = ['Contract', 'Phase', 'Financial plan', 'Asset type', 'Make', 'Invoice', 'VIN',  'Start date', 'End date','Amount', 'Estado', 'actual_credit_policy']
+        columnas_Sabadell = ['Contrato', 'Bastidor', 'Matrícula','Marca', 'Modelo', 'Linea', 'Fecha Inicio', 'Fecha Vencimiento','Estado', 'Importe Financiado', 'Capital Pendiente', 'Contrato Recibido', 'actual_credit_policy']
+        columnas_Sofinco = ['Contract', 'Phase', 'Financial plan', 'Asset type', 'Make', 'Invoice', 'VIN',  'Start date', 'End date','Amount', 'Estado', 'actual_credit_policy']
         Santanderp = Santanderp[columnas_santander]
-        Sabadellp = Sabadellp[columnas_sabadell]
+        Sabadellp = Sabadellp[columnas_Sabadell]
         Sabadellp = Sabadellp.drop_duplicates(subset=['Bastidor'], keep='first')
-        Sofincop = Sofincop[columnas_sofinco]
+        Sofincop = Sofincop[columnas_Sofinco]
 
         #rescate santander
         rescate_santander = metabase.loc[metabase['actual_credit_policy'].isin(['santanderSales'])]
@@ -92,30 +92,30 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         rescate_santander = rescate_santander.sort_values(by='Fecha Vencimiento',ascending=True)
         rescate_santander = rescate_santander.drop_duplicates(subset=['license_plate'], keep='first')
 
-        #rescate sabadell
-        rescate_sabadell = metabase.loc[metabase['actual_credit_policy'].isin(['sabadellSales'])]
-        rescate_sabadell = rescate_sabadell.loc[rescate_sabadell['stock_status'].isin(['sold'])]
-        rescate_sabadell = rescate_sabadell.loc[rescate_sabadell['productive_status'].isin(['delivered','readyToDeliver',])]
-        rescate_sabadell = rescate_sabadell.merge(Sabadell[['license_plate', 'Estado']], left_on='license_plate', right_on='license_plate', how='left')
-        rescate_sabadell = rescate_sabadell.merge(Sabadell[['license_plate', 'Bastidor']], left_on='license_plate', right_on='license_plate', how='left')
-        rescate_sabadell = rescate_sabadell.merge(Sabadell[['license_plate', 'Importe Financiado']], left_on='license_plate', right_on='license_plate', how='left')
-        rescate_sabadell['stockapp'] = rescate_sabadell.apply(lambda row: f"{row['license_plate']}#",axis=1)
-        rescate_sabadell_columnas = ['license_plate', 'stock_status', 'productive_status','Bastidor','Importe Financiado','Estado','stockapp']
-        rescate_sabadell = rescate_sabadell[rescate_sabadell_columnas]
-        rescate_sabadell['Estado'] = rescate_sabadell['Estado'].fillna('Fuera de póliza')
-        rescate_sabadell = rescate_sabadell.sort_values(by='Estado',ascending=True)
+        #rescate Sabadell
+        rescate_Sabadell = metabase.loc[metabase['actual_credit_policy'].isin(['SabadellSales'])]
+        rescate_Sabadell = rescate_Sabadell.loc[rescate_Sabadell['stock_status'].isin(['sold'])]
+        rescate_Sabadell = rescate_Sabadell.loc[rescate_Sabadell['productive_status'].isin(['delivered','readyToDeliver',])]
+        rescate_Sabadell = rescate_Sabadell.merge(Sabadell[['license_plate', 'Estado']], left_on='license_plate', right_on='license_plate', how='left')
+        rescate_Sabadell = rescate_Sabadell.merge(Sabadell[['license_plate', 'Bastidor']], left_on='license_plate', right_on='license_plate', how='left')
+        rescate_Sabadell = rescate_Sabadell.merge(Sabadell[['license_plate', 'Importe Financiado']], left_on='license_plate', right_on='license_plate', how='left')
+        rescate_Sabadell['stockapp'] = rescate_Sabadell.apply(lambda row: f"{row['license_plate']}#",axis=1)
+        rescate_Sabadell_columnas = ['license_plate', 'stock_status', 'productive_status','Bastidor','Importe Financiado','Estado','stockapp']
+        rescate_Sabadell = rescate_Sabadell[rescate_Sabadell_columnas]
+        rescate_Sabadell['Estado'] = rescate_Sabadell['Estado'].fillna('Fuera de póliza')
+        rescate_Sabadell = rescate_Sabadell.sort_values(by='Estado',ascending=True)
 
-        #rescate sofinco
-        rescate_sofinco = metabase.loc[metabase['actual_credit_policy'].isin(['sofincoSales'])]
-        rescate_sofinco = rescate_sofinco.loc[rescate_sofinco['stock_status'].isin(['sold'])]
-        rescate_sofinco = rescate_sofinco.loc[rescate_sofinco['productive_status'].isin(['delivered','readyToDeliver',])]
-        rescate_sofinco = rescate_sofinco.merge(Sofinco[['Bastidor', 'Estado']], left_on='frame_number', right_on='Bastidor', how='left')
-        rescate_sofinco = rescate_sofinco.merge(Sofinco[['Bastidor', 'Amount']], left_on='frame_number', right_on='Bastidor', how='left')
-        rescate_sofinco['stockapp'] = rescate_sofinco.apply(lambda row: f"{row['license_plate']}#",axis=1)
-        rescate_sofinco_columnas = ['license_plate', 'stock_status', 'productive_status','frame_number','Amount','Estado','stockapp']
-        rescate_sofinco = rescate_sofinco[rescate_sofinco_columnas]
-        rescate_sofinco['Estado'] = rescate_sofinco['Estado'].fillna('Fuera de póliza')
-        rescate_sofinco = rescate_sofinco.sort_values(by='Estado',ascending=True)
+        #rescate Sofinco
+        rescate_Sofinco = metabase.loc[metabase['actual_credit_policy'].isin(['SofincoSales'])]
+        rescate_Sofinco = rescate_Sofinco.loc[rescate_Sofinco['stock_status'].isin(['sold'])]
+        rescate_Sofinco = rescate_Sofinco.loc[rescate_Sofinco['productive_status'].isin(['delivered','readyToDeliver',])]
+        rescate_Sofinco = rescate_Sofinco.merge(Sofinco[['Bastidor', 'Estado']], left_on='frame_number', right_on='Bastidor', how='left')
+        rescate_Sofinco = rescate_Sofinco.merge(Sofinco[['Bastidor', 'Amount']], left_on='frame_number', right_on='Bastidor', how='left')
+        rescate_Sofinco['stockapp'] = rescate_Sofinco.apply(lambda row: f"{row['license_plate']}#",axis=1)
+        rescate_Sofinco_columnas = ['license_plate', 'stock_status', 'productive_status','frame_number','Amount','Estado','stockapp']
+        rescate_Sofinco = rescate_Sofinco[rescate_Sofinco_columnas]
+        rescate_Sofinco['Estado'] = rescate_Sofinco['Estado'].fillna('Fuera de póliza')
+        rescate_Sofinco = rescate_Sofinco.sort_values(by='Estado',ascending=True)
 
         #motossinpoliza
         motosparadoc = metabase.loc[metabase['stock_status'].isin(['readyToMarket','onHold'])]
@@ -126,8 +126,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         motosparsantander = motosparadoc.loc[motosparadoc['santandersales'].isnull()]
         motosparsantander = motosparsantander.loc[motosparsantander['wavi'].isnull()]
         motosparsantander = motosparsantander.loc[motosparsantander['santanderrenting'].isnull()]
-        motosparsantander = motosparsantander.loc[motosparsantander['sabadellsales'].isnull()]
-        motosparsantander = motosparsantander.loc[motosparsantander['sofincosales'].isnull()]
+        motosparsantander = motosparsantander.loc[motosparsantander['Sabadellsales'].isnull()]
+        motosparsantander = motosparsantander.loc[motosparsantander['Sofincosales'].isnull()]
         motosparsantander = motosparsantander.loc[motosparsantander['purchase_price'] > 1000]
         motosparsantander = motosparsantander.loc[motosparsantander['kilometers'] > 20]
         motosparsantander['CODIGO DEALER'] = 'B67377580'
@@ -166,12 +166,12 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         motosparsantander = motosparsantander[~motosparsantander['MATRICULA'].isin(['7347MMT', '4624MNV', 'MAPK110', '2205LYR'])]
         maxsantander = motosparsantander['IMPORTE'].sum()
 
-        #motoslibres para sabadell
-        motosparsabadell = motosparadoc.loc[motosparadoc['purchase_price'] > 2400]
-        motosparsabadell = motosparsabadell.loc[motosparsabadell['kilometers'] > 50]
-        motosparsabadell = motosparsabadell.sort_values(by='purchase_date',ascending=False)
+        #motoslibres para Sabadell
+        motosparSabadell = motosparadoc.loc[motosparadoc['purchase_price'] > 2400]
+        motosparSabadell = motosparSabadell.loc[motosparSabadell['kilometers'] > 50]
+        motosparSabadell = motosparSabadell.sort_values(by='purchase_date',ascending=False)
 
-        #sabadell años
+        #Sabadell años
         def filtrar_antiguedadsab(df, columna_fecha, años_min, años_max):
             # Obtener la fecha actual
             fecha_actual = datetime.now().date()
@@ -186,28 +186,28 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
 
             return datos_filtrados
 
-        #motos para sabadell    
-        motosparsabadell = filtrar_antiguedadsab(motosparsabadell, 'registration_date', 10, 17)
-        motosparsabadell = pd.concat([motosparsabadell, extrasdesab], axis=0)
-        motosparsabadell = motosparsabadell.sort_values(by='purchase_date',ascending=False)
-        motosparsabadell = motosparsabadell.loc[motosparsabadell['sabadellsales'].isnull()]
-        motosparsabadell = motosparsabadell.loc[motosparsabadell['sofincosales'].isnull()]
-        motosparsabadell = motosparsabadell.drop_duplicates(subset=['license_plate'], keep='first')
-        motosparsabadell = motosparsabadell.loc[motosparsabadell['purchase_price'] > 2490]
-        motosparsabadell = motosparsabadell.loc[motosparsabadell['kilometers'] > 20]
-        motosparsabadell['Marca'] = motosparsabadell['brand']
-        motosparsabadell['Modelo'] = motosparsabadell['model']
-        motosparsabadell['Name'] = motosparsabadell.apply(lambda row: f"{row['Marca']} {row['Modelo']}",axis=1)
-        motosparsabadell['Matrícula'] = motosparsabadell['license_plate']
-        motosparsabadell['Nº Bastidor'] = motosparsabadell['frame_number']
-        motosparsabadell['kilometros'] = motosparsabadell['kilometers']
-        motosparsabadell['Año'] = motosparsabadell['registration_date'].dt.year
-        motosparsabadell['Precio compra'] = motosparsabadell['purchase_price']
-        motosparsabadell = motosparsabadell.sort_values(by='Precio compra',ascending=False)
+        #motos para Sabadell    
+        motosparSabadell = filtrar_antiguedadsab(motosparSabadell, 'registration_date', 10, 17)
+        motosparSabadell = pd.concat([motosparSabadell, extrasdesab], axis=0)
+        motosparSabadell = motosparSabadell.sort_values(by='purchase_date',ascending=False)
+        motosparSabadell = motosparSabadell.loc[motosparSabadell['Sabadellsales'].isnull()]
+        motosparSabadell = motosparSabadell.loc[motosparSabadell['Sofincosales'].isnull()]
+        motosparSabadell = motosparSabadell.drop_duplicates(subset=['license_plate'], keep='first')
+        motosparSabadell = motosparSabadell.loc[motosparSabadell['purchase_price'] > 2490]
+        motosparSabadell = motosparSabadell.loc[motosparSabadell['kilometers'] > 20]
+        motosparSabadell['Marca'] = motosparSabadell['brand']
+        motosparSabadell['Modelo'] = motosparSabadell['model']
+        motosparSabadell['Name'] = motosparSabadell.apply(lambda row: f"{row['Marca']} {row['Modelo']}",axis=1)
+        motosparSabadell['Matrícula'] = motosparSabadell['license_plate']
+        motosparSabadell['Nº Bastidor'] = motosparSabadell['frame_number']
+        motosparSabadell['kilometros'] = motosparSabadell['kilometers']
+        motosparSabadell['Año'] = motosparSabadell['registration_date'].dt.year
+        motosparSabadell['Precio compra'] = motosparSabadell['purchase_price']
+        motosparSabadell = motosparSabadell.sort_values(by='Precio compra',ascending=False)
         columnas_doc_sabadeel = [ 'Name','Marca', 'Modelo', 'Matrícula', 'Nº Bastidor', 'kilometros', 'Año', 'Precio compra']
-        motosparsabadell = motosparsabadell[columnas_doc_sabadeel]
-        motosparsabadell['stockapp'] = motosparsabadell.apply(lambda row: f"{row['Matrícula']}#sabadellSales",axis=1)
-        maxsabadell = motosparsabadell['Precio compra'].sum()
+        motosparSabadell = motosparSabadell[columnas_doc_sabadeel]
+        motosparSabadell['stockapp'] = motosparSabadell.apply(lambda row: f"{row['Matrícula']}#SabadellSales",axis=1)
+        maxSabadell = motosparSabadell['Precio compra'].sum()
 
 
         #motos para wabi
@@ -215,8 +215,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         motosparadocwabi = motosparadocwabi.loc[motosparadocwabi['actual_credit_policy'].isnull()]
         motosparwabi = motosparadocwabi.loc[motosparadocwabi['santandersales'].isnull()]
         motosparwabi = motosparwabi.loc[motosparwabi['wavi'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['sabadellsales'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['sofincosales'].isnull()]
+        motosparwabi = motosparwabi.loc[motosparwabi['Sabadellsales'].isnull()]
+        motosparwabi = motosparwabi.loc[motosparwabi['Sofincosales'].isnull()]
         motosparwabi = motosparwabi.loc[motosparwabi['purchase_price'] > 1000]
         motosparwabi = motosparwabi.loc[motosparwabi['kilometers'] > 20]
         motosparwabi['CODIGO DEALER'] = 'B67377580'
@@ -250,13 +250,13 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
     
             return datos_filtrados
 
-        #motos para sofinco
-        motosparsofinco = filtrar_facturacion(motosparsantander, 'FECHA FACTURA', 2)
-        motosparsofinco = motosparsofinco.merge(metabase[['frame_number', 'kilometers']], left_on='BASTIDOR', right_on='frame_number', how='left')
-        columnas_doc_sofinco = ['MARCA', 'MODELO', 'BASTIDOR', 'kilometers', 'MATRICULA', 'FECHA MATRICULA', 'FACTURA', 'IMPORTE']
-        motosparsofinco = motosparsofinco[columnas_doc_sofinco]
-        motosparsofinco['stockapp'] = motosparsofinco.apply(lambda row: f"{row['MATRICULA']}#sofincoSales",axis=1)
-        maxsofinco = motosparsofinco['IMPORTE'].sum()
+        #motos para Sofinco
+        motosparSofinco = filtrar_facturacion(motosparsantander, 'FECHA FACTURA', 2)
+        motosparSofinco = motosparSofinco.merge(metabase[['frame_number', 'kilometers']], left_on='BASTIDOR', right_on='frame_number', how='left')
+        columnas_doc_Sofinco = ['MARCA', 'MODELO', 'BASTIDOR', 'kilometers', 'MATRICULA', 'FECHA MATRICULA', 'FACTURA', 'IMPORTE']
+        motosparSofinco = motosparSofinco[columnas_doc_Sofinco]
+        motosparSofinco['stockapp'] = motosparSofinco.apply(lambda row: f"{row['MATRICULA']}#SofincoSales",axis=1)
+        maxSofinco = motosparSofinco['IMPORTE'].sum()
 
         #periodos
         periodos = [0, 30, 60, 90, 120, 150, 180]
@@ -328,7 +328,7 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         Sabadell =  pd.DataFrame.from_dict(totalporperiodosab, orient='index', columns=['Total'])
 
         Sabadell = Sabadell.transpose()
-        Sabadell['Disponible'] = maxsabadell
+        Sabadell['Disponible'] = maxSabadell
         Sabadell['Póliza'] = 'Sabadell'
 
         #Sofinco
@@ -351,7 +351,7 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         Sofinco =  pd.DataFrame.from_dict(totalporperiodosof, orient='index', columns=['Total'])
 
         Sofinco = Sofinco.transpose()
-        Sofinco['Disponible'] = maxsofinco
+        Sofinco['Disponible'] = maxSofinco
         Sofinco['Póliza'] = 'Sofinco'
 
         #control
@@ -374,7 +374,7 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         motosparsantander['FECHA FACTURA'] = pd.to_datetime(motosparsantander['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
         motosparwabi['FECHA MATRICULA'] = pd.to_datetime(motosparwabi['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
         motosparwabi['FECHA FACTURA'] = pd.to_datetime(motosparwabi['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
-        motosparsofinco['FECHA MATRICULA'] = pd.to_datetime(motosparsofinco['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
+        motosparSofinco['FECHA MATRICULA'] = pd.to_datetime(motosparSofinco['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
 
         
         new_excel = BytesIO()
@@ -386,11 +386,11 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
             motosparsantander.to_excel(writer, sheet_name='Motos Santander', index=False)
             motosparwabi.to_excel(writer, sheet_name='Motos Wabi', index=False)
             Sabadellp.to_excel(writer, sheet_name='Sabadell', index=False)
-            rescate_sabadell.to_excel(writer, sheet_name='R.Sabadell', index=False)
-            motosparsabadell.to_excel(writer, sheet_name='Motos Sabadell', index=False)
+            rescate_Sabadell.to_excel(writer, sheet_name='R.Sabadell', index=False)
+            motosparSabadell.to_excel(writer, sheet_name='Motos Sabadell', index=False)
             Sofincop.to_excel(writer, sheet_name='Sofinco', index=False)
-            rescate_sofinco.to_excel(writer, sheet_name='R.Sofinco', index=False)
-            motosparsofinco.to_excel(writer, sheet_name='Motos Sofinco', index=False)
+            rescate_Sofinco.to_excel(writer, sheet_name='R.Sofinco', index=False)
+            motosparSofinco.to_excel(writer, sheet_name='Motos Sofinco', index=False)
             CreditStock.to_excel(writer, sheet_name='Control', index=False)
 
         new_excel.seek(0)  # Reiniciar el puntero del buffer
