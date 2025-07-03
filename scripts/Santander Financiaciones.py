@@ -4,6 +4,7 @@ import numpy as np
 from datetime import datetime
 from io import BytesIO
 import re
+import traceback
 
 def convertir_fecha(fecha_str):
     meses = {
@@ -365,4 +366,5 @@ def main(files, pdfs, new_excel, month=None, year=None):
         return excel_final_ops, excel_rest
 
     except Exception as e:
-        raise RuntimeError(f"Error al procesar el script: {str(e)}")
+        tb = traceback.format_exc()
+        raise RuntimeError(f"Error al procesar el script:\n{str(e)}\n\nTraceback completo:\n{tb}")
