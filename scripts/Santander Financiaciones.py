@@ -218,7 +218,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
 
         final_operaciones = pd.DataFrame(rows_nuevas)
 
-        financiaciones = pd.read_excel((files["Financiaciones"]), engine='openpyxl')
+        financiaciones = pd.read_csv((files["Financiaciones"]))
         invoice = pd.read_csv((files["Invoices"]), sep=',')
 
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
