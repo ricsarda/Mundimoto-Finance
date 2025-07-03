@@ -177,7 +177,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
 
         for i, row in df_final.iterrows():
             rows_nuevas.append({
-                'FechaAsiento': row['Fecha'],
+                'Date': row['Fecha'],
                 'CargoAbono': 'D',
                 'CodigoCuenta': '572000004',
                 'ImporteAsiento': row['TOTAL'],
@@ -186,7 +186,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
             })
             if row.get('COMISION A TERCEROS', 0) > 0:
                 rows_nuevas.append({
-                    'FechaAsiento': row['Fecha'],
+                    'Date': row['Fecha'],
                     'CargoAbono': 'H',
                     'CodigoCuenta': '754000000',
                     'ImporteAsiento': row['COMISION A TERCEROS'],
@@ -198,7 +198,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
             if (pago_prov > 0) or (ent_ini > 0):
                 titular = row.get('TITULAR','99999999')
                 rows_nuevas.append({
-                    'FechaAsiento': row['Fecha'],
+                    'Date': row['Fecha'],
                     'CargoAbono': 'H',
                     'CodigoCuenta': titular,
                     'ImporteAsiento': (pago_prov - ent_ini),
@@ -208,7 +208,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
             for colc in compensaciones_cols:
                 if pd.notna(row[colc]):
                     rows_nuevas.append({
-                        'FechaAsiento': row['Fecha'],
+                        'Date': row['Fecha'],
                         'CargoAbono': 'D',
                         'CodigoCuenta': '754000000',
                         'ImporteAsiento': row[colc],
