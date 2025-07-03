@@ -344,7 +344,6 @@ def main(files, pdfs, new_excel, month=None, year=None):
                 return row['Account ID']
         final_operaciones['Account ID'] = final_operaciones.apply(cuenta_faltante, axis=1)
         final_operaciones = final_operaciones.sort_values('ExternalID')
-        final_operaciones.to_excel(ruta_archivo_final_excel2, index=False)
 
         # Escribir a dos Excel en memoria
         excel_final_ops = BytesIO()  # asientos
