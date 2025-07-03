@@ -284,9 +284,8 @@ elif script_option == "Sabadell Financiaciones":
         if st.button("Ejecutar"):
             try:
                 resultados = load_and_execute_script(
-                    "Santander Financiaciones",
+                    "Sabadell Financiaciones",
                     files=uploaded_files,
-                    pdfs=pdfs_dict
                 )
                 if resultados is not None:
                     # 'resultados' es una tupla (excel_final_ops, excel_rest)
