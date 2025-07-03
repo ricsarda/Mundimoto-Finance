@@ -348,7 +348,7 @@ elif script_option == "Calculadora Precios B2C":
                     st.dataframe(subset)
 
 elif script_option == "Stripe":
-    st.header("Conciliacin_pormenorizada_de_transferencias")
+    st.header("Conciliacin_pormenorizada(...).csv")
 
     # Subida de un único archivo CSV
     uploaded_stripe = st.file_uploader("#stripe (“Informes”,”Conciliación de transferencias” → En la fecha poner el mes a cerrar y seleccionar opción “download” en “Conciliación de transferencias y seleccionar Pormenorizado y Todas las columnas”)", type=["csv"])
