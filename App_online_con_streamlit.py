@@ -315,13 +315,13 @@ elif script_option == "Calculadora Precios B2C":
 
     if data is not None:
         # Entrada del usuario
-        marca = st.selectbox("Selecciona la marca", options=data['MARCA'].unique())
+        marca = st.selectbox("Marca", options=data['MARCA'].unique())
         if marca:
             modelos_disponibles = data[data['MARCA'] == marca]['MODELO'].unique()
-            modelo = st.selectbox("Selecciona el modelo", options=modelos_disponibles)
+            modelo = st.selectbox("Modelo", options=modelos_disponibles)
 
-        año = st.number_input("Introduce el año", min_value=int(data['Año'].min()), max_value=int(data['Año'].max()), value=int(data['Año'].mean()))
-        km = st.number_input("Introduce el kilometraje", min_value=0, value=int(data['KM'].median()))
+        año = st.number_input("Año", min_value=int(data['Año'].min()), max_value=int(data['Año'].max()), value=int(data['Año'].mean()))
+        km = st.number_input("KM", min_value=0, value=int(data['KM'].median()))
 
         # Botón para calcular
         if st.button("Calcular precio"):
