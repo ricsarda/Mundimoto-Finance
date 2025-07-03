@@ -228,7 +228,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         pagopre = final_operaciones[final_operaciones['Utilidad'] == 'Pago Proveedor - Entrega Inicial']
         final_operaciones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']
 
-        pagopre['Operación'] = pagopre['Comentario'].str.replace('FINANC. SANTANDER - ', '', regex=False)
+        pagopre['Operación'] = pagopre['Comentario'].astype(str).str.replace('FINANC. SANTANDER - ', '', regex=False)
 
         pagopre = pagopre.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
 
