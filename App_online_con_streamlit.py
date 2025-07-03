@@ -22,8 +22,8 @@ pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 # Opciones específicas para cada país
 if pais == "Spain":
     script_options = [
-        "Credit Stock", "Calculadora Precios B2C",  "Daily Report", "DNI y Matrícula" ,"Santander Financiaciones", "Sabadell Financiaciones",
-        "Financiaciones Renting", "Sofinco Financiaciones", "Stripe", "Facilitea"
+        "Calculadora Precios B2C", "Credit Stock",   "Daily Report", "DNI y Matrícula" , "Facilitea", "Financiaciones Renting", "Sabadell Financiaciones",
+        "Santander Financiaciones", "Sofinco Financiaciones", "Stripe"
     ]
 elif pais == "Italy":
     script_options = [
