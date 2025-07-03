@@ -216,10 +216,10 @@ def main(files, pdfs, new_excel, month=None, year=None):
                         'Utilidad': 'Compensaciones'
                     })
 
-        financiaciones = pd.read_csv(Financiaciones)
-        invoice = pd.read_csv(Invoice, sep=',')
+        financiaciones = pd.read_csv(financiaciones)
+        invoice = pd.read_csv(invoice, sep=',')
         invoice = invoice[invoice['Type'] == 'Invoice']
-        invoices = pd.read_csv(Invoices, sep=',')
+        invoices = pd.read_csv(invoices, sep=',')
         invoices = invoices[invoices['Account'] != '430000001 Clientes - Renting']
         invoices1 = invoices.drop_duplicates(subset=['Tax Number'], keep='first')
         invoices2 = invoices[~invoices['Internal ID'].isin(invoices1['Internal ID'])]
