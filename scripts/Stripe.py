@@ -1,5 +1,3 @@
-# scripts/stripe_data.py
-
 import pandas as pd
 from io import BytesIO
 from datetime import datetime
@@ -7,17 +5,13 @@ from datetime import datetime
 def main(files, pdfs=None, new_excel=None, month=None, year=None):
 
     try:
-        # 1) Recuperar el archivo 'Stripe' del diccionario files
+
         if "Stripe" not in files or files["Stripe"] is None:
             raise RuntimeError("Falta el archivo CSV de Stripe (clave 'Stripe').")
         
-        # 'files["Stripe"]' es un UploadedFile, lo convertimos a un buffer
         uploaded_file = files["Stripe"]
         
-        # 2) Leer el CSV
         stripe = pd.read_csv(uploaded_file, delimiter=',')
-
-        # 3) Procesar los datos (misma lógica que tu script original)
         # ---------------------------------------------------------------------
         stripe['automatic_payout_effective_at'] = pd.to_datetime(stripe['automatic_payout_effective_at']).dt.strftime('%d/%m/%Y')
         renting_blancks = stripe[stripe['payment_metadata[origin]'] != 'sales']
@@ -33,7 +27,6 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         stripegroup = stripe.groupby('automatic_payout_effective_at', as_index=False)[['gross', 'fee', 'net']].sum()
         fee = stripegroup[['automatic_payout_effective_at', 'fee']]
         fee.rename(columns={'fee':'Debit'}, inplace=True)
-
         fee['Account ID'] = '1821'
         net = stripegroup[['automatic_payout_effective_at', 'net']]
         net.rename(columns={'net':'Debit'}, inplace=True)
@@ -50,14 +43,14 @@ def main(files, pdfs=None, new_excel=None, month=None, year=None):
         carga = carga[columnas_carga]
         carga = carga.sort_values(by='ExternalID', ascending=True)
 
-        # 4) Guardar en un CSV en memoria
+
         output = BytesIO()
         carga.to_csv(output, sep=';', index=False, encoding='utf-8')
         output.seek(0)
 
-        # 5) Retornar el BytesIO
+
         return output
 
     except Exception as e:
-        # Si algo falla, levantamos una RuntimeError para que Streamlit la capte
+
         raise RuntimeError(f"Error al procesar el archivo CSV de Stripe: {str(e)}")
