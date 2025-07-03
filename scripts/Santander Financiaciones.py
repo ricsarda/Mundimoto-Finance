@@ -297,7 +297,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
         # Aplicar los cambios en el DataFrame
         for idx, row in compensaciones.iterrows():
             if row['Utilidad'] == 'Compensaciones':
-                nuevo_comentario, nuevo_importe = reformatear_comentario(row['Comentario'])
+                comentario = str(row.get('Comentario', ''))
+                nuevo_comentario, nuevo_importe = reformatear_comentario(comentario)
                 if nuevo_importe:
                     compensaciones.at[idx, 'ImporteAsiento'] = nuevo_importe
                     compensaciones.at[idx, 'Comentario'] = nuevo_comentario
