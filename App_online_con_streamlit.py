@@ -280,11 +280,9 @@ elif script_option == "Sabadell Financiaciones":
         "invoice": uploaded_invoice
     }
     
-    if all(uploaded_files.values()) and uploaded_pdfs:
+    if all(uploaded_files.values()):
         if st.button("Ejecutar"):
             try:
-                pdfs_dict = {f.name: f for f in uploaded_pdfs}
-                # Llamamos al script
                 resultados = load_and_execute_script(
                     "Santander Financiaciones",
                     files=uploaded_files,
