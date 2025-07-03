@@ -5,7 +5,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
     try:
         # Leer archivos recibidos
         FinanciacionesSab = pd.read_excel(files["Financiaciones"], header=11)
-        invoice = pd.read_csv(files["InvoicesItem"])
+        invoice = pd.read_csv(files["invoice"])
         invoices = pd.read_csv(files["Invoices"], sep=',')
 
         invoices = invoices[invoices['Status'] != 'Paid In Full']
