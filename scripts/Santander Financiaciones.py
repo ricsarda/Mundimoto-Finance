@@ -216,27 +216,74 @@ def main(files, pdfs, new_excel, month=None, year=None):
                         'Utilidad': 'Compensaciones'
                     })
 
-        final_operaciones = pd.DataFrame(rows_nuevas)
-
-        financiaciones = pd.read_csv((files["Financiaciones"]))
-        invoice = pd.read_csv((files["Invoices"]), sep=',')
-
+        financiaciones = pd.read_csv(financiaciones)
+        invoice = pd.read_csv(invoice, sep=',')
+        invoice = invoice[invoice['Type'] == 'Invoice']
+        invoices = pd.read_csv(invoices, sep=',')
+        invoices = invoices[invoices['Account'] != '430000001 Clientes - Renting']
+        invoices1 = invoices.drop_duplicates(subset=['Tax Number'], keep='first')
+        invoices2 = invoices[~invoices['Internal ID'].isin(invoices1['Internal ID'])]
+        final_operaciones = pd.DataFrame(new_rows)
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
-        codigocliente = final_operaciones[final_operaciones['Utilidad'] == 'Pago Proveedor - Entrega Inicial']
+        pagopre = final_operaciones[final_operaciones['Utilidad'] == 'Pago Proveedor - Entrega Inicial']
         final_operaciones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']
 
-        codigocliente['Operación'] = codigocliente['Comentario'].str.replace('FINANC. SANTANDER - ', '', regex=False)
-        codigocliente = codigocliente.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
-        codigocliente = codigocliente.merge(invoice[['Item', 'Customer External ID']], right_on='Item',left_on='MATRÍCULA', how='left')
-        codigocliente['External ID'] = codigocliente['Customer External ID']
+        pagopre['Operación'] = pagopre['Comentario'].str.replace('FINANC. SANTANDER - ', '', regex=False)
+
+        pagopre = pagopre.merge(financiaciones[['Operación', 'MATRÍCULA']], on='Operación', how='left')
+
+        pagopre = pagopre.merge(invoice[['Item', 'Customer External ID']], right_on='Item',left_on='MATRÍCULA', how='left')
+        pagopre['Cliente_external ID'] = pagopre['Customer External ID']
+
         def accountidcliente(row):
-            if pd.isna(row['External ID']):
+            if pd.isna(row['Cliente_external ID']) :
                 return row['CodigoCuenta']
             else:
-                return row['External ID']
-        codigocliente['External ID'] = codigocliente.apply(accountidcliente, axis=1)
-        codigocliente = codigocliente[['FechaAsiento', 'External ID', 'ImporteAsiento', 'Operación','Item']]
-        codigocliente =codigocliente.merge(invoice[['Item', 'Internal ID']], right_on='Item',left_on='Item', how='left')
+                return row['Cliente_external ID']
+
+
+        pagopre['Cliente_external ID'] = pagopre.apply(accountidcliente, axis=1)
+        pago = pagopre[['Date', 'Cliente_external ID', 'ImporteAsiento', 'Operación','Item']]
+        pago = pago.merge(invoices1[['Tax Number','Amount (Gross)','Internal ID']], right_on='Tax Number',left_on='Cliente_external ID', how='left')
+        pago['Primera factura'] = -pago['Amount (Gross)']+pago['ImporteAsiento']
+
+        def importecorrecto(row):
+            if row['Primera factura'] > 0:
+                return row['Amount (Gross)']
+            elif row['Primera factura'] == 0:
+                return row['ImporteAsiento']
+            else:
+                return row['ImporteAsiento']
+
+        pago['Factura 1'] = pago.apply(importecorrecto, axis=1)
+        pago = pago.merge(invoices2[['Tax Number','Amount (Gross)','Internal ID']], right_on='Tax Number',left_on='Cliente_external ID', how='left')
+        pago['Segunda factura'] = -pago['Amount (Gross)_y']+pago['Primera factura']
+
+        def importecorrecto2(row):
+            if row['Primera factura'] < 0:
+                return 0
+            elif row['Primera factura'] == 0:
+                return 0
+            elif row['Segunda factura'] < 0:
+                return row['Primera factura']
+            elif row['Segunda factura'] == 0:
+                return row['Primera factura']
+            else:
+                return row['Amount (Gross)_y']
+
+        pago['Factura 2'] = pago.apply(importecorrecto2, axis=1)
+
+        factura1 = pago[["Date","Cliente_external ID", "ImporteAsiento","Operación","Item", "Tax Number_x" , "Amount (Gross)_x",  "Internal ID_x" , "Factura 1"]]
+        factura2 = pago[["Date","Cliente_external ID", "ImporteAsiento","Operación","Item", "Tax Number_y" , "Amount (Gross)_y",  "Internal ID_y" , "Factura 2"]]
+        factura1 = factura1.rename(columns={"Tax Number_x": "Tax Number", "Amount (Gross)_x": "Amount (Gross)", "Internal ID_x": "Factura_INTERNAL ID","Factura 1": "Importe"} )
+        factura2 = factura2.rename(columns={"Tax Number_y": "Tax Number", "Amount (Gross)_y": "Amount (Gross)", "Internal ID_y": "Factura_INTERNAL ID","Factura 2": "Importe"} )
+        pago = pd.concat([factura1, factura2], ignore_index=True)
+        pago = pago.dropna(subset=['Importe'])
+        pago = pago[pago['Importe'] != 0]
+        pago = pago.drop(columns=['Tax Number','Amount (Gross)','Item','Operación','ImporteAsiento'])
+        pago['External ID'] = pago.apply(lambda x: f'{int(x["Factura_INTERNAL ID"])}_PAY' if pd.notna(x["Factura_INTERNAL ID"]) else '_PAY', axis=1)
+        pago = pago.drop_duplicates(subset=['Factura_INTERNAL ID'], keep='first')
+        pago['Cuenta Banco_EXTERNAL ID'] = 572000004
 
         def reformatear_comentario(comentario):
             partes = comentario.split()
@@ -246,39 +293,55 @@ def main(files, pdfs, new_excel, month=None, year=None):
                 return codigo_formateado, importe
             return comentario, None
 
-        for idx, rowc in compensaciones.iterrows():
-            if rowc['Utilidad'] == 'Compensaciones':
-                nuevo_coment, nuevo_importe = reformatear_comentario(rowc['Comentario'])
+        # Aplicar los cambios en el DataFrame
+        for idx, row in compensaciones.iterrows():
+            if row['Utilidad'] == 'Compensaciones':
+                nuevo_comentario, nuevo_importe = reformatear_comentario(row['Comentario'])
                 if nuevo_importe:
                     compensaciones.at[idx, 'ImporteAsiento'] = nuevo_importe
-                    compensaciones.at[idx, 'Comentario'] = nuevo_coment
+                    compensaciones.at[idx, 'Comentario'] = nuevo_comentario
         compensaciones = compensaciones.drop_duplicates()
-        compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].fillna('').astype(str)
         compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].str.replace(',', '.')
         compensaciones['ImporteAsiento'] = compensaciones['ImporteAsiento'].astype(float)
         compensaciones['Account ID'] = 2358
-
         final_operaciones = pd.concat([final_operaciones, compensaciones], ignore_index=True)
-        final_operaciones['Fecha'] = final_operaciones['FechaAsiento']
+
+        final_operaciones['Fecha'] = final_operaciones['Date']
         final_operaciones['Descripcion linea'] = final_operaciones['Comentario']
         final_operaciones['Memo'] = final_operaciones['Comentario']
 
         def credit(row):
-            return row['ImporteAsiento'] if row['CargoAbono'] == 'H' else None
+            if row['CargoAbono'] == 'H':
+                return row['ImporteAsiento']
+            else:
+                return None
+    
         def debit(row):
-            return row['ImporteAsiento'] if row['CargoAbono'] == 'D' else None
+            if row['CargoAbono'] == 'D':
+                return row['ImporteAsiento']
+            else:
+                return None
 
         final_operaciones['Credit'] = final_operaciones.apply(credit, axis=1)
         final_operaciones['Debit'] = final_operaciones.apply(debit, axis=1)
-        final_operaciones['ExternalID'] = final_operaciones['Utilidad'] + '_' + final_operaciones['Fecha'].astype(str)
+        final_operaciones['ExternalID'] = final_operaciones['Utilidad'] +'_'+ final_operaciones['Fecha'].astype(str)
 
-        ordenfinal = ['ExternalID', 'Fecha', 'Memo', 'Account ID','Credit','Debit','Descripcion linea']
-        final_operaciones = final_operaciones[ordenfinal]
+        ordenfinalcolumnas = ['ExternalID', 'Fecha', 'Memo', 'Account ID', 'Credit', 'Debit' , 'Descripcion linea']
+        final_operaciones = final_operaciones[ordenfinalcolumnas]
 
-        ops_contraparte = final_operaciones.copy()
-        ops_contraparte.rename(columns={'Credit':'Debit','Debit':'Credit'}, inplace=True)
-        ops_contraparte['Account ID'] = 2437
-        final_operaciones = pd.concat([final_operaciones, ops_contraparte], ignore_index=True)
+        operaciones_contraparte = final_operaciones.copy()
+        operaciones_contraparte.rename(columns={'Credit': 'Debit', 'Debit': 'Credit'}, inplace=True)
+        operaciones_contraparte['Account ID'] = 2437
+
+        final_operaciones = pd.concat([final_operaciones, operaciones_contraparte], ignore_index=True)
+        def cuenta_faltante(row):
+            if pd.isna(row['Account ID']):
+                return 2358
+            else:
+                return row['Account ID']
+        final_operaciones['Account ID'] = final_operaciones.apply(cuenta_faltante, axis=1)
+        final_operaciones = final_operaciones.sort_values('ExternalID')
+        final_operaciones.to_excel(ruta_archivo_final_excel2, index=False)
 
         # Escribir a dos Excel en memoria
         excel_final_ops = BytesIO()  # asientos
@@ -289,8 +352,10 @@ def main(files, pdfs, new_excel, month=None, year=None):
 
         with pd.ExcelWriter(excel_rest, engine='openpyxl') as writer:
             codigocliente.to_excel(writer, sheet_name='Pago', index=False)
+            pagopre.to_excel(writer, sheet_name='Check', index=False)
             financiaciones.to_excel(writer, sheet_name='Financiaciones 2025', index=False)
-            invoice.to_excel(writer, sheet_name='Invoices NS', index=False)
+            invoice.to_excel(writer, sheet_name='Item Internal ID', index=False)
+            invoices.to_excel(writer, sheet_name='Invoices', index=False)
 
         excel_final_ops.seek(0)
         excel_rest.seek(0)
