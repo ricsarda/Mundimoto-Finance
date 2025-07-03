@@ -44,8 +44,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         stock_libre = stock.loc[stock['santandersales'].isnull()]
         stock_libre = stock_libre[stock_libre['santandersales'] !='santanderSales']
         stock_libre = stock_libre[stock_libre['santanderrenting'] !='santanderSales']
-        stock_libre = stock_libre[stock_libre['sabadellsales'] !='SabadellSales']
-        stock_libre = stock_libre[stock_libre['sofincosales'] !='SofincoSales']
+        stock_libre = stock_libre[stock_libre['sabadellsales'] !='sabadellSales']
+        stock_libre = stock_libre[stock_libre['sofincosales'] !='sofincoSales']
         stock_libre = stock_libre[stock_libre['wavi'] !='wavi']
         Stock_libre = stock_libre['purchase_price'].sum()
 
