@@ -453,7 +453,6 @@ elif script_option == "DNI y Matrícula":
     if uploaded_file is not None:
         st.success("¡GAS!")
 
-        # Ejecutar el script
         df_resultado = load_and_execute_script(script_option, files)
 
         if df_resultado is not None:
@@ -472,7 +471,7 @@ elif script_option == "DNI y Matrícula":
             
 elif script_option == "Sales":
     st.header("Files")
-    # Subida de archivos requeridos
+
     uploaded_sales = st.file_uploader("Upload Sales", type=["xlsx"])
     uploaded_metabase = st.file_uploader("Upload Metabase: https://mundimoto.metabaseapp.com/dashboard/432-raw-data-purchases-stock?productive_status=", type=["xlsx"])
 
@@ -500,7 +499,6 @@ elif script_option == "Sales":
         except Exception as e:
             st.error(f"Error, contact Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com {str(e)}")
 
-    # Crear un ZIP con los dos archivos si están disponibles en `st.session_state`
     if "Sales_Clienti" in st.session_state and "Sales_Ordini" in st.session_state:
         zip_buffer = BytesIO()
 
