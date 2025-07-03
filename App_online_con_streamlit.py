@@ -295,7 +295,7 @@ elif script_option == "Sabadell Financiaciones":
                     # Botón para Download final_operaciones
                     st.download_button(
                         label="Download Pagos",
-                        data=excel_ops.getvalue(),
+                        data=output.getvalue(),
                         file_name=f"Sabadell-Pago {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
