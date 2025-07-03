@@ -44,8 +44,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         stock_libre = stock.loc[stock['santandersales'].isnull()]
         stock_libre = stock_libre[stock_libre['santandersales'] !='santanderSales']
         stock_libre = stock_libre[stock_libre['santanderrenting'] !='santanderSales']
-        stock_libre = stock_libre[stock_libre['Sabadellsales'] !='SabadellSales']
-        stock_libre = stock_libre[stock_libre['Sofincosales'] !='SofincoSales']
+        stock_libre = stock_libre[stock_libre['sabadellsales'] !='SabadellSales']
+        stock_libre = stock_libre[stock_libre['sofincosales'] !='SofincoSales']
         stock_libre = stock_libre[stock_libre['wavi'] !='wavi']
         Stock_libre = stock_libre['purchase_price'].sum()
 
@@ -126,8 +126,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         motosparsantander = motosparadoc.loc[motosparadoc['santandersales'].isnull()]
         motosparsantander = motosparsantander.loc[motosparsantander['wavi'].isnull()]
         motosparsantander = motosparsantander.loc[motosparsantander['santanderrenting'].isnull()]
-        motosparsantander = motosparsantander.loc[motosparsantander['Sabadellsales'].isnull()]
-        motosparsantander = motosparsantander.loc[motosparsantander['Sofincosales'].isnull()]
+        motosparsantander = motosparsantander.loc[motosparsantander['sabadellsales'].isnull()]
+        motosparsantander = motosparsantander.loc[motosparsantander['sofincosales'].isnull()]
         motosparsantander = motosparsantander.loc[motosparsantander['purchase_price'] > 1000]
         motosparsantander = motosparsantander.loc[motosparsantander['kilometers'] > 20]
         motosparsantander['CODIGO DEALER'] = 'B67377580'
@@ -190,8 +190,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         motosparSabadell = filtrar_antiguedadsab(motosparSabadell, 'registration_date', 10, 17)
         motosparSabadell = pd.concat([motosparSabadell, extrasdesab], axis=0)
         motosparSabadell = motosparSabadell.sort_values(by='purchase_date',ascending=False)
-        motosparSabadell = motosparSabadell.loc[motosparSabadell['Sabadellsales'].isnull()]
-        motosparSabadell = motosparSabadell.loc[motosparSabadell['Sofincosales'].isnull()]
+        motosparSabadell = motosparSabadell.loc[motosparSabadell['sabadellsales'].isnull()]
+        motosparSabadell = motosparSabadell.loc[motosparSabadell['sofincosales'].isnull()]
         motosparSabadell = motosparSabadell.drop_duplicates(subset=['license_plate'], keep='first')
         motosparSabadell = motosparSabadell.loc[motosparSabadell['purchase_price'] > 2490]
         motosparSabadell = motosparSabadell.loc[motosparSabadell['kilometers'] > 20]
@@ -215,8 +215,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         motosparadocwabi = motosparadocwabi.loc[motosparadocwabi['actual_credit_policy'].isnull()]
         motosparwabi = motosparadocwabi.loc[motosparadocwabi['santandersales'].isnull()]
         motosparwabi = motosparwabi.loc[motosparwabi['wavi'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['Sabadellsales'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['Sofincosales'].isnull()]
+        motosparwabi = motosparwabi.loc[motosparwabi['sabadellsales'].isnull()]
+        motosparwabi = motosparwabi.loc[motosparwabi['sofincosales'].isnull()]
         motosparwabi = motosparwabi.loc[motosparwabi['purchase_price'] > 1000]
         motosparwabi = motosparwabi.loc[motosparwabi['kilometers'] > 20]
         motosparwabi['CODIGO DEALER'] = 'B67377580'
