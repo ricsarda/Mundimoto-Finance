@@ -225,6 +225,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
         invoices2 = invoices[~invoices['Internal ID'].isin(invoices1['Internal ID'])]
         final_operaciones = pd.DataFrame(rows_nuevas)
         compensaciones = final_operaciones[final_operaciones['Utilidad'] == 'Compensaciones']
+        compensaciones['Comentario'] = compensaciones['Comentario'].astype(str)
         pagopre = final_operaciones[final_operaciones['Utilidad'] == 'Pago Proveedor - Entrega Inicial']
         final_operaciones = final_operaciones[final_operaciones['Utilidad'] == 'Comision Terceros']
 
