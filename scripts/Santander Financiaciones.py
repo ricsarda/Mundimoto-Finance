@@ -353,7 +353,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
             final_operaciones.to_excel(writer, sheet_name='Import', index=False)
 
         with pd.ExcelWriter(excel_rest, engine='openpyxl') as writer:
-            codigocliente.to_excel(writer, sheet_name='Pago', index=False)
+            pago.to_excel(writer, sheet_name='Pago', index=False)
             pagopre.to_excel(writer, sheet_name='Check', index=False)
             financiaciones.to_excel(writer, sheet_name='Financiaciones 2025', index=False)
             invoice.to_excel(writer, sheet_name='Item Internal ID', index=False)
