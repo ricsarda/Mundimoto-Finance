@@ -5,8 +5,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
     try:
         # Leer archivos recibidos
         FinanciacionesSab = pd.read_excel(files["Financiaciones"], header=11)
-        invoice = pd.read_csv(files["invoice"])
-        invoices = pd.read_csv(files["Invoices"], sep=',')
+        invoice = pd.read_csv(files["Invoices"])
+        invoices = pd.read_csv(files["invoice"], sep=',')
 
         invoices = invoices[invoices['Status'] != 'Paid In Full']
         invoices1 = invoices.drop_duplicates(subset=['Tax Number'], keep='first')
