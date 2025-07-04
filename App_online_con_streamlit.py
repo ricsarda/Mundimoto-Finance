@@ -96,10 +96,10 @@ if script_option == "Daily Report":
 
 elif script_option == "Credit Stock":
     st.header("Archivos")
-    uploaded_metabase = st.file_uploader("Metabase", type=["xlsx"])
-    uploaded_santander = st.file_uploader("Santander", type=["xlsx"])
-    uploaded_sabadell = st.file_uploader("Sabadell", type=["xls"])
-    uploaded_sofinco = st.file_uploader("Sofinco", type=["xlsx"])
+    uploaded_metabase = st.file_uploader("Metabase-[Raw data purchases - stock]", type=["xlsx"])
+    uploaded_santander = st.file_uploader("Santander-[Consulta de Documentaciones]", type=["xlsx"])
+    uploaded_sabadell = st.file_uploader("Sabadell-[MainServlet]", type=["xls"])
+    uploaded_sofinco = st.file_uploader("Sofinco-[ExportListDraws]", type=["xlsx"])
     
     uploaded_files = {
     "Metabase": uploaded_metabase,
