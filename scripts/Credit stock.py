@@ -210,33 +210,33 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         maxSabadell = motosparSabadell['Precio compra'].sum()
 
 
-        #motos para wabi
-        motosparadocwabi = metabase.loc[metabase['stock_status'].isin(['rented'])]
-        motosparadocwabi = motosparadocwabi.loc[motosparadocwabi['actual_credit_policy'].isnull()]
-        motosparwabi = motosparadocwabi.loc[motosparadocwabi['santandersales'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['wavi'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['sabadellsales'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['sofincosales'].isnull()]
-        motosparwabi = motosparwabi.loc[motosparwabi['purchase_price'] > 1000]
-        motosparwabi = motosparwabi.loc[motosparwabi['kilometers'] > 20]
-        motosparwabi['CODIGO DEALER'] = 'B67377580'
-        motosparwabi['NOMBRE DEALER'] = 'AJ MOTOR EUROPA, S.L.'
-        motosparwabi['PRODUCTO'] = 'O'
-        motosparwabi['NUM. OPERACION'] = 'ESET20235001800'
-        motosparwabi['BASTIDOR'] = motosparwabi['frame_number']
-        motosparwabi['IMPORTE'] = motosparwabi['purchase_price']
-        motosparwabi['MONEDA'] = 'EUR'
-        motosparwabi['MARCA'] = motosparwabi['brand']
-        motosparwabi['MODELO'] = motosparwabi['model']
-        motosparwabi['VERSION'] = motosparwabi.apply(lambda row: f"{row['MARCA']} {row['MODELO']}",axis=1)
-        motosparwabi['MATRICULA'] = motosparwabi['license_plate']
-        motosparwabi['FECHA MATRICULA'] = motosparwabi['registration_date']
-        motosparwabi['FACTURA'] = motosparwabi['purchase_id']
-        motosparwabi['FECHA FACTURA'] = motosparwabi['purchase_date']
-        motosparwabi = motosparwabi.sort_values(by='FECHA FACTURA',ascending=False)
-        motosparwabi = filtrar_antiguedadsan(motosparwabi, 'registration_date', 10)
-        motosparwabi = motosparwabi[columnas_doc_santander]
-        motosparwabi['stockapp'] = motosparwabi.apply(lambda row: f"{row['MATRICULA']}#wabi",axis=1)
+        #motos para wavi
+        motosparadocwavi = metabase.loc[metabase['stock_status'].isin(['rented'])]
+        motosparadocwavi = motosparadocwavi.loc[motosparadocwavi['actual_credit_policy'].isnull()]
+        motosparwavi = motosparadocwavi.loc[motosparadocwavi['santandersales'].isnull()]
+        motosparwavi = motosparwavi.loc[motosparwavi['wavi'].isnull()]
+        motosparwavi = motosparwavi.loc[motosparwavi['sabadellsales'].isnull()]
+        motosparwavi = motosparwavi.loc[motosparwavi['sofincosales'].isnull()]
+        motosparwavi = motosparwavi.loc[motosparwavi['purchase_price'] > 1000]
+        motosparwavi = motosparwavi.loc[motosparwavi['kilometers'] > 20]
+        motosparwavi['CODIGO DEALER'] = 'B67377580'
+        motosparwavi['NOMBRE DEALER'] = 'AJ MOTOR EUROPA, S.L.'
+        motosparwavi['PRODUCTO'] = 'O'
+        motosparwavi['NUM. OPERACION'] = 'ESET20235001800'
+        motosparwavi['BASTIDOR'] = motosparwavi['frame_number']
+        motosparwavi['IMPORTE'] = motosparwavi['purchase_price']
+        motosparwavi['MONEDA'] = 'EUR'
+        motosparwavi['MARCA'] = motosparwavi['brand']
+        motosparwavi['MODELO'] = motosparwavi['model']
+        motosparwavi['VERSION'] = motosparwavi.apply(lambda row: f"{row['MARCA']} {row['MODELO']}",axis=1)
+        motosparwavi['MATRICULA'] = motosparwavi['license_plate']
+        motosparwavi['FECHA MATRICULA'] = motosparwavi['registration_date']
+        motosparwavi['FACTURA'] = motosparwavi['purchase_id']
+        motosparwavi['FECHA FACTURA'] = motosparwavi['purchase_date']
+        motosparwavi = motosparwavi.sort_values(by='FECHA FACTURA',ascending=False)
+        motosparwavi = filtrar_antiguedadsan(motosparwavi, 'registration_date', 10)
+        motosparwavi = motosparwavi[columnas_doc_santander]
+        motosparwavi['stockapp'] = motosparwavi.apply(lambda row: f"{row['MATRICULA']}#wavi",axis=1)
 
         def filtrar_facturacion(df, columna_fecha, mes_antiguedad):
             # Obtener la fecha actual
@@ -286,8 +286,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         Santander['Disponible'] = maxsantander
         Santander['Póliza'] = 'Santander'
 
-        #Wabi
-        Wabi = Santandertot.loc[Santandertot['Nº póliza'].isin([1436])]
+        #wavi
+        wavi = Santandertot.loc[Santandertot['Nº póliza'].isin([1436])]
 
         totalporperiodowab = {}
 
@@ -295,19 +295,19 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
             inicio_periodo = fecha_actual + timedelta(days=periodos[i])
             fin_periodo = fecha_actual + timedelta(days=periodos[i + 1])
     
-            motos_en_periodo = Wabi[
-                (Wabi['Fecha Vencimiento'] >= inicio_periodo) &
-                (Wabi['Fecha Vencimiento'] <= fin_periodo)
+            motos_en_periodo = wavi[
+                (wavi['Fecha Vencimiento'] >= inicio_periodo) &
+                (wavi['Fecha Vencimiento'] <= fin_periodo)
             ]
     
             total = motos_en_periodo['Importe Documentación'].sum()
     
             totalporperiodosan[f'Importe Docu ({periodos[i]}-{periodos[i+1]})'] = total
 
-        Wabi =  pd.DataFrame.from_dict(totalporperiodosan, orient='index', columns=['Total'])
+        wavi =  pd.DataFrame.from_dict(totalporperiodosan, orient='index', columns=['Total'])
 
-        Wabi = Wabi.transpose()
-        Wabi['Póliza'] = 'Wabi'
+        wavi = wavi.transpose()
+        wavi['Póliza'] = 'wavi'
 
         #Sabadell
         totalporperiodosab = {}
@@ -355,7 +355,7 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         Sofinco['Póliza'] = 'Sofinco'
 
         #control
-        CreditStock = pd.concat([ Santander , Wabi, Sabadell , Sofinco], axis=0 , ignore_index=True)
+        CreditStock = pd.concat([ Santander , wavi, Sabadell , Sofinco], axis=0 , ignore_index=True)
         CreditStockcolumnas = ['Póliza', 'Importe Docu (0-30)', 'Importe Docu (30-60)', 'Importe Docu (60-90)', 'Importe Docu (90-120)', 'Importe Docu (120-150)', 'Importe Docu (150-180)', 'Disponible']
         CreditStock = CreditStock[CreditStockcolumnas]
         CreditStock['Stock Disponible'] = Stock_disponible
@@ -372,8 +372,8 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
         rescate_santander['Fecha Vencimiento'] = pd.to_datetime(rescate_santander['Fecha Vencimiento']).dt.strftime('%d/%m/%Y')
         motosparsantander['FECHA MATRICULA'] = pd.to_datetime(motosparsantander['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
         motosparsantander['FECHA FACTURA'] = pd.to_datetime(motosparsantander['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
-        motosparwabi['FECHA MATRICULA'] = pd.to_datetime(motosparwabi['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
-        motosparwabi['FECHA FACTURA'] = pd.to_datetime(motosparwabi['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
+        motosparwavi['FECHA MATRICULA'] = pd.to_datetime(motosparwavi['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
+        motosparwavi['FECHA FACTURA'] = pd.to_datetime(motosparwavi['FECHA FACTURA']).dt.strftime('%d/%m/%Y')
         motosparSofinco['FECHA MATRICULA'] = pd.to_datetime(motosparSofinco['FECHA MATRICULA']).dt.strftime('%d/%m/%Y')
 
         
@@ -384,7 +384,7 @@ def main(files, new_excel, pdfs=None, month=None, year=None):
             Santanderp.to_excel(writer, sheet_name='Santander', index=False)
             rescate_santander.to_excel(writer, sheet_name='R.Santander', index=False)
             motosparsantander.to_excel(writer, sheet_name='Motos Santander', index=False)
-            motosparwabi.to_excel(writer, sheet_name='Motos Wabi', index=False)
+            motosparwavi.to_excel(writer, sheet_name='Motos wavi', index=False)
             Sabadellp.to_excel(writer, sheet_name='Sabadell', index=False)
             rescate_Sabadell.to_excel(writer, sheet_name='R.Sabadell', index=False)
             motosparSabadell.to_excel(writer, sheet_name='Motos Sabadell', index=False)
