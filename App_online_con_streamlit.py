@@ -11,15 +11,13 @@ from datetime import datetime
 fecha_actual = datetime.now()
 fecha = fecha_actual.strftime("%d-%m-%Y")
 
-# Configuración inicial de la app
+
 st.title("Mundimoto Finance")
 st.sidebar.header("Configuration")
 
-
-# Diferenciación entre Italia y España
 pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 
-# Opciones específicas para cada país
+
 if pais == "Spain":
     script_options = [
         "Calculadora Precios B2C", "Credit Stock", "DNI y Matrícula" , "Facilitea", "Financiaciones Renting", "Sabadell Financiaciones",
@@ -30,12 +28,10 @@ elif pais == "Italy":
         "Purchases","Sales" 
     ]
 
-# Selección del script
 script_option = st.sidebar.selectbox("Execute:", script_options)
 
 st.write(f"{script_option}")
 
-# Función para cargar y ejecutar un script externo
 def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month=None, year=None):
     try:
         script_path = os.path.join("scripts", f"{script_name}.py")
@@ -46,25 +42,24 @@ def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month
         module = importlib.util.module_from_spec(spec)
         sys.modules[script_name] = module
         spec.loader.exec_module(module)
-        # Convertir archivos subidos a buffers y reiniciar el puntero
+
         processed_files = {}
         for key, file in files.items():
-            buffer = BytesIO(file.read())  # Convertir archivo a BytesIO
-            buffer.seek(0)  # Reiniciar puntero
+            buffer = BytesIO(file.read()) 
+            buffer.seek(0)  
             processed_files[key] = buffer
             
-        # Asegúrate de que processed_pdfs tenga un valor predeterminado si no se pasa como parámetro
         if pdfs is None:
             processed_pdfs = [] 
         else:
             processed_pdfs = pdfs
 
-        # Llamar a la función principal del script con los parámetros adicionales
+
         result = module.main(processed_files, processed_pdfs, new_excel , month, year)
         if isinstance(result, tuple):
-            return result  # Se devuelve una tupla con múltiples archivos
+            return result  
 
-        return result  # Caso normal (un solo archivo)
+        return result  
 
         
     except FileNotFoundError as e:
@@ -76,10 +71,9 @@ def load_and_execute_script(script_name, files, pdfs=None, new_excel=None, month
     except Exception as e:
         st.error(f"Error inesperado al ejecutar el script {script_name}: {str(e)}")
 
-# Subida de archivos según el script seleccionado
 if script_option == "Daily Report":
     st.header("Archivos")
-    # Selección de Mes y Año
+
     st.subheader("Selecciona el Mes y Año:")
     uploaded_month = st.selectbox("Mes", range(1, 13), index=datetime.now().month - 1)
     uploaded_year = st.number_input("Año", min_value=2000, max_value=datetime.now().year, value=datetime.now().year)
@@ -151,7 +145,7 @@ elif script_option == "Financiaciones Renting":
             try:
                 new_excel = BytesIO()
 
-                # Renombra explícitamente los archivos eliminando caracteres conflictivos
+
                 pdfs_dict = {}
                 for f in uploaded_pdfs:
                     sanitized_name = re.sub(r'[^a-zA-Z0-9_.-]', '_', f.name)
@@ -199,18 +193,18 @@ elif script_option == "Sofinco Financiaciones":
                     pdfs=pdfs_dict
                 )
                 if resultados is not None:
-                    # 'resultados' es una tupla (excel_final_ops, excel_rest)
+
                     output_ops, output_rest = resultados
 
                     st.success("¡GAS!")
-                    # Botón para Download final_operaciones
+
                     st.download_button(
                         label="Download Comisiones",
                         data=output_ops.getvalue(),
                         file_name=f"Sofinco Financiaciones-Comisiones {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-                    # Botón para Download el "resto"
+
                     st.download_button(
                         label="Download Pagos",
                         data=output_rest.getvalue(),
@@ -246,18 +240,18 @@ elif script_option == "Santander Financiaciones":
                     pdfs=pdfs_dict
                 )
                 if resultados is not None:
-                    # 'resultados' es una tupla (excel_final_ops, excel_rest)
+  
                     excel_ops, excel_otros = resultados
 
                     st.success("¡GAS!")
-                    # Botón para Download final_operaciones
+
                     st.download_button(
                         label="Download Comisiones",
                         data=excel_ops.getvalue(),
                         file_name=f"Santander Financiaciones-Comisiones {fecha}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-                    # Botón para Download el "resto"
+
                     st.download_button(
                         label="Download Pagos",
                         data=excel_otros.getvalue(),
@@ -288,11 +282,11 @@ elif script_option == "Sabadell Financiaciones":
                     files=uploaded_files,
                 )
                 if resultados is not None:
-                    # 'resultados' es una tupla (excel_final_ops, excel_rest)
+
                     output = resultados
 
                     st.success("¡GAS!")
-                    # Botón para Download final_operaciones
+
                     st.download_button(
                         label="Download Pagos",
                         data=output.getvalue(),
@@ -305,7 +299,7 @@ elif script_option == "Sabadell Financiaciones":
 
 elif script_option == "Calculadora Precios B2C":
     st.header("Calculadora")
-    # Cargar datos desde el CSV en el repositorio
+
     try:
         from scripts.calculadora_motos import load_data, calculate_price
         data = load_data("Motos para calcular.csv")
@@ -314,7 +308,7 @@ elif script_option == "Calculadora Precios B2C":
         data = None
 
     if data is not None:
-        # Entrada del usuario
+
         marca = st.selectbox("Marca", options=data['MARCA'].unique())
         if marca:
             modelos_disponibles = data[data['MARCA'] == marca]['MODELO'].unique()
@@ -323,12 +317,11 @@ elif script_option == "Calculadora Precios B2C":
         año = st.number_input("Año", min_value=int(data['Año'].min()), max_value=int(data['Año'].max()), value=int(data['Año'].mean()))
         km = st.number_input("KM", min_value=0, value=int(data['KM'].median()))
 
-        # Botón para calcular
         if st.button("Calcular precio"):
             if not modelo or not marca:
                 st.error("Por favor selecciona una marca y un modelo válidos.")
             else:
-                # Calcular precio
+
                 precio, variacion, num_motos, min_año, max_km, subset = calculate_price(data, marca, modelo, año, km)
                 if precio is None:
                     st.error("No se encontraron datos suficientes para calcular el precio.")
@@ -356,17 +349,17 @@ elif script_option == "Stripe":
         "Stripe": uploaded_stripe
     }
 
-    # Verificamos si el usuario subió algo
+
     if uploaded_files["Stripe"] is not None:
         if st.button("Ejecutar"):
             try:
-                # Llamamos a la función load_and_execute_script
+               
                 result = load_and_execute_script(
-                    "Stripe",         # el nombre del script: stripe_data.py
-                    files=uploaded_files   # pasamos el dict con "Stripe"
+                    "Stripe",         
+                    files=uploaded_files  
                 )
 
-                # 'result' será un BytesIO con el CSV final
+    
                 if result is not None:
                     st.success("¡GAS!")
                     st.download_button(
@@ -381,7 +374,6 @@ elif script_option == "Stripe":
 elif script_option == "Purchases":
     st.header("File")
 
-    # Subida del archivo requerido
     uploaded_purchases = st.file_uploader("Upload Purchases", type=["xlsx"])
 
     uploaded_files = {
@@ -400,14 +392,14 @@ elif script_option == "Purchases":
                     st.error("File upload error, contact with: ricardo.sarda@mundimoto.com")
                 else:
                     st.success("¡GAS!")
-                    # Guardar los archivos en `st.session_state`
+
                     st.session_state["PurchasesIT_Item"] = result_item
                     st.session_state["PurchasesIT_Fornitore"] = result_fornitore
                     st.session_state["PurchasesIT_Purchase"] = result_purchase
 
             except Exception as e:
                 st.error(f"Error, contact with Ricardo Sarda via Slack or e-mail: ricardo.sarda@mundimoto.com -{str(e)}")
-    # Crear un ZIP con los tres archivos si están disponibles en `st.session_state`
+   
     if "PurchasesIT_Item" in st.session_state and "PurchasesIT_Fornitore" in st.session_state and "PurchasesIT_Purchase" in st.session_state:
         zip_buffer = BytesIO()
 
@@ -461,7 +453,7 @@ elif script_option == "DNI y Matrícula":
             df_resultado.to_excel(buffer, index=False, engine='openpyxl')
             buffer.seek(0)
 
-            # Botón de descarga
+
             st.download_button(
                 label="Download",
                 data=buffer,
@@ -492,7 +484,7 @@ elif script_option == "Sales":
             else:
                 st.success("¡GAS!")
 
-                # Guardar los archivos en `st.session_state`
+
                 st.session_state["Sales_Clienti"] = result_clienti
                 st.session_state["Sales_Ordini"] = result_ordini
 
