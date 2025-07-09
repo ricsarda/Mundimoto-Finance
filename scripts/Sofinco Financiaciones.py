@@ -104,9 +104,9 @@ def main(files, pdfs, new_excel, month=None, year=None):
             df_final = df_final.drop(columns=['M'])
 
         # Leer archivos adicionales desde files
-        invoice = pd.read_csv(files["InvoicesItem"])
+        invoice = pd.read_csv(files["Invoices"])
         invoice = invoice[invoice['Type'] == 'Invoice']
-        invoices = pd.read_csv(files["Invoices"], sep=',')
+        invoices = pd.read_csv(files["invoice"], sep=',')
         invoices = invoices[invoices['Status'] != 'Paid In Full']
         invoices1 = invoices.drop_duplicates(subset=['Tax Number'], keep='first')
         invoices2 = invoices[~invoices['Internal ID'].isin(invoices1['Internal ID'])]
