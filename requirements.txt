@@ -8,3 +8,4 @@ pdfplumber
 numpy
 scikit-learn
 unidecode
+PyPDF2
