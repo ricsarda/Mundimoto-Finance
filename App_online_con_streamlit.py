@@ -465,6 +465,7 @@ elif script_option == "Revisión Pricing Web":
     st.header("Archivos necesarios")
     st.warning("Solamente se sumarán los días que llevemos este mes al LEAD TIME. "
                "Si el cálculo fue anterior no se tendrá en cuenta.")
+    st.info("Se tienen en cuenta las motos con precio de compra")
     uploaded_retool = st.file_uploader("Retool CSV (table-data*.csv)", type=["csv"])
     uploaded_leadtime = st.file_uploader("Leadtime Excel", type=["xls", "xlsx"])
 
@@ -530,5 +531,6 @@ elif script_option == "Sales":
             file_name=f"Sales_{fecha}.zip",
             mime="application/zip"
         )
+
 
 
