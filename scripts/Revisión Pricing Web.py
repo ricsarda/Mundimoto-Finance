@@ -6,7 +6,7 @@ def main(files, pdfs, new_excel, month=None, year=None):
     try:
 
         #   - "RetoolCSV": CSV exportado de Retool (table-data*.csv)
-        #   - "LeadtimeExcel": Excel con sheet 'Stock' (skiprows=1), columnas: Item, LEADTIMEPOSTRENTING, P.Compra
+        #   - "LeadtimeExcel": Excel con sheet 'Stock' (skiprows=1), columnas: Item, LEAD TIME POSTRENTING, Inv. Value
         retool = pd.read_csv(files["RetoolCSV"])
         leadtime = pd.read_excel(files["LeadtimeExcel"], sheet_name='Stock', skiprows=1)
 
@@ -17,13 +17,13 @@ def main(files, pdfs, new_excel, month=None, year=None):
         retool = retool[columnas_retool].copy()
 
         retool = retool.merge(
-            leadtime[['Item', 'LEADTIMEPOSTRENTING', 'P.Compra']],
+            leadtime[['Item', 'LEAD TIME POSTRENTING', 'Inv. Value']],
             left_on='matrícula', right_on='Item', how='left'
         )
 
         # Tipos y ajustes
-        retool['LEADTIMEPOSTRENTING'] = pd.to_numeric(retool['LEADTIMEPOSTRENTING'], errors='coerce').fillna(0)
-        retool['LEADTIMEPOSTRENTING'] = retool['LEADTIMEPOSTRENTING'] + day
+        retool['LEAD TIME POSTRENTING'] = pd.to_numeric(retool['LEAD TIME POSTRENTING'], errors='coerce').fillna(0)
+        retool['LEAD TIME POSTRENTING'] = retool['LEAD TIME POSTRENTING'] + day
 
         # Precio web (si hay Oferta>0 usamos Oferta; si no, Precio base)
         retool['Oferta'] = pd.to_numeric(retool['Oferta'], errors='coerce').fillna(0)
@@ -34,8 +34,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
         )
 
         # Márgenes
-        retool['P.Compra'] = pd.to_numeric(retool['P.Compra'], errors='coerce')
-        retool['Margen'] = retool['Precio web'] - retool['P.Compra']
+        retool['Inv. Value'] = pd.to_numeric(retool['Inv. Value'], errors='coerce')
+        retool['Margen'] = retool['Precio web'] - retool['Inv. Value']
         retool['% Margen'] = (retool['Margen'] / retool['Precio web'] * 100).replace([pd.NA, pd.NaT], 0)
 
         # Limpieza de modelo
@@ -113,8 +113,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
         # Salida final
         columnas_final = [
             'matrícula', 'frame_number', 'brand', 'model', 'Km', 'Año',
-            'P.Compra', 'Precio base', 'Oferta', 'Precio web', 'Margen',
-            '% Margen', 'Resultado Variación', 'LEADTIMEPOSTRENTING'
+            'Inv. Value', 'Precio base', 'Oferta', 'Precio web', 'Margen',
+            '% Margen', 'Resultado Variación', 'LEAD TIME POSTRENTING'
         ]
         retool = retool[columnas_final]
 
@@ -129,3 +129,4 @@ def main(files, pdfs, new_excel, month=None, year=None):
         raise RuntimeError(f"Falta el archivo clave 'files': {str(e)}")
     except Exception as e:
         raise RuntimeError(f"Error al procesar la revisión de pricing: {str(e)}")
+
