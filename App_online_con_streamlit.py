@@ -483,8 +483,6 @@ elif script_option == "Revisión Pricing Web":
                     data=result,
                     file_name="Revisión Pricing Web.xlsx"
                 )
-    else:
-        st.info("Sube ambos archivos para habilitar el procesamiento.")
 
 
 elif script_option == "Sales":
@@ -532,4 +530,5 @@ elif script_option == "Sales":
             file_name=f"Sales_{fecha}.zip",
             mime="application/zip"
         )
+
 
