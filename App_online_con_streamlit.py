@@ -20,7 +20,7 @@ pais = st.sidebar.radio("Country", ("Spain", "Italy"))
 
 if pais == "Spain":
     script_options = [
-        "Calculadora Precios B2C", "Credit Stock", "DNI y Matrícula" , "Facilitea", "Financiaciones Renting", "Sabadell Financiaciones",
+        "Calculadora Precios B2C", "Credit Stock", "DNI y Matrícula" , "Facilitea", "Financiaciones Renting","Revisión Pricing Web", "Sabadell Financiaciones",
         "Santander Financiaciones", "Sofinco Financiaciones", "Stripe"
     ]
 elif pais == "Italy":
@@ -461,6 +461,32 @@ elif script_option == "DNI y Matrícula":
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
             
+elif script_option == "Revisión Pricing Web":
+    st.header("Archivos necesarios")
+    st.warning("Solamente se sumarán los días que llevemos este mes al LEAD TIME. "
+               "Si el cálculo fue anterior no se tendrá en cuenta.")
+    uploaded_retool = st.file_uploader("Retool CSV (table-data*.csv)", type=["csv"])
+    uploaded_leadtime = st.file_uploader("Leadtime Excel", type=["xls", "xlsx"])
+
+    uploaded_files = {
+        "RetoolCSV": uploaded_retool,
+        "LeadtimeExcel": uploaded_leadtime,
+    }
+
+    if all(uploaded_files.values()):
+        if st.button("Ejecutar"):
+            files = {k: BytesIO(v.read()) for k, v in uploaded_files.items()}
+            result = load_and_execute_script("Revisión Pricing Web", files)
+            if result:
+                st.download_button(
+                    "Download",
+                    data=result,
+                    file_name="Revisión Pricing Web.xlsx"
+                )
+    else:
+        st.info("Sube ambos archivos para habilitar el procesamiento.")
+
+
 elif script_option == "Sales":
     st.header("Files")
 
@@ -506,3 +532,4 @@ elif script_option == "Sales":
             file_name=f"Sales_{fecha}.zip",
             mime="application/zip"
         )
+
