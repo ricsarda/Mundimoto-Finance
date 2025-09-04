@@ -109,7 +109,8 @@ def main(files, pdfs, new_excel, month=None, year=None):
 
         # Ordenar por resultado
         retool = retool.sort_values(by='Resultado Variación', ascending=False, ignore_index=True)
-
+        retool['% Margen'] = retool['% Margen'].round(2)
+        retool['Resultado Variación'] = retool['Resultado Variación'].round(2)
         # Salida final
         columnas_final = [
             'matrícula', 'frame_number', 'brand', 'model', 'Km', 'Año',
@@ -129,4 +130,5 @@ def main(files, pdfs, new_excel, month=None, year=None):
         raise RuntimeError(f"Falta el archivo clave 'files': {str(e)}")
     except Exception as e:
         raise RuntimeError(f"Error al procesar la revisión de pricing: {str(e)}")
+
 
